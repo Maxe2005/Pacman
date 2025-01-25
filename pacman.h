@@ -4,6 +4,8 @@
 #include "ressources.h"
 #include "plateau.h"
 
+#define VITESSE 2
+
 typedef struct
 {
     int position_x;
@@ -34,5 +36,37 @@ void premier_placement_pacman (Pacman *pacman, int map[MAP_Y][MAP_X]);
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  */
 void affiche_pacman (Pacman *pacman, SDL_Renderer* ren);
+
+/**
+ * Modifie la position en pixel de l'instance du pacman et sa direction
+ * @param pacman Une instance de structure de joueur à déplacer
+ */
+void aller_a_droite (Pacman *pacman);
+
+/**
+ * Modifie la position en pixel de l'instance du pacman et sa direction
+ * @param pacman Une instance de structure de joueur à déplacer
+ */
+void aller_a_gauche (Pacman *pacman);
+
+/**
+ * Modifie la position en pixel de l'instance du pacman et sa direction
+ * @param pacman Une instance de structure de joueur à déplacer
+ */
+void aller_en_haut (Pacman *pacman);
+
+/**
+ * Modifie la position en pixel de l'instance du pacman et sa direction
+ * @param pacman Une instance de structure de joueur à déplacer
+ */
+void aller_en_bas (Pacman *pacman);
+
+/**
+ * Opérations logique pour le déplacement continu du pacman
+ * @param pacman Une instance de structure de joueur à déplacer
+ * @param map La map sur laquel va être affiché le pacman
+ * @ Retourne 0 si tout c'est bien passé, 1 si erreur
+ */
+int avance_pacman (Pacman *pacman, int map[MAP_Y][MAP_X]);
 
 #endif

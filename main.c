@@ -27,25 +27,41 @@ int main (int argc, char *argv[]){
     premier_placement_pacman(&pacman, map);
 
     int score = 0;
-    char text_score[15];
+    char text_score[500];
     SDL_Color white = {255, 255, 255, 255} ;
+    char dir;
     int running = 1;
+
+    clock_t start_time = clock();
+    const double temps_reaction_pacman = 1000.0 / 1000.0 * CLOCKS_PER_SEC; //temps_reaction_pacman convertion de milisecondes à clocks
     
     while (running) {
         SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
         SDL_RenderClear(ren);
         affiche_map(map, tils, ren);
         affiche_pacman(&pacman, ren);
-        sprintf(text_score, "Score : %d", score);
-        printText(50, 15, text_score, 300, 70, font[0], white, ren);
+        sprintf(text_score, "Score : %d / dir: %c nextdir: %c/ (x,y) : (%d,%d) / px (x,y) : (%d,%d)",
+                score, pacman.direction, pacman.next_direction, pacman.position_x, pacman.position_y, pacman.position_px_x, pacman.position_px_y);
+        printText(10, 20, text_score, 980, 60, font[0], white, ren);
         updateDisplay(ren);
 
-        pacman.next_direction = processKeyboard(&running);
+        dir = processKeyboard(&running);
+        if (dir != ' '){
+            pacman.next_direction = dir;
+        }
+        avance_pacman(&pacman, map);
+        /*
+        clock_t current_time = clock();
+        if ((double)(current_time - start_time) >= temps_reaction_pacman) {
+            avance_pacman(&pacman, map);
+            start_time = current_time;
+        }*/
 
-        
+
 
     }
 
     QuitSDL;
     return 0;
 }
+
