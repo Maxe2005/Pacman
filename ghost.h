@@ -7,6 +7,8 @@ typedef struct
 {
     int position_x;
     int position_y;
+    int target_x;
+    int target_y;
 } Ghost ;
 
 #endif

@@ -5,6 +5,9 @@
 
 #define MAP_X 19
 #define MAP_Y 21
+#define ORIGINE_X 0
+#define ORIGINE_Y TAILLE_BANDEAU_HAUT
+#define TAILLE_CASE (FEN_Y-TAILLE_BANDEAU_HAUT)/MAP_Y
 
 /**
  * Initialise le contenu de la map. C'est à dire la position des tils (murs, gum, ...)
@@ -26,8 +29,7 @@ void init_tils (SDL_Texture* tils[4], SDL_Renderer* ren);
  * @param map La map à afficher
  * @param tils Le tableau contenant les textures des différents tils
  * @param ren Un pointeur sur une structure contenant l'état du rendu
- */
+ */ 
 void affiche_map (int map[MAP_Y][MAP_X], SDL_Texture* tils[4], SDL_Renderer* ren);
-
 
 #endif

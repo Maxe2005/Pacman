@@ -41,16 +41,12 @@ void init_tils (SDL_Texture* tils[4], SDL_Renderer* ren){
 
 
 void affiche_map (int map[MAP_Y][MAP_X], SDL_Texture* tils[4], SDL_Renderer* ren){
-    int marge_x = 0;
-    int marge_y = TAILLE_BANDEAU_HAUT;
-    int taille_case = (FEN_Y-marge_y)/MAP_Y;
-
     for (int j = 0; j<MAP_Y; j++){
         for (int i = 0; i<MAP_X; i++){
             if (map[j][i] > 0){
                 renderTexture(tils[map[j][i] - 1], ren, 
-                    marge_x + i*taille_case, marge_y + j*taille_case,
-                    taille_case, taille_case);
+                    ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE,
+                    TAILLE_CASE, TAILLE_CASE);
             }
         }
     }

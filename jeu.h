@@ -4,9 +4,9 @@
 #include "ressources.h"
 
 /**
- * Initialise les différentes polices de caractère avec les tailles correspondantes 
- * @ Retourne un tableau contenants ces différents font 
+ * Initialise les différentes polices de caractère avec les tailles correspondantes
+ * @param font Le tableau vide à remplire
  */
-TTF_Font* init_font ();
+void init_font (TTF_Font* font[1]);
 
 #endif

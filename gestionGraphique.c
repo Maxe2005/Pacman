@@ -94,30 +94,45 @@ void clearRenderer(SDL_Renderer *ren){
 	SDL_RenderClear(ren);
 }
 
-char processKeyboard(){
+char processKeyboard(int *running){
 	char pdirection = ' ';
 	SDL_Event e;
 	int key,button;
 	while (SDL_PollEvent(&e)){
 		switch(e.type){
-			case SDL_KEYDOWN:
+			case SDL_KEYUP://SDL_KEYDOWN:
 				key=e.key.keysym.sym;
 				switch(key){
 					case SDLK_LEFT:
 						pdirection='g';
 						break;
+					case SDLK_q:
+						pdirection='g';
+						break;
 					case SDLK_RIGHT:
+						pdirection='d';
+						break;
+					case SDLK_d:
 						pdirection='d';
 						break;
 					case SDLK_UP:
 						pdirection='h';
 						break;
+					case SDLK_z:
+						pdirection='h';
+						break;
 					case SDLK_DOWN:
+						pdirection='b';
+						break;
+					case SDLK_s:
 						pdirection='b';
 						break;
 					default:
 						break;
 				}
+				break;
+			case SDL_QUIT: // L'utilisateur a cliqué sur la croix ou demandé la fermeture
+				*running = 0;
 				break;
 		}
 	}
