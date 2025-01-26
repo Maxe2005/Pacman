@@ -79,7 +79,7 @@ void clearRenderer(SDL_Renderer *ren);
 
 /** Gestion de la souris
  * @param running Un pointeur vers le booléen de la boucle principale de main (sert à stoper le programme)
- * @ Retourne le caractère ('h','b','d','g') correspondant à la direction choisie
+ * @return le caractère ('h','b','d','g') correspondant à la direction choisie
  */
 char processKeyboard(int *running);
 

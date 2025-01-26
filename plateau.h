@@ -7,7 +7,7 @@
 #define MAP_Y 21
 #define ORIGINE_X 0
 #define ORIGINE_Y TAILLE_BANDEAU_HAUT
-#define TAILLE_CASE (FEN_Y-TAILLE_BANDEAU_HAUT)/MAP_Y
+#define TAILLE_CASE (int)((FEN_Y-TAILLE_BANDEAU_HAUT)/MAP_Y)
 
 /**
  * Initialise le contenu de la map. C'est à dire la position des tils (murs, gum, ...)

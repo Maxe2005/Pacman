@@ -4,7 +4,7 @@
 #include "ressources.h"
 #include "plateau.h"
 
-#define VITESSE 2
+#define VITESSE 3
 
 typedef struct
 {
@@ -27,8 +27,10 @@ void init_textures_pacman (Pacman *pacman, SDL_Renderer* ren);
  * Vérifie si le pacman est bien placé et initialise ses position en pixel
  * @param pacman Une instance de structure de joueur
  * @param map La map sur laquel va être affiché le pacman
+ * @param x La position sur la map de pacman au début
+ * @param y La position sur la map de pacman au début
  */
-void premier_placement_pacman (Pacman *pacman, int map[MAP_Y][MAP_X]);
+void premier_placement_pacman (Pacman *pacman, int map[MAP_Y][MAP_X], const int x, const int y);
 
 /**
  * Place la pacman sur le renderer avec le bon skin
@@ -64,9 +66,18 @@ void aller_en_bas (Pacman *pacman);
 /**
  * Opérations logique pour le déplacement continu du pacman
  * @param pacman Une instance de structure de joueur à déplacer
- * @param map La map sur laquel va être affiché le pacman
- * @ Retourne 0 si tout c'est bien passé, 1 si erreur
+ * @param map La map sur laquelle va être affiché le pacman
+ * @param score Le score global à modifier si <gum> ou <cherry> rencontré
+ * @return 0 si tout c'est bien passé, 1 si erreur
  */
-int avance_pacman (Pacman *pacman, int map[MAP_Y][MAP_X]);
+int avance_pacman (Pacman *pacman, int map[MAP_Y][MAP_X], int *score);
+
+/**
+ * Met à niveau le score si le pacman est sur <gum> ou <cherry>. Déclanche le mode <frightened> si <Big Gum> rencontré
+ * @param pacman Une instance de structure de joueur à déplacer
+ * @param map La map sur laquelle se déplace le pacman
+ * @param score Le score global à modifier si <gum> ou <cherry> rencontré
+ */
+void update_score (Pacman *pacman, int map[MAP_Y][MAP_X], int *score);
 
 #endif
