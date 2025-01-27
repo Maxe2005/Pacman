@@ -27,7 +27,7 @@ int main (int argc, char *argv[]){
     premier_placement_pacman(&pacman, map, 1, 1);
 
     // Initialisation variables globales
-    unsigned int score = 0;
+    /*unsigned int score = 0;
     char text_score[15];
     SDL_Color white = {255, 255, 255, 255} ;
     char dir;
@@ -35,31 +35,16 @@ int main (int argc, char *argv[]){
 
     clock_t start_time = clock();
     const double temps_reaction_pacman = 1000.0 / 1000.0 * CLOCKS_PER_SEC; //temps_reaction_pacman convertion de milisecondes à clocks
+    */
+    renderTexture(loadTexture("ressources/pakuman_0.bmp", ren), ren,0,0,200,200);
+    updateDisplay(ren);
     
-    while (running) {
-        SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
-        SDL_RenderClear(ren);
-        affiche_map(map, tils, ren);
-        affiche_pacman(&pacman, ren);
-        sprintf(text_score, "Score : %d",score);
-        printText(10, 20, text_score, 300, 60, font[0], white, ren);
-        updateDisplay(ren);
-
-        dir = processKeyboard(&running);
-        if (dir != ' '){
-            pacman.next_direction = dir;
-        }
-        avance_pacman(&pacman, map, &score);
-        /*
-        clock_t current_time = clock();
-        if ((double)(current_time - start_time) >= temps_reaction_pacman) {
-            avance_pacman(&pacman, map);
-            start_time = current_time;
-        }*/
+    debut_jeu (ren,map,tils,&pacman,font);
+        
 
 
 
-    }
+    
 
     QuitSDL;
     return 0;
