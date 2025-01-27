@@ -63,4 +63,11 @@ void drawLineHorizontal (SDL_Renderer* renderer, const int x, const int y, const
  */
 void drawLineVertical (SDL_Renderer* renderer, const int x, const int y, const int height);
 
+/**
+ * Dessine la map sur le renderer
+ * @param map La map à afficher
+ * @param renderer Un pointeur sur une structure contenant l'état du rendu
+ */
+void affiche_map_draw (int map[MAP_Y][MAP_X], SDL_Renderer* ren);
+
 #endif

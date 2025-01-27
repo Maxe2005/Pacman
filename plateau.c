@@ -20,8 +20,8 @@ void init_map (int map[MAP_Y][MAP_X]){
     {1,1,1,1,1,1,2,1,1,0,1,0,0,0,0,0,0,1,0,1,1,2,1,1,1,1,1,1},
     {0,0,0,0,0,1,2,1,1,0,1,1,1,1,1,1,1,1,0,1,1,2,1,0,0,0,0,0},
     {0,0,0,0,0,1,2,1,1,0,0,0,0,0,0,0,0,0,0,1,1,2,1,0,0,0,0,0},
-    {0,0,0,0,0,1,2,1,1,2,1,1,1,1,1,1,1,2,1,1,1,2,1,0,0,0,0,0},
-    {1,1,1,1,1,1,2,1,1,2,1,1,1,1,1,1,1,2,1,1,1,2,1,1,1,1,1,1},
+    {0,0,0,0,0,1,2,1,1,2,1,1,1,1,1,1,1,1,2,1,1,2,1,0,0,0,0,0},
+    {1,1,1,1,1,1,2,1,1,2,1,1,1,1,1,1,1,1,2,1,1,2,1,1,1,1,1,1},
     {1,2,2,2,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,2,2,2,2,1},
     {1,2,1,1,1,1,2,1,1,1,1,1,2,1,1,2,1,1,1,1,1,2,1,1,1,1,2,1},
     {1,2,1,1,1,1,2,1,1,1,1,1,2,1,1,2,1,1,1,1,1,2,1,1,1,1,2,1},
@@ -87,12 +87,70 @@ void drawArc(SDL_Renderer* renderer, const int centerX, const int centerY, const
 }
 
 void affiche_map_draw (int map[MAP_Y][MAP_X], SDL_Renderer* ren){
+    const int nb_pts = 10;
+    const int thickness = 2;
     SDL_SetRenderDrawColor(ren, 0, 0, 255, 255);
     for (int j = 0; j<MAP_Y; j++){
         for (int i = 0; i<MAP_X; i++){
-            if (map[j][i] > 0){
-// TODO suite
-            }
+            if (map[j][i] == 1){
+                if (i > 0 && j > 0 && i < MAP_X-1 && j < MAP_Y - 1) { // On exclu les bords
+                    if (map[j-1][i] == 1 && map[j+1][i] == 1 && ((map[j][i-1] == 1 && map[j][i+1] != 1) || (map[j][i+1] == 1 && map[j][i-1] != 1))) {
+                        drawLineVertical(ren, ORIGINE_X + i*TAILLE_CASE + (int)(TAILLE_CASE/2), ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
+                    } else {
+                    if (map[j][i-1] == 1 && map[j][i+1] == 1 && ((map[j-1][i] == 1 && map[j+1][i] != 1) || (map[j+1][i] == 1 && map[j-1][i] != 1))) {
+                        drawLineHorizontal(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE + (int)(TAILLE_CASE/2), TAILLE_CASE);
+                    } else { // Arcs externes :
+                    if (map[j+1][i] == 1 && map[j][i-1] == 1 && map[j-1][i] != 1 && map[j][i+1] != 1) { // Arc haut droite 
+                        drawArc(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + (j+1)*TAILLE_CASE, (int)(TAILLE_CASE/2), 0, PI/2, thickness, nb_pts);
+                    } else {
+                    if (map[j+1][i] == 1 && map[j][i+1] == 1 && map[j-1][i] != 1 && map[j][i-1] != 1) { // Arc haut gauche 
+                        drawArc(ren, ORIGINE_X + (i+1)*TAILLE_CASE, ORIGINE_Y + (j+1)*TAILLE_CASE, (int)(TAILLE_CASE/2), PI/2, PI, thickness, nb_pts);
+                    } else {
+                    if (map[j-1][i] == 1 && map[j][i+1] == 1 && map[j+1][i] != 1 && map[j][i-1] != 1) { // Arc bas gauche 
+                        drawArc(ren, ORIGINE_X + (i+1)*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, (int)(TAILLE_CASE/2), PI, 3*PI/2, thickness, nb_pts);
+                    } else {
+                    if (map[j-1][i] == 1 && map[j][i-1] == 1 && map[j+1][i] != 1 && map[j][i+1] != 1) { // Arc bas droite 
+                        drawArc(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, (int)(TAILLE_CASE/2), 3*PI/2, 2*PI, thickness, nb_pts);
+                    } else { // Arcs internes :
+                    if (map[j+1][i] == 1 && map[j][i-1] == 1 && map[j+1][i-1] != 1){ // Arc bas gauche
+                        drawArc(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + (j+1)*TAILLE_CASE, (int)(TAILLE_CASE/2), 0, PI/2, thickness, nb_pts);
+                    } else {
+                    if (map[j+1][i] == 1 && map[j][i+1] == 1 && map[j+1][i+1] != 1){ // Arc bas droite
+                        drawArc(ren, ORIGINE_X + (i+1)*TAILLE_CASE, ORIGINE_Y + (j+1)*TAILLE_CASE, (int)(TAILLE_CASE/2), PI/2, PI, thickness, nb_pts);
+                    } else {
+                    if (map[j-1][i] == 1 && map[j][i+1] == 1 && map[j-1][i+1] != 1){ // Arc haut droite
+                        drawArc(ren, ORIGINE_X + (i+1)*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, (int)(TAILLE_CASE/2), PI, 3*PI/2, thickness, nb_pts);
+                    } else {
+                    if (map[j-1][i] == 1 && map[j][i-1] == 1 && map[j-1][i-1] != 1){ // Arc haut gauche
+                        drawArc(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, (int)(TAILLE_CASE/2), 3*PI/2, 2*PI, thickness, nb_pts);
+                    }}}}}}}}}}
+                } else { // Bord Haut :
+                if (j == 0 && i > 0 && i < MAP_X-1) {
+                    if (map[j][i-1] == 1 && map[j][i+1] == 1 && map[j+1][i] != 1) {
+                        drawLineHorizontal(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE + (int)(TAILLE_CASE/2), TAILLE_CASE);
+                    } else {
+                    if (map[j+1][i] == 1 && map[j][i-1] == 1 && map[j+1][i-1] != 1){ // Arc bas gauche
+                        drawArc(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + (j+1)*TAILLE_CASE, (int)(TAILLE_CASE/2), 0, PI/2, thickness, nb_pts);
+                    } else {
+                    if (map[j+1][i] == 1 && map[j][i+1] == 1 && map[j+1][i+1] != 1){ // Arc bas droite
+                        drawArc(ren, ORIGINE_X + (i+1)*TAILLE_CASE, ORIGINE_Y + (j+1)*TAILLE_CASE, (int)(TAILLE_CASE/2), PI/2, PI, thickness, nb_pts);
+                    }}}
+                    drawLineHorizontal(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
+                } else { // Bord Bas :
+                if (j == MAP_Y-1 && i > 0 && i < MAP_X-1) {
+                    if (map[j][i-1] == 1 && map[j][i+1] == 1 && map[j-1][i] != 1) {
+                        drawLineHorizontal(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE + (int)(TAILLE_CASE/2), TAILLE_CASE);
+                    } else {
+                    if (map[j-1][i] == 1 && map[j][i+1] == 1 && map[j-1][i+1] != 1){ // Arc haut droite
+                        drawArc(ren, ORIGINE_X + (i+1)*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, (int)(TAILLE_CASE/2), PI, 3*PI/2, thickness, nb_pts);
+                    } else {
+                    if (map[j-1][i] == 1 && map[j][i-1] == 1 && map[j-1][i-1] != 1){ // Arc haut gauche
+                        drawArc(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, (int)(TAILLE_CASE/2), 3*PI/2, 2*PI, thickness, nb_pts);
+                    }}}
+                    drawLineHorizontal(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + (j+1)*TAILLE_CASE, TAILLE_CASE);
+                }}
+                }
+            } 
         }
     }
 }

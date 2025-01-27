@@ -41,11 +41,9 @@ int main (int argc, char *argv[]){
         SDL_RenderClear(ren);
         //affiche_map(map, tils, ren);
         //affiche_pacman(&pacman, ren);
+        affiche_map_draw(map, ren);
         sprintf(text_score, "Score : %d",score);
         printText(10, 20, text_score, 300, 60, font[0], white, ren);
-
-        SDL_SetRenderDrawColor(ren, 0, 0, 255, 255);
-        drawArc(ren, 500, 600, 400, 0, 3*PI/2, 5, 500);
 
         updateDisplay(ren);
 
