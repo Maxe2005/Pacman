@@ -10,7 +10,7 @@ int main (int argc, char *argv[]){
     // Initialisation globale fenêtre
     initSDL();
     initTTF();
-    SDL_Window* window = createWindow("Pacman MACC", FEN_X, FEN_Y);
+    SDL_Window* window = createWindow("Pacman C²HAMD", FEN_X, FEN_Y);
     SDL_Renderer* ren = createRenderer(window);
     
     // Initialisation map, textures pour map et font pour titres
@@ -36,8 +36,6 @@ int main (int argc, char *argv[]){
     clock_t start_time = clock();
     const double temps_reaction_pacman = 1000.0 / 1000.0 * CLOCKS_PER_SEC; //temps_reaction_pacman convertion de milisecondes à clocks
     */
-    renderTexture(loadTexture("ressources/pakuman_0.bmp", ren), ren,0,0,200,200);
-    updateDisplay(ren);
     
     debut_jeu (ren,map,tils,&pacman,font);
         
