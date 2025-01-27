@@ -106,6 +106,9 @@ char processKeyboard(int *running){
 					case SDLK_p:
 						pdirection='L'; /* on définit le lancement du jeu depuis l'affichage au début*/
 						break;
+					case SDLK_BACKSPACE:
+						pdirection='M'; /* on définit le lancement du jeu depuis l'affichage au début*/
+						break;
 					case SDLK_LEFT:
 						pdirection='g';
 						break;

@@ -1,4 +1,9 @@
 #include "jeu.h"
+#include "plateau.h"
+#include "pacman.h"
+#include "ghost.h"
+
+
 
 void init_font (TTF_Font* font[1]) {
     font[0] = createFont("ressources/DejaVuSans-Bold.ttf", 20); //Font de titres
@@ -6,12 +11,22 @@ void init_font (TTF_Font* font[1]) {
 }
 
 
-void debut_jeu (SDL_Renderer* ren,int map[MAP_Y][MAP_X],SDL_Texture** tils,Pacman* pacman,TTF_Font *font[1]) {
+void debut_jeu (SDL_Renderer* ren) {
     unsigned int score = 0;
     char text_score[15];
     int running = 1;
-    
-    ecran_acceuil (ren,map,tils,pacman,text_score,score,font,&running);
+    // Initialisation map, textures pour map et font pour titres
+
+    int map[MAP_Y][MAP_X];
+    init_map(map);
+    SDL_Texture* tils[4];
+    init_tils(tils, ren);
+    TTF_Font* font[1];
+    init_font(font);
+    Pacman pacman;
+    init_textures_pacman(&pacman, ren);
+    premier_placement_pacman(&pacman, map, 1, 1);
+    ecran_acceuil (ren,map,tils,&pacman,text_score,score,font,&running);
 
 
     
@@ -71,8 +86,16 @@ void boucle_de_jeu(SDL_Renderer* ren,int map[MAP_Y][MAP_X],SDL_Texture** tils,Pa
         if (dir != ' '){
             pacman->next_direction = dir;
         }
+        if (dir == 'M'){
+            *running = 0;
+
+        }
         avance_pacman(pacman, map, &score);
     }
+    *running = 1;
+    SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
+    SDL_RenderClear(ren);
+    debut_jeu (ren); // retour à l'écran d'acceuil
     
         
 }

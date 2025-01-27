@@ -21,7 +21,7 @@ void init_font (TTF_Font* font[1]);
  * @param font tableau de police 
  * 
  */
-void debut_jeu (SDL_Renderer* ren,int map[MAP_Y][MAP_X],SDL_Texture** tils,Pacman* pacman,TTF_Font *font[1]);
+void debut_jeu (SDL_Renderer* ren);
 
 
 
