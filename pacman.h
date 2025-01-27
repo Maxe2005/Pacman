@@ -4,7 +4,7 @@
 #include "ressources.h"
 #include "plateau.h"
 
-#define VITESSE 3
+#define VITESSE_PACMAN 3
 
 typedef struct
 {
