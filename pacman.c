@@ -42,22 +42,38 @@ void affiche_pacman (Pacman *pacman, SDL_Renderer* ren) {
 
 void aller_a_droite (Pacman *pacman){
     pacman->direction = 'd';
-    pacman->position_px_x += VITESSE_PACMAN;
+    if ((pacman->position_px_x + VITESSE_PACMAN - ORIGINE_X) / TAILLE_CASE > pacman->position_x && (pacman->position_px_x + VITESSE_PACMAN - ORIGINE_X) % TAILLE_CASE > 0) {
+        pacman->position_px_x = ORIGINE_X + (pacman->position_x + 1) * TAILLE_CASE;
+    } else {
+        pacman->position_px_x += VITESSE_PACMAN;
+    }
 }
 
 void aller_a_gauche (Pacman *pacman){
     pacman->direction = 'g';
-    pacman->position_px_x -= VITESSE_PACMAN;
+    if ((pacman->position_px_x - VITESSE_PACMAN - ORIGINE_X) / TAILLE_CASE < pacman->position_x - 1 && (pacman->position_px_x - VITESSE_PACMAN - ORIGINE_X) % TAILLE_CASE > 0) {
+        pacman->position_px_x = ORIGINE_X + (pacman->position_x - 1) * TAILLE_CASE;
+    } else {
+        pacman->position_px_x -= VITESSE_PACMAN;
+    }
 }
 
 void aller_en_haut (Pacman *pacman){
     pacman->direction = 'h';
-    pacman->position_px_y -= VITESSE_PACMAN;
+    if ((pacman->position_px_y - VITESSE_PACMAN - ORIGINE_Y) / TAILLE_CASE < pacman->position_y - 1 && (pacman->position_px_y - VITESSE_PACMAN - ORIGINE_Y) % TAILLE_CASE > 0) {
+        pacman->position_px_y = ORIGINE_Y + (pacman->position_y - 1) * TAILLE_CASE;
+    } else {
+        pacman->position_px_y -= VITESSE_PACMAN;
+    }
 }
 
 void aller_en_bas (Pacman *pacman){
     pacman->direction = 'b';
-    pacman->position_px_y += VITESSE_PACMAN;
+    if ((pacman->position_px_y + VITESSE_PACMAN - ORIGINE_Y) / TAILLE_CASE > pacman->position_y && (pacman->position_px_y + VITESSE_PACMAN - ORIGINE_Y) % TAILLE_CASE > 0) {
+        pacman->position_px_y = ORIGINE_Y + (pacman->position_y + 1) * TAILLE_CASE;
+    } else {
+        pacman->position_px_y += VITESSE_PACMAN;
+    }
 }
 
 int avance_pacman (Pacman *pacman, int map[MAP_Y][MAP_X], int *score){

@@ -17,21 +17,21 @@ void premier_placement_ghost (Ghost *ghost, int map[MAP_Y][MAP_X], const int x, 
     map[ghost->position_y][ghost->position_x] = 0;
     ghost->position_px_x = ORIGINE_X + ghost->position_x*TAILLE_CASE;
     ghost->position_px_y = ORIGINE_Y + ghost->position_y*TAILLE_CASE;
-    ghost->direction_g = ' ';
+    ghost->direction = ' ';
 }
 
 void affiche_ghost (Ghost *ghost, SDL_Renderer* ren) {
     SDL_Texture* tex;
-    if (ghost->direction_g == 'd'){
+    if (ghost->direction == 'd'){
         tex = ghost->skin[0];
     } else {
-    if (ghost->direction_g == 'g'){
+    if (ghost->direction == 'g'){
         tex = ghost->skin[2];
     } else {
-    if (ghost->direction_g == 'h'){
+    if (ghost->direction == 'h'){
         tex = ghost->skin[1];
     } else {
-    if (ghost->direction_g == 'b'){
+    if (ghost->direction == 'b'){
         tex = ghost->skin[3];
     } else {
         tex = ghost->skin[1]; //Par défaut le ghost regarde à droite
@@ -40,23 +40,39 @@ void affiche_ghost (Ghost *ghost, SDL_Renderer* ren) {
 }
 
 void aller_a_droite_g (Ghost *ghost){
-    ghost->direction_g = 'd';
-    ghost->position_px_x += VITESSE_GHOST;
+    ghost->direction = 'd';
+    if ((ghost->position_px_x + VITESSE_GHOST - ORIGINE_X) / TAILLE_CASE > ghost->position_x && (ghost->position_px_x + VITESSE_GHOST - ORIGINE_X) % TAILLE_CASE > 0) {
+        ghost->position_px_x = ORIGINE_X + (ghost->position_x + 1) * TAILLE_CASE;
+    } else {
+        ghost->position_px_x += VITESSE_GHOST;
+    }
 }
 
 void aller_a_gauche_g (Ghost *ghost){
-    ghost->direction_g = 'g';
-    ghost->position_px_x -= VITESSE_GHOST;
+    ghost->direction = 'g';
+    if ((ghost->position_px_x - VITESSE_GHOST - ORIGINE_X) / TAILLE_CASE < ghost->position_x - 1 && (ghost->position_px_x - VITESSE_GHOST - ORIGINE_X) % TAILLE_CASE > 0) {
+        ghost->position_px_x = ORIGINE_X + (ghost->position_x - 1) * TAILLE_CASE;
+    } else {
+        ghost->position_px_x -= VITESSE_GHOST;
+    }
 }
 
 void aller_en_haut_g (Ghost *ghost){
-    ghost->direction_g = 'h';
-    ghost->position_px_y -= VITESSE_GHOST;
+    ghost->direction = 'h';
+    if ((ghost->position_px_y - VITESSE_GHOST - ORIGINE_Y) / TAILLE_CASE < ghost->position_y - 1 && (ghost->position_px_y - VITESSE_GHOST - ORIGINE_Y) % TAILLE_CASE > 0) {
+        ghost->position_px_y = ORIGINE_Y + (ghost->position_y - 1) * TAILLE_CASE;
+    } else {
+        ghost->position_px_y -= VITESSE_GHOST;
+    }
 }
 
 void aller_en_bas_g (Ghost *ghost){
-    ghost->direction_g = 'b';
-    ghost->position_px_y += VITESSE_GHOST;
+    ghost->direction = 'b';
+    if ((ghost->position_px_y + VITESSE_GHOST - ORIGINE_Y) / TAILLE_CASE > ghost->position_y && (ghost->position_px_y + VITESSE_GHOST - ORIGINE_Y) % TAILLE_CASE > 0) {
+        ghost->position_px_y = ORIGINE_Y + (ghost->position_y + 1) * TAILLE_CASE;
+    } else {
+        ghost->position_px_y += VITESSE_GHOST;
+    }
 }
 
 //génére un nombre aléatoire
@@ -72,41 +88,41 @@ int avance_ghost (Ghost *ghost, int map[MAP_Y][MAP_X]){
         int nb_choix = 0; // Compte le nombre de directions valides
         char choix_valides[4]; // Tableau pour stocker les directions possibles
         // Vérification des directions valides
-        if (map[ghost->position_y][ghost->position_x + 1] != 1 && ghost->direction_g != 'g') {
+        if (map[ghost->position_y][ghost->position_x + 1] != 1 && ghost->direction != 'g') {
             choix_valides[nb_choix++] = 'd'; // Droite
         }
-        if (map[ghost->position_y][ghost->position_x - 1] != 1 && ghost->direction_g != 'd') {
+        if (map[ghost->position_y][ghost->position_x - 1] != 1 && ghost->direction != 'd') {
             choix_valides[nb_choix++] = 'g'; // Gauche
         }
-        if (map[ghost->position_y - 1][ghost->position_x] != 1 && ghost->direction_g != 'b') {
+        if (map[ghost->position_y - 1][ghost->position_x] != 1 && ghost->direction != 'b') {
             choix_valides[nb_choix++] = 'h'; // Haut
         }
-        if (map[ghost->position_y + 1][ghost->position_x] != 1 && ghost->direction_g != 'h') {
+        if (map[ghost->position_y + 1][ghost->position_x] != 1 && ghost->direction != 'h') {
             choix_valides[nb_choix++] = 'b'; // Bas
         }
         
         // Choisir une direction valide aléatoire si des options existent
         if (nb_choix > 0) {
-            ghost->direction_g = choix_valides[nb_alea(0, nb_choix - 1)];
+            ghost->direction = choix_valides[nb_alea(0, nb_choix - 1)];
         } else {
         // Pas de direction valide (ghost bloqué)
             printf("Le ghost est bloqué"); //si jamais une erreur est généré, on saura d'où il s'agit
             return 1;
         }
         // Si impossible -> continuation du mouvement :
-        if (ghost->direction_g == 'd' && map[ghost->position_y][ghost->position_x + 1] != 1){
+        if (ghost->direction == 'd' && map[ghost->position_y][ghost->position_x + 1] != 1){
             aller_a_droite_g(ghost);
             return 0;
         }
-        if (ghost->direction_g == 'g' && map[ghost->position_y][ghost->position_x - 1] != 1){
+        if (ghost->direction == 'g' && map[ghost->position_y][ghost->position_x - 1] != 1){
             aller_a_gauche_g(ghost);
             return 0;
         }
-        if (ghost->direction_g == 'h' && map[ghost->position_y - 1][ghost->position_x] != 1){
+        if (ghost->direction == 'h' && map[ghost->position_y - 1][ghost->position_x] != 1){
             aller_en_haut_g(ghost);
             return 0;
         }
-        if (ghost->direction_g == 'b' && map[ghost->position_y + 1][ghost->position_x] != 1){
+        if (ghost->direction == 'b' && map[ghost->position_y + 1][ghost->position_x] != 1){
             aller_en_bas_g(ghost);
             return 0;
         }
@@ -117,19 +133,19 @@ int avance_ghost (Ghost *ghost, int map[MAP_Y][MAP_X]){
             printf("Erreur : Ghost ne peut pas se trouver sur la diagonale entre 2 cases !!\n");
             return 1;
         }
-        if (ghost->direction_g == 'd'){
+        if (ghost->direction == 'd'){
                 aller_a_droite_g(ghost);
             return 0;
         }
-        if (ghost->direction_g == 'g'){
+        if (ghost->direction == 'g'){
                 aller_a_gauche_g(ghost);
             return 0;
         }
-        if (ghost->direction_g == 'h'){
+        if (ghost->direction == 'h'){
                 aller_en_haut_g(ghost);
             return 0;
         }
-        if (ghost->direction_g == 'b'){
+        if (ghost->direction == 'b'){
                 aller_en_bas_g(ghost);
             return 0;
         }

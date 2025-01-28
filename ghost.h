@@ -4,7 +4,7 @@
 #include "ressources.h"
 #include "plateau.h"
 
-#define VITESSE_GHOST 2
+#define VITESSE_GHOST 4
 
 typedef struct
 {
@@ -14,7 +14,7 @@ typedef struct
     int position_px_y;
     int target_x;
     int target_y;
-    char direction_g; //direction du ghost
+    char direction; //direction du ghost
     SDL_Texture* skin[4]; 
 } Ghost ;
 

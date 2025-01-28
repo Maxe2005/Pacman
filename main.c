@@ -24,12 +24,12 @@ int main (int argc, char *argv[]){
     // Initialisation Pacman
     Pacman pacman;
     init_textures_pacman(&pacman, ren);
-    //premier_placement_pacman(&pacman, map, 1, 1);
+    premier_placement_pacman(&pacman, map, 1, 1);
 
     // Initialisation host
     Ghost ghost;
     init_textures_ghost(&ghost, ren);
-    premier_placement_ghost(&ghost, map, 1, 1);
+    premier_placement_ghost(&ghost, map, 5, 1);
 
     // Initialisation variables globales
     unsigned int score = 0;
@@ -45,7 +45,7 @@ int main (int argc, char *argv[]){
         SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
         SDL_RenderClear(ren);
         affiche_map(map, tils, ren);
-        //affiche_pacman(&pacman, ren);
+        affiche_pacman(&pacman, ren);
         affiche_ghost(&ghost, ren);
         sprintf(text_score, "Score : %d",score);
         printText(10, 20, text_score, 300, 60, font[0], white, ren);
@@ -55,7 +55,7 @@ int main (int argc, char *argv[]){
         if (dir != ' '){
             pacman.next_direction = dir;
         }
-        //avance_pacman(&pacman, map, &score);
+        avance_pacman(&pacman, map, &score);
         avance_ghost(&ghost, map);
         
         /*clock_t current_time = clock();
