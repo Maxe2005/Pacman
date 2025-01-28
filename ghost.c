@@ -1,11 +1,36 @@
 #include "ghost.h"
 
 
-void init_textures_ghost (Ghost *ghost, SDL_Renderer* ren){
+void init_textures_Blinky (Ghost *ghost, SDL_Renderer* ren){
     ghost->skin[0] = loadTexture("ressources/ghost1_0.bmp", ren);
     ghost->skin[1] = loadTexture("ressources/ghost1_1.bmp", ren);
     ghost->skin[2] = loadTexture("ressources/ghost1_2.bmp", ren);
     ghost->skin[3] = loadTexture("ressources/ghost1_3.bmp", ren);
+    ghost->is_affiche = 0;
+}
+
+void init_textures_Pinky (Ghost *ghost, SDL_Renderer* ren){
+    ghost->skin[0] = loadTexture("ressources/ghost2_0.bmp", ren);
+    ghost->skin[1] = loadTexture("ressources/ghost2_1.bmp", ren);
+    ghost->skin[2] = loadTexture("ressources/ghost2_2.bmp", ren);
+    ghost->skin[3] = loadTexture("ressources/ghost2_3.bmp", ren);
+    ghost->is_affiche = 0;
+}
+
+void init_textures_Inky (Ghost *ghost, SDL_Renderer* ren){
+    ghost->skin[0] = loadTexture("ressources/ghost3_0.bmp", ren);
+    ghost->skin[1] = loadTexture("ressources/ghost3_1.bmp", ren);
+    ghost->skin[2] = loadTexture("ressources/ghost3_2.bmp", ren);
+    ghost->skin[3] = loadTexture("ressources/ghost3_3.bmp", ren);
+    ghost->is_affiche = 0;
+}
+
+void init_textures_Clyde (Ghost *ghost, SDL_Renderer* ren){
+    ghost->skin[0] = loadTexture("ressources/ghost4_0.bmp", ren);
+    ghost->skin[1] = loadTexture("ressources/ghost4_1.bmp", ren);
+    ghost->skin[2] = loadTexture("ressources/ghost4_2.bmp", ren);
+    ghost->skin[3] = loadTexture("ressources/ghost4_3.bmp", ren);
+    ghost->is_affiche = 0;
 }
 
 void premier_placement_ghost (Ghost *ghost, int map[MAP_Y][MAP_X], const int x, const int y){
@@ -14,29 +39,32 @@ void premier_placement_ghost (Ghost *ghost, int map[MAP_Y][MAP_X], const int x, 
     if (map[ghost->position_y][ghost->position_x] == 1){
         printf("Erreur dans le premier placement de ghost sur la map");
     }
-    map[ghost->position_y][ghost->position_x] = 0;
     ghost->position_px_x = ORIGINE_X + ghost->position_x*TAILLE_CASE;
     ghost->position_px_y = ORIGINE_Y + ghost->position_y*TAILLE_CASE;
     ghost->direction = ' ';
+    ghost->is_affiche = 1;
+    ghost->taille_px = TAILLE_CASE;
 }
 
 void affiche_ghost (Ghost *ghost, SDL_Renderer* ren) {
-    SDL_Texture* tex;
-    if (ghost->direction == 'd'){
-        tex = ghost->skin[0];
-    } else {
-    if (ghost->direction == 'g'){
-        tex = ghost->skin[2];
-    } else {
-    if (ghost->direction == 'h'){
-        tex = ghost->skin[1];
-    } else {
-    if (ghost->direction == 'b'){
-        tex = ghost->skin[3];
-    } else {
-        tex = ghost->skin[1]; //Par défaut le ghost regarde à droite
-    }}}}
-    renderTexture(tex, ren, ghost->position_px_x, ghost->position_px_y, TAILLE_CASE, TAILLE_CASE);
+    if (ghost->is_affiche == 1) {
+        SDL_Texture* tex;
+        if (ghost->direction == 'd'){
+            tex = ghost->skin[0];
+        } else {
+        if (ghost->direction == 'g'){
+            tex = ghost->skin[2];
+        } else {
+        if (ghost->direction == 'h'){
+            tex = ghost->skin[1];
+        } else {
+        if (ghost->direction == 'b'){
+            tex = ghost->skin[3];
+        } else {
+            tex = ghost->skin[1]; //Par défaut le ghost regarde à droite
+        }}}}
+        renderTexture(tex, ren, ghost->position_px_x, ghost->position_px_y, ghost->taille_px, ghost->taille_px);
+    }
 }
 
 void aller_a_droite_g (Ghost *ghost){
@@ -75,60 +103,55 @@ void aller_en_bas_g (Ghost *ghost){
     }
 }
 
-//génére un nombre aléatoire
 int nb_alea(int min, int max){
     return min + rand() % (max-min +1);
 }
 
-int avance_ghost (Ghost *ghost, int map[MAP_Y][MAP_X]){
-    if (((ghost->position_px_x - ORIGINE_X) % TAILLE_CASE == 0) && ((ghost->position_px_y - ORIGINE_Y) % TAILLE_CASE == 0)){ // <=> ghost au milieu d'une case (et pas en transition entre 2)
-        ghost->position_x = (ghost->position_px_x - ORIGINE_X) / TAILLE_CASE;
-        ghost->position_y = (ghost->position_px_y - ORIGINE_Y) / TAILLE_CASE;
-        // Initialisation de la liste des choix valides et du compteur
-        int nb_choix = 0; // Compte le nombre de directions valides
-        char choix_valides[4]; // Tableau pour stocker les directions possibles
-        // Vérification des directions valides
-        if (map[ghost->position_y][ghost->position_x + 1] != 1 && ghost->direction != 'g') {
-            choix_valides[nb_choix++] = 'd'; // Droite
-        }
-        if (map[ghost->position_y][ghost->position_x - 1] != 1 && ghost->direction != 'd') {
-            choix_valides[nb_choix++] = 'g'; // Gauche
-        }
-        if (map[ghost->position_y - 1][ghost->position_x] != 1 && ghost->direction != 'b') {
-            choix_valides[nb_choix++] = 'h'; // Haut
-        }
-        if (map[ghost->position_y + 1][ghost->position_x] != 1 && ghost->direction != 'h') {
-            choix_valides[nb_choix++] = 'b'; // Bas
-        }
-        
-        // Choisir une direction valide aléatoire si des options existent
-        if (nb_choix > 0) {
-            ghost->direction = choix_valides[nb_alea(0, nb_choix - 1)];
-        } else {
-        // Pas de direction valide (ghost bloqué)
-            printf("Le ghost est bloqué"); //si jamais une erreur est généré, on saura d'où il s'agit
-            return 1;
-        }
-        // Si impossible -> continuation du mouvement :
-        if (ghost->direction == 'd' && map[ghost->position_y][ghost->position_x + 1] != 1){
-            aller_a_droite_g(ghost);
-            return 0;
-        }
-        if (ghost->direction == 'g' && map[ghost->position_y][ghost->position_x - 1] != 1){
-            aller_a_gauche_g(ghost);
-            return 0;
-        }
-        if (ghost->direction == 'h' && map[ghost->position_y - 1][ghost->position_x] != 1){
-            aller_en_haut_g(ghost);
-            return 0;
-        }
-        if (ghost->direction == 'b' && map[ghost->position_y + 1][ghost->position_x] != 1){
-            aller_en_bas_g(ghost);
-            return 0;
-        }
-        // Si toujours pas possible alors c'est qu'on a touché un mur. Donc on ne fait rien.
+void choix_direction_aleatoire (Ghost *ghost, char choix_valides[4], const int nb_choix) {
+    ghost->direction = choix_valides[nb_alea(0, nb_choix - 1)];
+}
 
-    } else { // <=> Le ghost est en transition entre 2 cases. Les seuls mouvements possibles sont alors le demi-tour demandé ou bien le déplacement continue.
+void is_colision_pacman (Ghost *ghost, Pacman *pacman) {
+    if (ghost->position_px_x - pacman->position_px_x < ghost->taille_px && ghost->position_px_x - pacman->position_px_x < pacman->taille_px
+        && ghost->position_px_y - pacman->position_px_y < ghost->taille_px && ghost->position_px_y - pacman->position_px_y < pacman->taille_px) {
+            collision_avec_ghost(pacman);
+        }
+}
+
+int avance_ghost (Ghost *ghost, int map[MAP_Y][MAP_X], Pacman *pacman){
+    if (ghost->is_affiche == 1) {
+        is_colision_pacman(ghost, pacman);
+        if (((ghost->position_px_x - ORIGINE_X) % TAILLE_CASE == 0) && ((ghost->position_px_y - ORIGINE_Y) % TAILLE_CASE == 0)){ // <=> ghost au milieu d'une case (et pas en transition entre 2)
+            ghost->position_x = (ghost->position_px_x - ORIGINE_X) / TAILLE_CASE;
+            ghost->position_y = (ghost->position_px_y - ORIGINE_Y) / TAILLE_CASE;
+
+            // Initialisation de la liste des choix valides et du compteur
+            int nb_choix = 0; // Compte le nombre de directions valides
+            char choix_valides[4]; // Tableau pour stocker les directions possibles
+
+            // Vérification des directions valides (impossibilié de faire demi-tour)
+            if (map[ghost->position_y][ghost->position_x + 1] != 1 && ghost->direction != 'g') {
+                choix_valides[nb_choix++] = 'd'; // Droite
+            }
+            if (map[ghost->position_y][ghost->position_x - 1] != 1 && ghost->direction != 'd') {
+                choix_valides[nb_choix++] = 'g'; // Gauche
+            }
+            if (map[ghost->position_y - 1][ghost->position_x] != 1 && ghost->direction != 'b') {
+                choix_valides[nb_choix++] = 'h'; // Haut
+            }
+            if (map[ghost->position_y + 1][ghost->position_x] != 1 && ghost->direction != 'h') {
+                choix_valides[nb_choix++] = 'b'; // Bas
+            }
+            
+            // Choisir une direction valide si des options existent
+            if (nb_choix > 0) {
+                choix_direction_aleatoire (ghost, choix_valides, nb_choix);
+            } else { // Pas de direction valide (ghost bloqué)
+                printf("Le ghost est bloqué\n"); //si jamais une erreur est généré, on saura d'où il s'agit
+                return 1;
+            }
+
+        }  // <=> Le ghost est en transition entre 2 cases. Le seul mouvement possible est alors de continuer le mouvement.
         if (((ghost->position_px_x - ORIGINE_X) % TAILLE_CASE != 0) && ((ghost->position_px_y - ORIGINE_Y) % TAILLE_CASE != 0)){
             printf("Erreur : Ghost ne peut pas se trouver sur la diagonale entre 2 cases !!\n");
             return 1;

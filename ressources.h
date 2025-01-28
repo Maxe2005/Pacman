@@ -10,5 +10,6 @@
 #define FEN_X 800
 #define FEN_Y 800
 #define TAILLE_BANDEAU_HAUT 80
+#define MARGE_BANDEAU_HAUT 10
 
 #endif

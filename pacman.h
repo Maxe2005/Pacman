@@ -4,7 +4,7 @@
 #include "ressources.h"
 #include "plateau.h"
 
-#define VITESSE_PACMAN 4
+#define VITESSE_PACMAN 2
 
 typedef struct
 {
@@ -12,9 +12,11 @@ typedef struct
     int position_y;
     int position_px_x;
     int position_px_y;
+    int taille_px;
     char direction;
     char next_direction;
     SDL_Texture* skin[4];
+    int nb_vies;
 } Pacman ;
 
 /** Charge les textures dans le tableau "skin" de Pacman

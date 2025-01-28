@@ -3,8 +3,10 @@
 
 #include "ressources.h"
 #include "plateau.h"
+#include "pacman.h"
+#include "jeu.h"
 
-#define VITESSE_GHOST 4
+#define VITESSE_GHOST 1
 
 typedef struct
 {
@@ -12,17 +14,37 @@ typedef struct
     int position_y;
     int position_px_x;
     int position_px_y;
+    int taille_px;
     int target_x;
     int target_y;
-    char direction; //direction du ghost
-    SDL_Texture* skin[4]; 
+    char direction;
+    int is_affiche; // Booleen définissant si le fantôme est sur le map
+    SDL_Texture* skin[4];
 } Ghost ;
 
-/** Charge les textures dans le tableau "skin" de Ghost
+/** Charge les textures de Blinky (le fantôme rouge) dans le tableau "skin" de Ghost
  * @param ghost Une instance de structure du fantome
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  */
-void init_textures_ghost (Ghost *ghost, SDL_Renderer* ren);
+void init_textures_Blinky (Ghost *ghost, SDL_Renderer* ren);
+
+/** Charge les textures de Inky (le fantôme cyan) dans le tableau "skin" de Ghost
+ * @param ghost Une instance de structure du fantome
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ */
+void init_textures_Inky (Ghost *ghost, SDL_Renderer* ren);
+
+/** Charge les textures de Pinky (le fantôme rose) dans le tableau "skin" de Ghost
+ * @param ghost Une instance de structure du fantome
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ */
+void init_textures_Pinky (Ghost *ghost, SDL_Renderer* ren);
+
+/** Charge les textures de Clyde (le fantôme orange) dans le tableau "skin" de Ghost
+ * @param ghost Une instance de structure du fantome
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ */
+void init_textures_Clyde (Ghost *ghost, SDL_Renderer* ren);
 
 /**
  * Vérifie si le ghost est bien placé et initialise ses position en pixel
@@ -73,12 +95,27 @@ void aller_en_bas_g (Ghost *ghost);
 int nb_alea(int min, int max);
 
 /**
+ * Le choix de la direction du ghost généré en aléatoire
+ * @param ghost Une instance de structure de fantôme
+ * @param choix_valides Un tableau contenants les direction vers lesquel le ghost peut se diriger
+ * @param nb_choix Le nombre de cases de <choix_valides> remplies
+ */
+void choix_direction_aleatoire (Ghost *ghost, char choix_valides[4], const int nb_choix);
+
+/**
+ * Vérifie si le ghost est en contacte avec le pacman
+ * @param ghost Une instance de structure de fantôme
+ * @param pacman Une instance de structure de joueur
+ */
+void is_colision_pacman (Ghost *ghost, Pacman *pacman);
+
+/**
  * Opérations logique pour le déplacement continu du ghost
- * @param ghost Une instance de structure du fantome à déplacer
+ * @param ghost Une instance de structure de fantôme
  * @param map La map sur laquelle va être affiché le ghost
  * @return 0 si tout c'est bien passé, 1 si erreur
  */
-int avance_ghost (Ghost *ghost, int map[MAP_Y][MAP_X]);
+int avance_ghost (Ghost *ghost, int map[MAP_Y][MAP_X], Pacman *pacman);
 
 
 #endif

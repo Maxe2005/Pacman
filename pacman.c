@@ -19,6 +19,7 @@ void premier_placement_pacman (Pacman *pacman, int map[MAP_Y][MAP_X], const int 
     pacman->position_px_y = ORIGINE_Y + pacman->position_y*TAILLE_CASE;
     pacman->direction = ' ';
     pacman->next_direction = ' ';
+    pacman->taille_px = TAILLE_CASE;
 }
 
 void affiche_pacman (Pacman *pacman, SDL_Renderer* ren) {
@@ -37,7 +38,7 @@ void affiche_pacman (Pacman *pacman, SDL_Renderer* ren) {
     } else {
         tex = pacman->skin[0]; //Par défaut le pacman regarde à droite
     }}}}
-    renderTexture(tex, ren, pacman->position_px_x, pacman->position_px_y, TAILLE_CASE, TAILLE_CASE);
+    renderTexture(tex, ren, pacman->position_px_x, pacman->position_px_y, pacman->taille_px, pacman->taille_px);
 }
 
 void aller_a_droite (Pacman *pacman){
