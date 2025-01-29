@@ -32,4 +32,11 @@ void init_tils (SDL_Texture* tils[4], SDL_Renderer* ren);
  */ 
 void affiche_map (int map[MAP_Y][MAP_X], SDL_Texture* tils[4], SDL_Renderer* ren);
 
+/**
+ * Un vrai opérateur modulo. Pas juste le remainder de '%'
+ * @param a Un entier naturel à moduler
+ * @param b Un entier naturel diviseur 
+ */
+int mod (int a, int b);
+
 #endif

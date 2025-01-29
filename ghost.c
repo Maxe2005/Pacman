@@ -61,7 +61,7 @@ void affiche_ghost (Ghost *ghost, SDL_Renderer* ren) {
         if (ghost->direction == 'b'){
             tex = ghost->skin[3];
         } else {
-            tex = ghost->skin[1]; //Par défaut le ghost regarde à droite
+            tex = ghost->skin[1]; //Par défaut le ghost regarde en haut
         }}}}
         renderTexture(tex, ren, ghost->position_px_x, ghost->position_px_y, ghost->taille_px, ghost->taille_px);
     }
@@ -69,6 +69,7 @@ void affiche_ghost (Ghost *ghost, SDL_Renderer* ren) {
 
 void aller_a_droite_g (Ghost *ghost){
     ghost->direction = 'd';
+    // Test si le ghost ne vas pas trop vite donc qu'il ne loupe pas le centre des cases car c'est une position obligatoire qui sert pour la de prise de décisions
     if ((ghost->position_px_x + VITESSE_GHOST - ORIGINE_X) / TAILLE_CASE > ghost->position_x && (ghost->position_px_x + VITESSE_GHOST - ORIGINE_X) % TAILLE_CASE > 0) {
         ghost->position_px_x = ORIGINE_X + (ghost->position_x + 1) * TAILLE_CASE;
     } else {
@@ -78,7 +79,9 @@ void aller_a_droite_g (Ghost *ghost){
 
 void aller_a_gauche_g (Ghost *ghost){
     ghost->direction = 'g';
-    if ((ghost->position_px_x - VITESSE_GHOST - ORIGINE_X) / TAILLE_CASE < ghost->position_x - 1 && (ghost->position_px_x - VITESSE_GHOST - ORIGINE_X) % TAILLE_CASE > 0) {
+    // Test si le ghost ne vas pas trop vite donc qu'il ne loupe pas le centre des cases car c'est une position obligatoire qui sert pour la de prise de décisions
+    // Si, avec la map torrique, la position est négative, les calculs de bases ne marchent plus... Pour corriger cela je teste en décalant de 2 cases vers la droite (donc plus de valeurs négatives)
+    if ((ghost->position_px_x - VITESSE_GHOST - ORIGINE_X + (2*TAILLE_CASE)) / TAILLE_CASE < ghost->position_x + 1 && (ghost->position_px_x - VITESSE_GHOST - ORIGINE_X + (2*TAILLE_CASE)) % TAILLE_CASE > 0) {
         ghost->position_px_x = ORIGINE_X + (ghost->position_x - 1) * TAILLE_CASE;
     } else {
         ghost->position_px_x -= VITESSE_GHOST;
@@ -87,7 +90,9 @@ void aller_a_gauche_g (Ghost *ghost){
 
 void aller_en_haut_g (Ghost *ghost){
     ghost->direction = 'h';
-    if ((ghost->position_px_y - VITESSE_GHOST - ORIGINE_Y) / TAILLE_CASE < ghost->position_y - 1 && (ghost->position_px_y - VITESSE_GHOST - ORIGINE_Y) % TAILLE_CASE > 0) {
+    // Test si le ghost ne vas pas trop vite donc qu'il ne loupe pas le centre des cases car c'est une position obligatoire qui sert pour la de prise de décisions
+    // Si, avec la map torrique, la position est négative, les calculs de bases ne marchent plus... Pour corriger cela je teste en décalant de 2 cases vers le bas (donc plus de valeurs négatives)
+    if ((ghost->position_px_y - VITESSE_GHOST - ORIGINE_Y + (2*TAILLE_CASE)) / TAILLE_CASE < ghost->position_y + 1 && (ghost->position_px_y - VITESSE_GHOST - ORIGINE_Y + (2*TAILLE_CASE)) % TAILLE_CASE > 0) {
         ghost->position_px_y = ORIGINE_Y + (ghost->position_y - 1) * TAILLE_CASE;
     } else {
         ghost->position_px_y -= VITESSE_GHOST;
@@ -96,6 +101,7 @@ void aller_en_haut_g (Ghost *ghost){
 
 void aller_en_bas_g (Ghost *ghost){
     ghost->direction = 'b';
+    // Test si le ghost ne vas pas trop vite donc qu'il ne loupe pas le centre des cases car c'est une position obligatoire qui sert pour la de prise de décisions
     if ((ghost->position_px_y + VITESSE_GHOST - ORIGINE_Y) / TAILLE_CASE > ghost->position_y && (ghost->position_px_y + VITESSE_GHOST - ORIGINE_Y) % TAILLE_CASE > 0) {
         ghost->position_px_y = ORIGINE_Y + (ghost->position_y + 1) * TAILLE_CASE;
     } else {
@@ -118,28 +124,47 @@ void is_colision_pacman (Ghost *ghost, Pacman *pacman) {
         }
 }
 
+void gestion_map_torique_g (Ghost *ghost) {
+    if (ghost->position_x == MAP_X) {
+        ghost->position_x = 0;
+        ghost->position_px_x = ORIGINE_X + -1 * TAILLE_CASE;
+    }
+    if (ghost->position_y == MAP_Y) {
+        ghost->position_y = 0;
+        ghost->position_px_y = ORIGINE_Y + -1 * TAILLE_CASE;
+    }
+    if (ghost->position_x == -1) {
+        ghost->position_x = MAP_X - 1;
+        ghost->position_px_x = ORIGINE_X + MAP_X * TAILLE_CASE;
+    }
+    if (ghost->position_y == -1) {
+        ghost->position_y = MAP_Y - 1;
+        ghost->position_px_y = ORIGINE_Y + MAP_Y * TAILLE_CASE;
+    }
+}
+
 int avance_ghost (Ghost *ghost, int map[MAP_Y][MAP_X], Pacman *pacman){
     if (ghost->is_affiche == 1) {
         is_colision_pacman(ghost, pacman);
         if (((ghost->position_px_x - ORIGINE_X) % TAILLE_CASE == 0) && ((ghost->position_px_y - ORIGINE_Y) % TAILLE_CASE == 0)){ // <=> ghost au milieu d'une case (et pas en transition entre 2)
             ghost->position_x = (ghost->position_px_x - ORIGINE_X) / TAILLE_CASE;
             ghost->position_y = (ghost->position_px_y - ORIGINE_Y) / TAILLE_CASE;
-
+            gestion_map_torique_g(ghost);
             // Initialisation de la liste des choix valides et du compteur
             int nb_choix = 0; // Compte le nombre de directions valides
             char choix_valides[4]; // Tableau pour stocker les directions possibles
 
             // Vérification des directions valides (impossibilié de faire demi-tour)
-            if (map[ghost->position_y][ghost->position_x + 1] != 1 && ghost->direction != 'g') {
+            if (map[ghost->position_y][mod(ghost->position_x + 1, MAP_X)] != 1 && ghost->direction != 'g') {
                 choix_valides[nb_choix++] = 'd'; // Droite
             }
-            if (map[ghost->position_y][ghost->position_x - 1] != 1 && ghost->direction != 'd') {
+            if (map[ghost->position_y][mod(ghost->position_x - 1, MAP_X)] != 1 && ghost->direction != 'd') {
                 choix_valides[nb_choix++] = 'g'; // Gauche
             }
-            if (map[ghost->position_y - 1][ghost->position_x] != 1 && ghost->direction != 'b') {
+            if (map[mod(ghost->position_y - 1, MAP_Y)][ghost->position_x] != 1 && ghost->direction != 'b') {
                 choix_valides[nb_choix++] = 'h'; // Haut
             }
-            if (map[ghost->position_y + 1][ghost->position_x] != 1 && ghost->direction != 'h') {
+            if (map[mod(ghost->position_y + 1, MAP_Y)][ghost->position_x] != 1 && ghost->direction != 'h') {
                 choix_valides[nb_choix++] = 'b'; // Bas
             }
             

@@ -43,8 +43,9 @@ void affiche_pacman (Pacman *pacman, SDL_Renderer* ren) {
 
 void aller_a_droite (Pacman *pacman){
     pacman->direction = 'd';
+    // Test si le pacman ne vas pas trop vite donc qu'il ne loupe pas le centre des cases car c'est une position obligatoire qui sert pour la de prise de décisions
     if ((pacman->position_px_x + VITESSE_PACMAN - ORIGINE_X) / TAILLE_CASE > pacman->position_x && (pacman->position_px_x + VITESSE_PACMAN - ORIGINE_X) % TAILLE_CASE > 0) {
-        pacman->position_px_x = ORIGINE_X + (pacman->position_x + 1) * TAILLE_CASE;
+        pacman->position_px_x = ORIGINE_X + (pacman->position_x + 1) * TAILLE_CASE; // Correction de la position si centre loupé
     } else {
         pacman->position_px_x += VITESSE_PACMAN;
     }
@@ -52,8 +53,10 @@ void aller_a_droite (Pacman *pacman){
 
 void aller_a_gauche (Pacman *pacman){
     pacman->direction = 'g';
-    if ((pacman->position_px_x - VITESSE_PACMAN - ORIGINE_X) / TAILLE_CASE < pacman->position_x - 1 && (pacman->position_px_x - VITESSE_PACMAN - ORIGINE_X) % TAILLE_CASE > 0) {
-        pacman->position_px_x = ORIGINE_X + (pacman->position_x - 1) * TAILLE_CASE;
+    // Test si le pacman ne vas pas trop vite donc qu'il ne loupe pas le centre des cases car c'est une position obligatoire qui sert pour la de prise de décisions
+    // Si, avec la map torrique, la position est négative, les calculs de bases ne marchent plus... Pour corriger cela je teste en décalant de 2 cases vers la droite (donc plus de valeurs négatives)
+    if ((pacman->position_px_x - VITESSE_PACMAN - ORIGINE_X + (2*TAILLE_CASE)) / TAILLE_CASE < pacman->position_x + 1 && (pacman->position_px_x - VITESSE_PACMAN - ORIGINE_X + (2*TAILLE_CASE)) % TAILLE_CASE > 0) {
+        pacman->position_px_x = ORIGINE_X + (pacman->position_x - 1) * TAILLE_CASE; // Correction de la position si centre loupé
     } else {
         pacman->position_px_x -= VITESSE_PACMAN;
     }
@@ -61,8 +64,10 @@ void aller_a_gauche (Pacman *pacman){
 
 void aller_en_haut (Pacman *pacman){
     pacman->direction = 'h';
-    if ((pacman->position_px_y - VITESSE_PACMAN - ORIGINE_Y) / TAILLE_CASE < pacman->position_y - 1 && (pacman->position_px_y - VITESSE_PACMAN - ORIGINE_Y) % TAILLE_CASE > 0) {
-        pacman->position_px_y = ORIGINE_Y + (pacman->position_y - 1) * TAILLE_CASE;
+    // Test si le pacman ne vas pas trop vite donc qu'il ne loupe pas le centre des cases car c'est une position obligatoire qui sert pour la de prise de décisions
+    // Si, avec la map torrique, la position est négative, les calculs de bases ne marchent plus... Pour corriger cela je teste en décalant de 2 cases vers le bas (donc plus de valeurs négatives)
+    if ((pacman->position_px_y - VITESSE_PACMAN - ORIGINE_Y + (2*TAILLE_CASE)) / TAILLE_CASE < pacman->position_y + 1 && (pacman->position_px_y - VITESSE_PACMAN - ORIGINE_Y + (2*TAILLE_CASE)) % TAILLE_CASE > 0) {
+        pacman->position_px_y = ORIGINE_Y + ((pacman->position_y - 1) % MAP_Y) * TAILLE_CASE; // Correction de la position si centre loupé
     } else {
         pacman->position_px_y -= VITESSE_PACMAN;
     }
@@ -70,10 +75,30 @@ void aller_en_haut (Pacman *pacman){
 
 void aller_en_bas (Pacman *pacman){
     pacman->direction = 'b';
+    // Test si le pacman ne vas pas trop vite donc qu'il ne loupe pas le centre des cases car c'est une position obligatoire qui sert pour la de prise de décisions
     if ((pacman->position_px_y + VITESSE_PACMAN - ORIGINE_Y) / TAILLE_CASE > pacman->position_y && (pacman->position_px_y + VITESSE_PACMAN - ORIGINE_Y) % TAILLE_CASE > 0) {
-        pacman->position_px_y = ORIGINE_Y + (pacman->position_y + 1) * TAILLE_CASE;
+        pacman->position_px_y = ORIGINE_Y + ((pacman->position_y + 1) % MAP_Y) * TAILLE_CASE; // Correction de la position si centre loupé
     } else {
         pacman->position_px_y += VITESSE_PACMAN;
+    }
+}
+
+void gestion_map_torique (Pacman *pacman) {
+    if (pacman->position_x == MAP_X) {
+        pacman->position_x = 0;
+        pacman->position_px_x = ORIGINE_X + -1 * TAILLE_CASE;
+    }
+    if (pacman->position_y == MAP_Y) {
+        pacman->position_y = 0;
+        pacman->position_px_y = ORIGINE_Y + -1 * TAILLE_CASE;
+    }
+    if (pacman->position_x == -1) {
+        pacman->position_x = MAP_X - 1;
+        pacman->position_px_x = ORIGINE_X + MAP_X * TAILLE_CASE;
+    }
+    if (pacman->position_y == -1) {
+        pacman->position_y = MAP_Y - 1;
+        pacman->position_px_y = ORIGINE_Y + MAP_Y * TAILLE_CASE;
     }
 }
 
@@ -81,39 +106,41 @@ int avance_pacman (Pacman *pacman, int map[MAP_Y][MAP_X], int *score){
     if (((pacman->position_px_x - ORIGINE_X) % TAILLE_CASE == 0) && ((pacman->position_px_y - ORIGINE_Y) % TAILLE_CASE == 0)){ // <=> pacman au milieu d'une case (et pas en transition entre 2)
         pacman->position_x = (pacman->position_px_x - ORIGINE_X) / TAILLE_CASE;
         pacman->position_y = (pacman->position_px_y - ORIGINE_Y) / TAILLE_CASE;
+        gestion_map_torique(pacman);
         update_score(pacman, map, score);
+
         // Prise en compte de la nouvelle diretion :
-        if (pacman->next_direction == 'd' && map[pacman->position_y][pacman->position_x + 1] != 1){
+        if (pacman->next_direction == 'd' && map[pacman->position_y][mod(pacman->position_x + 1, MAP_X)] != 1){
             aller_a_droite(pacman);
             return 0;
         }
-        if (pacman->next_direction == 'g' && map[pacman->position_y][pacman->position_x - 1] != 1){
+        if (pacman->next_direction == 'g' && map[pacman->position_y][mod(pacman->position_x - 1, MAP_X)] != 1){
             aller_a_gauche(pacman);
             return 0;
         }
-        if (pacman->next_direction == 'h' && map[pacman->position_y - 1][pacman->position_x] != 1){
+        if (pacman->next_direction == 'h' && map[mod(pacman->position_y - 1, MAP_Y)][pacman->position_x] != 1){
             aller_en_haut(pacman);
             return 0;
         }
-        if (pacman->next_direction == 'b' && map[pacman->position_y + 1][pacman->position_x] != 1){
+        if (pacman->next_direction == 'b' && map[mod(pacman->position_y + 1, MAP_Y)][pacman->position_x] != 1){
             aller_en_bas(pacman);
             return 0;
         }
 
         // Si impossible -> continuation du mouvement :
-        if (pacman->direction == 'd' && map[pacman->position_y][pacman->position_x + 1] != 1){
+        if (pacman->direction == 'd' && map[pacman->position_y][mod(pacman->position_x + 1,MAP_X)] != 1){
             aller_a_droite(pacman);
             return 0;
         }
-        if (pacman->direction == 'g' && map[pacman->position_y][pacman->position_x - 1] != 1){
+        if (pacman->direction == 'g' && map[pacman->position_y][mod(pacman->position_x - 1, MAP_X)] != 1){
             aller_a_gauche(pacman);
             return 0;
         }
-        if (pacman->direction == 'h' && map[pacman->position_y - 1][pacman->position_x] != 1){
+        if (pacman->direction == 'h' && map[mod(pacman->position_y - 1, MAP_Y)][pacman->position_x] != 1){
             aller_en_haut(pacman);
             return 0;
         }
-        if (pacman->direction == 'b' && map[pacman->position_y + 1][pacman->position_x] != 1){
+        if (pacman->direction == 'b' && map[mod(pacman->position_y + 1, MAP_Y)][pacman->position_x] != 1){
             aller_en_bas(pacman);
             return 0;
         }

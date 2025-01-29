@@ -4,7 +4,7 @@
 #include "ressources.h"
 #include "plateau.h"
 
-#define VITESSE_PACMAN 2
+#define VITESSE_PACMAN 3
 
 typedef struct
 {
@@ -81,5 +81,11 @@ int avance_pacman (Pacman *pacman, int map[MAP_Y][MAP_X], int *score);
  * @param score Le score global à modifier si <gum> ou <cherry> rencontré
  */
 void update_score (Pacman *pacman, int map[MAP_Y][MAP_X], int *score);
+
+/**
+ * Gère la téléportation toriques de bord de map du pacman
+ * @param pacman Une instance de structure de joueur à déplacer
+ */
+void gestion_map_torique (Pacman *pacman);
 
 #endif

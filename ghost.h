@@ -117,5 +117,10 @@ void is_colision_pacman (Ghost *ghost, Pacman *pacman);
  */
 int avance_ghost (Ghost *ghost, int map[MAP_Y][MAP_X], Pacman *pacman);
 
+/**
+ * Gère la téléportation toriques de bord de map des ghost
+ * @param ghost Une instance de structure de fantôme
+ */
+void gestion_map_torique_g (Ghost *ghost);
 
 #endif

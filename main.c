@@ -35,6 +35,7 @@ int main (int argc, char *argv[]){
     init_textures_Inky(&Inky, ren);
     Ghost Clyde;
     init_textures_Clyde(&Clyde, ren);
+    Ghost* ghosts[4] = {&Pinky, &Blinky, &Inky, &Clyde};
     premier_placement_ghost(&Pinky, map, 5, 1);
     premier_placement_ghost(&Blinky, map, 17, 1);
     premier_placement_ghost(&Inky, map, 1, 19);
@@ -53,19 +54,22 @@ int main (int argc, char *argv[]){
 
     clock_t start_time = clock();
     const double temps_reaction_pacman = 500.0 / 1000.0 * CLOCKS_PER_SEC; //temps_reaction_pacman convertion de milisecondes à clocks
-    
     while (running) {
         SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
         SDL_RenderClear(ren);
-        sprintf(text_score, "Score : %d",score);
+        sprintf(text_score, "Score : %d", score);
         printText(MARGE_BANDEAU_HAUT, MARGE_BANDEAU_HAUT, text_score, MARGE_BANDEAU_HAUT + 250, TAILLE_BANDEAU_HAUT - 2*MARGE_BANDEAU_HAUT, font[0], white, ren);
         affiche_les_vies(ren, skin_vies, pacman.nb_vies);
         affiche_map(map, tils, ren);
         affiche_pacman(&pacman, ren);
+        for (int i = 0; i < 4; i++) {
+            affiche_ghost(ghosts[i], ren);
+        }/*
         affiche_ghost(&Blinky, ren);
         affiche_ghost(&Pinky, ren);
         affiche_ghost(&Inky, ren);
-        affiche_ghost(&Clyde, ren);
+        affiche_ghost(&Clyde, ren);*/
+        
         updateDisplay(ren);
 
         dir = processKeyboard(&running);
@@ -73,10 +77,13 @@ int main (int argc, char *argv[]){
             pacman.next_direction = dir;
         }
         avance_pacman(&pacman, map, &score);
+        for (int i = 0; i < 4; i++) {
+            avance_ghost(ghosts[i], map, &pacman);
+        }/*
         avance_ghost(&Blinky, map, &pacman);
         avance_ghost(&Pinky, map, &pacman);
         avance_ghost(&Inky, map, &pacman);
-        avance_ghost(&Clyde, map, &pacman);
+        avance_ghost(&Clyde, map, &pacman);*/
         
         /*clock_t current_time = clock();
         if ((double)(current_time - start_time) >= temps_reaction_pacman) {
