@@ -5,7 +5,7 @@
 
 #define MAP_X 28
 #define MAP_Y 31
-#define ORIGINE_X 0
+#define ORIGINE_X 10
 #define ORIGINE_Y TAILLE_BANDEAU_HAUT
 #define TAILLE_CASE (int)((FEN_Y-TAILLE_BANDEAU_HAUT)/MAP_Y)
 

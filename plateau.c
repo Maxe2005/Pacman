@@ -12,15 +12,15 @@ void init_map (int map[MAP_Y][MAP_X]){
     {1,2,1,1,1,1,2,1,1,2,1,1,1,1,1,1,1,1,2,1,1,2,1,1,1,1,2,1},
     {1,2,2,2,2,2,2,1,1,2,2,2,2,1,1,2,2,2,2,1,1,2,2,2,2,2,2,1},
     {1,1,1,1,1,1,2,1,1,1,1,1,2,1,1,2,1,1,1,1,1,2,1,1,1,1,1,1},
-    {0,0,0,0,0,1,2,1,1,1,1,1,2,1,1,2,1,1,1,1,1,2,1,0,0,0,0,0},
-    {0,0,0,0,0,1,2,1,1,0,0,0,0,0,0,0,0,0,0,1,1,2,1,0,0,0,0,0},
-    {0,0,0,0,0,1,2,1,1,0,1,1,1,4,4,1,1,1,0,1,1,2,1,0,0,0,0,0},
-    {1,1,1,1,1,1,2,1,1,0,1,0,0,0,0,0,0,1,0,1,1,2,1,1,1,1,1,1},
-    {0,0,0,0,0,0,2,2,2,0,1,0,0,0,0,0,0,1,0,2,2,2,0,0,0,0,0,0},
-    {1,1,1,1,1,1,2,1,1,0,1,0,0,0,0,0,0,1,0,1,1,2,1,1,1,1,1,1},
-    {0,0,0,0,0,1,2,1,1,0,1,1,1,1,1,1,1,1,0,1,1,2,1,0,0,0,0,0},
-    {0,0,0,0,0,1,2,1,1,0,0,0,0,0,0,0,0,0,0,1,1,2,1,0,0,0,0,0},
-    {0,0,0,0,0,1,2,1,1,2,1,1,1,1,1,1,1,1,2,1,1,2,1,0,0,0,0,0},
+    {3,3,3,3,3,1,2,1,1,1,1,1,2,1,1,2,1,1,1,1,1,2,1,3,3,3,3,3},
+    {3,3,3,3,3,1,2,1,1,0,0,0,0,0,0,0,0,0,0,1,1,2,1,3,3,3,3,3},
+    {3,3,3,3,3,1,2,1,1,0,1,1,1,4,4,1,1,1,0,1,1,2,1,3,3,3,3,3},
+    {1,1,1,1,1,1,2,1,1,0,1,3,3,3,3,3,3,1,0,1,1,2,1,1,1,1,1,1},
+    {0,0,0,0,0,0,2,2,2,0,1,3,3,3,3,3,3,1,0,2,2,2,0,0,0,0,0,0},
+    {1,1,1,1,1,1,2,1,1,0,1,3,3,3,3,3,3,1,0,1,1,2,1,1,1,1,1,1},
+    {3,3,3,3,3,1,2,1,1,0,1,1,1,1,1,1,1,1,0,1,1,2,1,3,3,3,3,3},
+    {3,3,3,3,3,1,2,1,1,0,0,0,0,0,0,0,0,0,0,1,1,2,1,3,3,3,3,3},
+    {3,3,3,3,3,1,2,1,1,2,1,1,1,1,1,1,1,1,2,1,1,2,1,3,3,3,3,3},
     {1,1,1,1,1,1,2,1,1,2,1,1,1,1,1,1,1,1,2,1,1,2,1,1,1,1,1,1},
     {1,2,2,2,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,2,2,2,2,1},
     {1,2,1,1,1,1,2,1,1,1,1,1,2,1,1,2,1,1,1,1,1,2,1,1,1,1,2,1},
@@ -74,7 +74,7 @@ void drawArc(SDL_Renderer* renderer, const int centerX, const int centerY, const
     int new_radius;
     int new_nb_pts;
     for (int e = 0; e < thickness; e++){
-        new_radius = (radius-(int)(thickness/2) + e);
+        new_radius = (radius + e); // -(int)(thickness/2)
         new_nb_pts = nb_pts * new_radius / radius;
         double angleStep = (endAngle - startAngle) / (new_nb_pts-1);
         for (int i = 0; i < new_nb_pts; ++i) {
@@ -87,7 +87,7 @@ void drawArc(SDL_Renderer* renderer, const int centerX, const int centerY, const
 }
 
 void affiche_map_draw (int map[MAP_Y][MAP_X], SDL_Renderer* ren){
-    const int nb_pts = 10;
+    const int nb_pts = 12;
     const int thickness = 2;
     SDL_SetRenderDrawColor(ren, 0, 0, 255, 255);
     for (int j = 0; j<MAP_Y; j++){
@@ -123,34 +123,173 @@ void affiche_map_draw (int map[MAP_Y][MAP_X], SDL_Renderer* ren){
                     } else {
                     if (map[j-1][i] == 1 && map[j][i-1] == 1 && map[j-1][i-1] != 1){ // Arc haut gauche
                         drawArc(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, (int)(TAILLE_CASE/2), 3*PI/2, 2*PI, thickness, nb_pts);
-                    }}}}}}}}}}
-                } else { // Bord Haut :
+                    } else { // Bordures externes enclavés
+                    if (map[j+1][i] == 3 && map[j-1][i] != 1) { // Bordure haute de l'enclave
+                        drawLineHorizontal(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE + (int)(TAILLE_CASE/2), TAILLE_CASE);
+                        drawLineHorizontal(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + (j+1)*TAILLE_CASE, TAILLE_CASE);
+                    } else {
+                    if (map[j-1][i] == 3 && map[j+1][i] != 1) { // Bordure basse de l'enclave
+                        drawLineHorizontal(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE + (int)(TAILLE_CASE/2), TAILLE_CASE);
+                        drawLineHorizontal(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
+                    } else {
+                    if (map[j][i-1] == 3 && map[j][i+1] != 1) { // Bordure droite de l'enclave
+                        drawLineVertical(ren, ORIGINE_X + i*TAILLE_CASE + (int)(TAILLE_CASE/2), ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
+                        drawLineVertical(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
+                    } else {
+                    if (map[j][i+1] == 3 && map[j][i-1] != 1) { // Bordure gauche de l'enclave
+                        drawLineVertical(ren, ORIGINE_X + i*TAILLE_CASE + (int)(TAILLE_CASE/2), ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
+                        drawLineVertical(ren, ORIGINE_X + (i+1)*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
+                    }
+                    }}}}}}}}}}}}}
+                } else { 
+                // ---------------------------------- Bord Haut -----------------------------------
                 if (j == 0 && i > 0 && i < MAP_X-1) {
                     if (map[j][i-1] == 1 && map[j][i+1] == 1 && map[j+1][i] != 1) {
                         drawLineHorizontal(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE + (int)(TAILLE_CASE/2), TAILLE_CASE);
+                        drawLineHorizontal(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
                     } else {
                     if (map[j+1][i] == 1 && map[j][i-1] == 1 && map[j+1][i-1] != 1){ // Arc bas gauche
                         drawArc(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + (j+1)*TAILLE_CASE, (int)(TAILLE_CASE/2), 0, PI/2, thickness, nb_pts);
+                        if (map[j][i+1] == 3) { // Départ de l'enclave
+                            drawArc(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + (j+1)*TAILLE_CASE, TAILLE_CASE, 0, PI/2, thickness, 2*nb_pts);
+                        } else { // Départ d'un mur perpendiculaire
+                            drawLineHorizontal(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
+                        }
                     } else {
                     if (map[j+1][i] == 1 && map[j][i+1] == 1 && map[j+1][i+1] != 1){ // Arc bas droite
                         drawArc(ren, ORIGINE_X + (i+1)*TAILLE_CASE, ORIGINE_Y + (j+1)*TAILLE_CASE, (int)(TAILLE_CASE/2), PI/2, PI, thickness, nb_pts);
-                    }}}
-                    drawLineHorizontal(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
-                } else { // Bord Bas :
+                        if (map[j][i-1] == 3) { // Départ de l'enclave
+                            drawArc(ren, ORIGINE_X + (i+1)*TAILLE_CASE, ORIGINE_Y + (j+1)*TAILLE_CASE, TAILLE_CASE, PI/2, PI, thickness, 2*nb_pts);
+                        } else { // Départ d'un mur perpendiculaire
+                            drawLineHorizontal(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
+                        }
+                    } else { // Bordure haute sortie torrique
+                    if (map[j+1][i] == 1 && map[j][i-1] == 3 && map[j][i+1] != 1){
+                        drawLineVertical(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
+                        drawLineVertical(ren, ORIGINE_X + i*TAILLE_CASE + (int)(TAILLE_CASE/2), ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
+                    } else { // Bordure basse sortie torrique
+                    if (map[j+1][i] == 1 && map[j][i+1] == 3 && map[j][i-1] != 1){
+                        drawLineVertical(ren, ORIGINE_X + (i+1)*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
+                        drawLineVertical(ren, ORIGINE_X + i*TAILLE_CASE + (int)(TAILLE_CASE/2), ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
+                    }}}}}
+                } else { 
+                // ------------------------------------- Bord Bas ------------------------------
                 if (j == MAP_Y-1 && i > 0 && i < MAP_X-1) {
                     if (map[j][i-1] == 1 && map[j][i+1] == 1 && map[j-1][i] != 1) {
                         drawLineHorizontal(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE + (int)(TAILLE_CASE/2), TAILLE_CASE);
+                        drawLineHorizontal(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + (j+1)*TAILLE_CASE, TAILLE_CASE);
                     } else {
                     if (map[j-1][i] == 1 && map[j][i+1] == 1 && map[j-1][i+1] != 1){ // Arc haut droite
                         drawArc(ren, ORIGINE_X + (i+1)*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, (int)(TAILLE_CASE/2), PI, 3*PI/2, thickness, nb_pts);
+                        if (map[j][i-1] == 3) { // Départ de l'enclave
+                            drawArc(ren, ORIGINE_X + (i+1)*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE, PI, 3*PI/2, thickness, 2*nb_pts);
+                        } else { // Départ d'un mur perpendiculaire
+                            drawLineHorizontal(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + (j+1)*TAILLE_CASE, TAILLE_CASE);
+                        }
                     } else {
                     if (map[j-1][i] == 1 && map[j][i-1] == 1 && map[j-1][i-1] != 1){ // Arc haut gauche
                         drawArc(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, (int)(TAILLE_CASE/2), 3*PI/2, 2*PI, thickness, nb_pts);
-                    }}}
-                    drawLineHorizontal(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + (j+1)*TAILLE_CASE, TAILLE_CASE);
-                }}
+                        if (map[j][i+1] == 3) { // Départ de l'enclave
+                            drawArc(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE, 3*PI/2, 2*PI, thickness, 2*nb_pts);
+                        } else { // Départ d'un mur perpendiculaire
+                            drawLineHorizontal(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + (j+1)*TAILLE_CASE, TAILLE_CASE);
+                        }
+                    } else { // Bordure haute sortie torrique
+                    if (map[j-1][i] == 1 && map[j][i-1] == 3 && map[j][i+1] != 1){
+                        drawLineVertical(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
+                        drawLineVertical(ren, ORIGINE_X + i*TAILLE_CASE + (int)(TAILLE_CASE/2), ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
+                    } else { // Bordure basse sortie torrique
+                    if (map[j-1][i] == 1 && map[j][i+1] == 3 && map[j][i-1] != 1){
+                        drawLineVertical(ren, ORIGINE_X + (i+1)*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
+                        drawLineVertical(ren, ORIGINE_X + i*TAILLE_CASE + (int)(TAILLE_CASE/2), ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
+                    }}}}}
+                } else { 
+                // ------------------------ Bord Gauche --------------------------------
+                if (i == 0 && j > 0 && j < MAP_Y-1) {
+                    if (map[j-1][i] == 1 && map[j+1][i] == 1 && map[j][i+1] != 1) { // Mur simple
+                        drawLineVertical(ren, ORIGINE_X + i*TAILLE_CASE + (int)(TAILLE_CASE/2), ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
+                        drawLineVertical(ren, ORIGINE_X, ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
+                    } else {
+                    if (map[j][i+1] == 1 && map[j-1][i] == 1 && map[j-1][i+1] != 1){ // Arc haut droite
+                        drawArc(ren, ORIGINE_X + (i+1)*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, (int)(TAILLE_CASE/2), PI, 3*PI/2, thickness, nb_pts);
+                        if (map[j+1][i] == 3) { // Départ de l'enclave
+                            drawArc(ren, ORIGINE_X + (i+1)*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE, PI, 3*PI/2, thickness, 2*nb_pts);
+                        } else { // Départ d'un mur perpendiculaire
+                            drawLineVertical(ren, ORIGINE_X, ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
+                        }
+                    } else {
+                    if (map[j][i+1] == 1 && map[j+1][i] == 1 && map[j+1][i+1] != 1){ // Arc bas droite
+                        drawArc(ren, ORIGINE_X + (i+1)*TAILLE_CASE, ORIGINE_Y + (j+1)*TAILLE_CASE, (int)(TAILLE_CASE/2), PI/2, PI, thickness, nb_pts);
+                        if (map[j-1][i] == 3) { // Départ de l'enclave
+                            drawArc(ren, ORIGINE_X + (i+1)*TAILLE_CASE, ORIGINE_Y + (j+1)*TAILLE_CASE, TAILLE_CASE, PI/2, PI, thickness, 2*nb_pts);
+                        } else { // Départ d'un mur perpendiculaire
+                            drawLineVertical(ren, ORIGINE_X, ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
+                        }
+                    } else { // Bordure haute sortie torrique
+                    if (map[j][i+1] == 1 && map[j-1][i] == 3 && map[j+1][i] != 1){
+                        drawLineHorizontal(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
+                        drawLineHorizontal(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE + (int)(TAILLE_CASE/2), TAILLE_CASE);
+                    } else { // Bordure basse sortie torrique
+                    if (map[j][i+1] == 1 && map[j+1][i] == 3 && map[j-1][i] != 1){
+                        drawLineHorizontal(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + (j+1)*TAILLE_CASE, TAILLE_CASE);
+                        drawLineHorizontal(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE + (int)(TAILLE_CASE/2), TAILLE_CASE);
+                    }}}}}
+                } else { 
+                // -------------------------------- Bord Droit ---------------------------------------
+                if (i == MAP_X - 1 && j > 0 && j < MAP_Y-1) {
+                    if (map[j-1][i] == 1 && map[j+1][i] == 1 && map[j][i-1] != 1) {
+                        drawLineVertical(ren, ORIGINE_X + i*TAILLE_CASE + (int)(TAILLE_CASE/2), ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
+                        drawLineVertical(ren, ORIGINE_X + MAP_X * TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
+                    } else {
+                    if (map[j][i-1] == 1 && map[j-1][i] == 1 && map[j-1][i-1] != 1){ // Arc haut gauche
+                        drawArc(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, (int)(TAILLE_CASE/2), 3*PI/2, 2*PI, thickness, nb_pts);
+                        if (map[j+1][i] == 3) { // Départ de l'enclave
+                            drawArc(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE, 3*PI/2, 2*PI, thickness, 2*nb_pts);
+                        } else { // Départ d'un mur perpendiculaire
+                            drawLineVertical(ren, ORIGINE_X + MAP_X * TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
+                        }
+                    } else {
+                    if (map[j][i-1] == 1 && map[j+1][i] == 1 && map[j+1][i-1] != 1){ // Arc bas gauche
+                        drawArc(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + (j+1)*TAILLE_CASE, (int)(TAILLE_CASE/2), 0, PI/2, thickness, nb_pts);
+                        if (map[j-1][i] == 3) { // Départ de l'enclave
+                            drawArc(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + (j+1)*TAILLE_CASE, TAILLE_CASE, 0, PI/2, thickness, 2*nb_pts);
+                        } else { // Départ d'un mur perpendiculaire
+                            drawLineVertical(ren, ORIGINE_X + MAP_X * TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
+                        }
+                    } else { // Bordure haute sortie torrique
+                    if (map[j][i-1] == 1 && map[j-1][i] == 3 && map[j+1][i] != 1){ 
+                        drawLineHorizontal(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE);
+                        drawLineHorizontal(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE + (int)(TAILLE_CASE/2), TAILLE_CASE);
+                    } else { // Bordure basse sortie torrique
+                    if (map[j][i-1] == 1 && map[j+1][i] == 3 && map[j-1][i] != 1){
+                        drawLineHorizontal(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + (j+1)*TAILLE_CASE, TAILLE_CASE);
+                        drawLineHorizontal(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE + (int)(TAILLE_CASE/2), TAILLE_CASE);
+                    }}}}}
+                } else {
+                    if (i == 0 && j == 0 && map[j][i+1] == 1 && map[j+1][i] == 1){
+                        drawArc(ren, ORIGINE_X + (i+1)*TAILLE_CASE, ORIGINE_Y + (j+1)*TAILLE_CASE, (int)(TAILLE_CASE/2), PI/2, PI, thickness, nb_pts);
+                        drawArc(ren, ORIGINE_X + (i+1)*TAILLE_CASE, ORIGINE_Y + (j+1)*TAILLE_CASE, TAILLE_CASE, PI/2, PI, thickness, 2*nb_pts);
+                    } else {
+                    if (i == MAP_X - 1 && j == 0 && map[j][i-1] == 1 && map[j+1][i] == 1){
+                        drawArc(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + (j+1)*TAILLE_CASE, (int)(TAILLE_CASE/2), 0, PI/2, thickness, nb_pts);
+                        drawArc(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + (j+1)*TAILLE_CASE, TAILLE_CASE, 0, PI/2, thickness, 2*nb_pts);
+                    } else {
+                    if (i == 0 && j == MAP_Y - 1 && map[j][i+1] == 1 && map[j-1][i] == 1){
+                        drawArc(ren, ORIGINE_X + (i+1)*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, (int)(TAILLE_CASE/2), PI, 3*PI/2, thickness, nb_pts);
+                        drawArc(ren, ORIGINE_X + (i+1)*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE, PI, 3*PI/2, thickness, 2*nb_pts);
+                    } else {
+                    if (i == MAP_X - 1 && j == MAP_Y - 1 && map[j][i-1] == 1 && map[j-1][i] == 1){
+                        drawArc(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, (int)(TAILLE_CASE/2), 3*PI/2, 2*PI, thickness, nb_pts);
+                        drawArc(ren, ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE, TAILLE_CASE, 3*PI/2, 2*PI, thickness, 2*nb_pts);
+                }}}}}}}}}
+            } else {
+                if (map[j][i] == 4){
+                    SDL_SetRenderDrawColor(ren,255,192,203,255);
+                    SDL_Rect rectangle = {ORIGINE_X + i*TAILLE_CASE, ORIGINE_Y + j*TAILLE_CASE + (int)(TAILLE_CASE/2), TAILLE_CASE, (int)(TAILLE_CASE/2)};
+                    SDL_RenderFillRect(ren,&rectangle);
+                    SDL_SetRenderDrawColor(ren, 0, 0, 255, 255);
                 }
-            } 
+            }
         }
     }
 }
