@@ -14,8 +14,12 @@ int main (int argc, char *argv[]){
     SDL_Renderer* ren = createRenderer(window);
     
     // Initialisation map, textures pour map et font pour titres
-    int map[MAP_Y][MAP_X];
-    init_map(map);
+    //Map mape = init_map_dessin();
+    //Map mape = init_map_tils();
+    //Map *map = &mape;
+    const char *nom_map = "Map_originale.csv";
+    //save_map_text(nom_map, &map);
+    Map *map = load_map_text(nom_map);
     SDL_Texture* tils[4];
     init_tils(tils, ren);
     TTF_Font* font[1];
@@ -95,6 +99,7 @@ int main (int argc, char *argv[]){
 
     }
 
+    freeMap(map);
     QuitSDL;
     return 0;
 }

@@ -4,7 +4,7 @@
 #include "ressources.h"
 #include "plateau.h"
 
-#define VITESSE_PACMAN 3
+#define VITESSE 1
 
 typedef struct
 {
@@ -32,7 +32,7 @@ void init_textures_pacman (Pacman *pacman, SDL_Renderer* ren);
  * @param x La position sur la map de pacman au début
  * @param y La position sur la map de pacman au début
  */
-void premier_placement_pacman (Pacman *pacman, int map[MAP_Y][MAP_X], const int x, const int y);
+void premier_placement_pacman (Pacman *pacman, Map *map, const int x, const int y);
 
 /**
  * Place la pacman sur le renderer avec le bon skin
@@ -72,7 +72,7 @@ void aller_en_bas (Pacman *pacman);
  * @param score Le score global à modifier si <gum> ou <cherry> rencontré
  * @return 0 si tout c'est bien passé, 1 si erreur
  */
-int avance_pacman (Pacman *pacman, int map[MAP_Y][MAP_X], int *score);
+int avance_pacman (Pacman *pacman, Map *map, int *score);
 
 /**
  * Met à niveau le score si le pacman est sur <gum> ou <cherry>. Déclanche le mode <frightened> si <Big Gum> rencontré
@@ -81,11 +81,5 @@ int avance_pacman (Pacman *pacman, int map[MAP_Y][MAP_X], int *score);
  * @param score Le score global à modifier si <gum> ou <cherry> rencontré
  */
 void update_score (Pacman *pacman, int map[MAP_Y][MAP_X], int *score);
-
-/**
- * Gère la téléportation toriques de bord de map du pacman
- * @param pacman Une instance de structure de joueur à déplacer
- */
-void gestion_map_torique (Pacman *pacman);
 
 #endif
