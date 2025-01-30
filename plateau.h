@@ -3,18 +3,55 @@
 
 #include "ressources.h"
 
-#define MAP_X 28
-#define MAP_Y 31
+//#define MAP_X 28
+//#define MAP_Y 31
 #define ORIGINE_X 10
 #define ORIGINE_Y TAILLE_BANDEAU_HAUT
-#define TAILLE_CASE (int)((FEN_Y-TAILLE_BANDEAU_HAUT)/MAP_Y)
+//#define TAILLE_CASE (int)((FEN_Y-TAILLE_BANDEAU_HAUT)/MAP_Y)
+
+typedef struct {
+    int x; // Nombre de colones de la map
+    int y; // Nombre de lignes de la map
+    int taille_case;
+    int **contenu; // Un pointeur vers le contenu de la map
+    char type[10]; // Savoir si c'est une map dessinée ou avec tils*
+    int taille_perso; // Taille nécessaire pour la taille des personages (pacman et fantômes)
+} Map ;
+
+/**
+ * Enregistre la map dans un fichier texte
+ * @param filename Le nom du nouveau fichier
+ * @param map La map à sauvegarder
+ */
+void save_map_text (const char *filename, Map *map);
+
+/**
+ * Charge la map contenue dans le fichier texte donné
+ * @param filename Le nom du fichier de la map à ouvrir
+ * @return Un pointeur vers la map (structure de Map) 
+ */
+Map *load_map_text (const char *filename);
+
+/**
+ * Enregistre la map dans un fichier binaire
+ * @param filename Le nom du nouveau fichier
+ * @param map La map à sauvegarder
+ */
+void save_map_binary (const char *filename, Map *map);
+
+/**
+ * Charge la map contenue dans le fichier binaire donné
+ * @param filename Le nom du fichier de la map à ouvrir
+ * @return Un pointeur vers la map (structure de Map) 
+ */
+Map *load_map_binary (const char *filename);
 
 /**
  * Initialise le contenu de la map. C'est à dire la position des tils (murs, gum, ...)
  * @param map La map vide à remplire
  */
-void init_map (int map[MAP_Y][MAP_X]);
-
+Map init_map_dessin ();
+Map init_map_tils ();
 
 /**
  * Initialise les textures des tils dans un tableau
@@ -30,7 +67,7 @@ void init_tils (SDL_Texture* tils[4], SDL_Renderer* ren);
  * @param tils Le tableau contenant les textures des différents tils
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  */ 
-void affiche_map_tils (int map[MAP_Y][MAP_X], SDL_Texture* tils[4], SDL_Renderer* ren);
+void affiche_map_tils (Map *map, SDL_Texture* tils[4], SDL_Renderer* ren);
 
 /**
  * Dessine sur le renderer un arc de cercle composé de points
@@ -66,8 +103,33 @@ void drawLineVertical (SDL_Renderer* renderer, const int x, const int y, const i
 /**
  * Dessine la map sur le renderer
  * @param map La map à afficher
- * @param renderer Un pointeur sur une structure contenant l'état du rendu
+ * @param tils Le tableau contenant les textures des différents tils
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
  */
-void affiche_map_draw (int map[MAP_Y][MAP_X], SDL_Renderer* ren);
+void affiche_map_draw (Map *map, SDL_Texture* tils[4], SDL_Renderer* ren);
+
+/**
+ * Séléctionne le bon afficheur de map en fonction du type de map
+ * @param map La map à afficher
+ * @param tils Le tableau contenant les textures des différents tils
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ */
+void affiche_map (Map *map, SDL_Texture* tils[4], SDL_Renderer* ren);
+
+/**
+ * Libère la mémoire disposée pour la map
+ * @param map La map à afficher
+ */
+void freeMap (Map *map);
+
+/**
+ * Ajout des gums, big_gums et fruits sur la map dessinée
+ * @param i La position en x de la case actuelle
+ * @param j La position en y de la case actuelle
+ * @param map La map à afficher
+ * @param tils Le tableau contenant les textures des différents tils
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ */
+void ajout_gum_dessin (int i, int j, Map *map, SDL_Texture* tils[4], SDL_Renderer* ren);
 
 #endif

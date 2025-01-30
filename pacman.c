@@ -2,21 +2,21 @@
 
 
 void init_textures_pacman (Pacman *pacman, SDL_Renderer* ren){
-    pacman->skin[0] = loadTexture("ressources/pakuman_0.bmp", ren);
-    pacman->skin[1] = loadTexture("ressources/pakuman_1.bmp", ren);
-    pacman->skin[2] = loadTexture("ressources/pakuman_2.bmp", ren);
-    pacman->skin[3] = loadTexture("ressources/pakuman_3.bmp", ren);
+    pacman->skin[0] = loadTexture("ressources/pacman/pakuman_0.bmp", ren);
+    pacman->skin[1] = loadTexture("ressources/pacman/pakuman_1.bmp", ren);
+    pacman->skin[2] = loadTexture("ressources/pacman/pakuman_2.bmp", ren);
+    pacman->skin[3] = loadTexture("ressources/pacman/pakuman_3.bmp", ren);
 }
 
-void premier_placement_pacman (Pacman *pacman, int map[MAP_Y][MAP_X], const int x, const int y){
+void premier_placement_pacman (Pacman *pacman, Map *map, const int x, const int y){
     pacman->position_x = x;
     pacman->position_y = y;
-    if (map[pacman->position_y][pacman->position_x] == 1){
+    if (map->contenu[pacman->position_y][pacman->position_x] == 1){
         printf("Erreur dans le premier placement de pacman sur la map");
     }
-    map[pacman->position_y][pacman->position_x] = 0;
-    pacman->position_px_x = ORIGINE_X + pacman->position_x*TAILLE_CASE;
-    pacman->position_px_y = ORIGINE_Y + pacman->position_y*TAILLE_CASE;
+    map->contenu[pacman->position_y][pacman->position_x] = 0;
+    pacman->position_px_x = ORIGINE_X + pacman->position_x*map->taille_case;
+    pacman->position_px_y = ORIGINE_Y + pacman->position_y*map->taille_case;
     pacman->direction = ' ';
     pacman->next_direction = ' ';
 }
@@ -37,7 +37,7 @@ void affiche_pacman (Pacman *pacman, SDL_Renderer* ren) {
     } else {
         tex = pacman->skin[0]; //Par défaut le pacman regarde à droite
     }}}}
-    renderTexture(tex, ren, pacman->position_px_x, pacman->position_px_y, TAILLE_CASE, TAILLE_CASE);
+    renderTexture(tex, ren, pacman->position_px_x, pacman->position_px_y, 40, 40);
 }
 
 void aller_a_droite (Pacman *pacman){
@@ -60,50 +60,50 @@ void aller_en_bas (Pacman *pacman){
     pacman->position_px_y += VITESSE;
 }
 
-int avance_pacman (Pacman *pacman, int map[MAP_Y][MAP_X], int *score){
-    if (((pacman->position_px_x - ORIGINE_X) % TAILLE_CASE == 0) && ((pacman->position_px_y - ORIGINE_Y) % TAILLE_CASE == 0)){ // <=> pacman au milieu d'une case (et pas en transition entre 2)
-        pacman->position_x = (pacman->position_px_x - ORIGINE_X) / TAILLE_CASE;
-        pacman->position_y = (pacman->position_px_y - ORIGINE_Y) / TAILLE_CASE;
+int avance_pacman (Pacman *pacman, Map *map, int *score){
+    if (((pacman->position_px_x - ORIGINE_X) % map->taille_case == 0) && ((pacman->position_px_y - ORIGINE_Y) % map->taille_case == 0)){ // <=> pacman au milieu d'une case (et pas en transition entre 2)
+        pacman->position_x = (pacman->position_px_x - ORIGINE_X) / map->taille_case;
+        pacman->position_y = (pacman->position_px_y - ORIGINE_Y) / map->taille_case;
         update_score(pacman, map, score);
         // Prise en compte de la nouvelle diretion :
-        if (pacman->next_direction == 'd' && map[pacman->position_y][pacman->position_x + 1] != 1){
+        if (pacman->next_direction == 'd' && map->contenu[pacman->position_y][pacman->position_x + 1] != 1){
             aller_a_droite(pacman);
             return 0;
         }
-        if (pacman->next_direction == 'g' && map[pacman->position_y][pacman->position_x - 1] != 1){
+        if (pacman->next_direction == 'g' && map->contenu[pacman->position_y][pacman->position_x - 1] != 1){
             aller_a_gauche(pacman);
             return 0;
         }
-        if (pacman->next_direction == 'h' && map[pacman->position_y - 1][pacman->position_x] != 1){
+        if (pacman->next_direction == 'h' && map->contenu[pacman->position_y - 1][pacman->position_x] != 1){
             aller_en_haut(pacman);
             return 0;
         }
-        if (pacman->next_direction == 'b' && map[pacman->position_y + 1][pacman->position_x] != 1){
+        if (pacman->next_direction == 'b' && map->contenu[pacman->position_y + 1][pacman->position_x] != 1 && map->contenu[pacman->position_y + 1][pacman->position_x] != 3){
             aller_en_bas(pacman);
             return 0;
         }
 
         // Si impossible -> continuation du mouvement :
-        if (pacman->direction == 'd' && map[pacman->position_y][pacman->position_x + 1] != 1){
+        if (pacman->direction == 'd' && map->contenu[pacman->position_y][pacman->position_x + 1] != 1){
             aller_a_droite(pacman);
             return 0;
         }
-        if (pacman->direction == 'g' && map[pacman->position_y][pacman->position_x - 1] != 1){
+        if (pacman->direction == 'g' && map->contenu[pacman->position_y][pacman->position_x - 1] != 1){
             aller_a_gauche(pacman);
             return 0;
         }
-        if (pacman->direction == 'h' && map[pacman->position_y - 1][pacman->position_x] != 1){
+        if (pacman->direction == 'h' && map->contenu[pacman->position_y - 1][pacman->position_x] != 1){
             aller_en_haut(pacman);
             return 0;
         }
-        if (pacman->direction == 'b' && map[pacman->position_y + 1][pacman->position_x] != 1){
+        if (pacman->direction == 'b' && map->contenu[pacman->position_y + 1][pacman->position_x] != 1 && map->contenu[pacman->position_y + 1][pacman->position_x] != 3){
             aller_en_bas(pacman);
             return 0;
         }
         // Si toujours pas possible alors c'est qu'on a touché un mur. Donc on ne fait rien.
 
     } else { // <=> Le pacman est en transition entre 2 cases. Les seuls mouvements possibles sont alors le demi-tour demandé ou bien le déplacement continue.
-        if (((pacman->position_px_x - ORIGINE_X) % TAILLE_CASE != 0) && ((pacman->position_px_y - ORIGINE_Y) % TAILLE_CASE != 0)){
+        if (((pacman->position_px_x - ORIGINE_X) % map->taille_case != 0) && ((pacman->position_px_y - ORIGINE_Y) % map->taille_case != 0)){
             printf("Erreur : Pacman ne peut pas se trouver sur la diagonale entre 2 cases !!\n");
             return 1;
         }
@@ -142,17 +142,17 @@ int avance_pacman (Pacman *pacman, int map[MAP_Y][MAP_X], int *score){
     }
 }
 
-void update_score (Pacman *pacman, int map[MAP_Y][MAP_X], int *score){
-    if (map[pacman->position_y][pacman->position_x] == 2){
+void update_score (Pacman *pacman, Map *map, int *score){
+    if (map->contenu[pacman->position_y][pacman->position_x] == 2){
         *score += 10;
-        map[pacman->position_y][pacman->position_x] = 0; //Vider la case car le <Gum> à été consommé
+        map->contenu[pacman->position_y][pacman->position_x] = 0; //Vider la case car le <Gum> à été consommé
     } else {
-    if (map[pacman->position_y][pacman->position_x] == 4){
+    if (map->contenu[pacman->position_y][pacman->position_x] == 4){
         *score += 100;
-        map[pacman->position_y][pacman->position_x] = 0; //Vider la case car le <Cherry> à été consommé
+        map->contenu[pacman->position_y][pacman->position_x] = 0; //Vider la case car le <Cherry> à été consommé
     } else {
-    if (map[pacman->position_y][pacman->position_x] == 3){ // <Big_Gum> consommé
-        map[pacman->position_y][pacman->position_x] = 0;
+    if (map->contenu[pacman->position_y][pacman->position_x] == 3){ // <Big_Gum> consommé
+        map->contenu[pacman->position_y][pacman->position_x] = 0;
         // TODO : Ici démarer le mode <frightened>
     }
     }}

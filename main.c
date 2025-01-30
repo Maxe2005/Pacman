@@ -14,8 +14,12 @@ int main (int argc, char *argv[]){
     SDL_Renderer* ren = createRenderer(window);
     
     // Initialisation map, textures pour map et font pour titres
-    int map[MAP_Y][MAP_X];
-    init_map(map);
+    //Map mape = init_map_dessin();
+    //Map mape = init_map_tils();
+    //Map *map = &mape;
+    const char *nom_map = "Map_originale.csv";
+    //save_map_text(nom_map, &map);
+    Map *map = load_map_text(nom_map);
     SDL_Texture* tils[4];
     init_tils(tils, ren);
     TTF_Font* font[1];
@@ -24,7 +28,7 @@ int main (int argc, char *argv[]){
     // Initialisation Pacman
     Pacman pacman;
     init_textures_pacman(&pacman, ren);
-    //premier_placement_pacman(&pacman, map, 1, 1);
+    premier_placement_pacman(&pacman, map, 1, 1);
 
     // Initialisation variables globales
     unsigned int score = 0;
@@ -39,9 +43,8 @@ int main (int argc, char *argv[]){
     while (running) {
         SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
         SDL_RenderClear(ren);
-        //affiche_map(map, tils, ren);
-        //affiche_pacman(&pacman, ren);
-        affiche_map_draw(map, ren);
+        affiche_pacman(&pacman, ren);
+        affiche_map(map, tils, ren);
         sprintf(text_score, "Score : %d",score);
         printText(10, 20, text_score, 300, 60, font[0], white, ren);
 
@@ -51,7 +54,7 @@ int main (int argc, char *argv[]){
         if (dir != ' '){
             pacman.next_direction = dir;
         }
-        //avance_pacman(&pacman, map, &score);
+        avance_pacman(&pacman, map, &score);
         /*
         clock_t current_time = clock();
         if ((double)(current_time - start_time) >= temps_reaction_pacman) {
@@ -62,6 +65,7 @@ int main (int argc, char *argv[]){
         //updateDisplay(ren);
     }
 
+    freeMap(map);
     QuitSDL;
     return 0;
 }
