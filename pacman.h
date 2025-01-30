@@ -12,9 +12,11 @@ typedef struct
     int position_y;
     int position_px_x;
     int position_px_y;
+    int taille_px;
     char direction;
     char next_direction;
     SDL_Texture* skin[4];
+    int nb_vies;
 } Pacman ;
 
 /** Charge les textures dans le tableau "skin" de Pacman
@@ -78,6 +80,6 @@ int avance_pacman (Pacman *pacman, Map *map, int *score);
  * @param map La map sur laquelle se déplace le pacman
  * @param score Le score global à modifier si <gum> ou <cherry> rencontré
  */
-void update_score (Pacman *pacman, Map *map, int *score);
+void update_score (Pacman *pacman, int map[MAP_Y][MAP_X], int *score);
 
 #endif

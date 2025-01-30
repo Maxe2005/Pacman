@@ -8,9 +8,10 @@
 #include <math.h>
 #include "gestionGraphique.h"
 
-#define FEN_X 800
-#define FEN_Y 800
-#define TAILLE_BANDEAU_HAUT 80
+#define FEN_X 1000
+#define FEN_Y 1000
+#define TAILLE_BANDEAU_HAUT 100
+#define MARGE_BANDEAU_HAUT 10
 #define PI 3.14159265358979323846
 
 #endif

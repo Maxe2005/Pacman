@@ -515,3 +515,8 @@ void affiche_map_draw (Map *map, SDL_Texture* tils[4], SDL_Renderer* ren){
 void ajout_gum_dessin (int i, int j, Map *map, SDL_Texture* tils[4], SDL_Renderer* ren) {
     renderTexture(tils[map->contenu[j][i] - 3], ren, ORIGINE_X + i*map->taille_case, ORIGINE_Y + j*map->taille_case, map->taille_case, map->taille_case);
 }
+
+int mod (int a, int b) {
+    int r = a % b;
+    return r < 0 ? r + b : r;
+}
