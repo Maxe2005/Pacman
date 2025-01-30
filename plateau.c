@@ -48,7 +48,7 @@ Map *load_map_text(const char *filename) {
     map->taille_case = (FEN_Y - TAILLE_BANDEAU_HAUT) / map->y;
 
     if (strcmp(map->type, "dessin") == 0) {
-        map->taille_perso = 2 * map->taille_case;
+        map->taille_perso = 1.8 * map->taille_case;
     } else if (strcmp(map->type, "tils") == 0) {
         map->taille_perso = map->taille_case;
     } else {
@@ -117,7 +117,7 @@ Map *load_map_binary (const char *filename) {
     map->taille_case = (FEN_Y-TAILLE_BANDEAU_HAUT)/map->y;
 
     if (strcmp(map->type, "dessin") == 0){
-        map->taille_perso = 2 * map->taille_case;
+        map->taille_perso = 1.8 * map->taille_case;
     } else {
         if (strcmp(map->type, "tils") == 0){
             map->taille_perso = map->taille_case;
@@ -191,14 +191,6 @@ Map init_map_dessin (){
     return map;
 }
 
-void freeMap (Map *map) {
-    for (int i = 0; i < map->y; i++) {
-        free(map->contenu[i]);
-    }
-    free(map->contenu);
-}
-
-
 Map init_map_tils () {
     Map map;
     map.x = 19;
@@ -239,6 +231,13 @@ Map init_map_tils () {
         }
     }
     return map;
+}
+
+void freeMap (Map *map) {
+    for (int i = 0; i < map->y; i++) {
+        free(map->contenu[i]);
+    }
+    free(map->contenu);
 }
 
 

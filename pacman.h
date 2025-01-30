@@ -4,7 +4,7 @@
 #include "ressources.h"
 #include "plateau.h"
 
-#define VITESSE 1
+#define VITESSE_PACMAN 2
 
 typedef struct
 {
@@ -35,6 +35,24 @@ void init_textures_pacman (Pacman *pacman, SDL_Renderer* ren);
 void premier_placement_pacman (Pacman *pacman, Map *map, const int x, const int y);
 
 /**
+ * Converti une position en cases (sur le tableau) en une position en pixel (sur la fenêtre)
+ * @param pacman Une instance de structure de joueur
+ * @param map La map sur laquel va être affiché le pacman
+ * @param difference La différence de position (en cases) par rapport à la position actuelle (en cases) du pacman
+ * @return La position en pixel du pacman (avec la différence demandée)
+ */
+int conversion_case_pixel_en_x (Pacman *pacman, Map *map, int difference);
+
+/**
+ * Converti une position en cases (sur le tableau) en une position en pixel (sur la fenêtre)
+ * @param pacman Une instance de structure de joueur
+ * @param map La map sur laquel va être affiché le pacman
+ * @param difference La différence de position (en cases) par rapport à la position actuelle (en cases) du pacman
+ * @return La position en pixel du pacman (avec la différence demandée)
+ */
+int conversion_case_pixel_en_y (Pacman *pacman, Map *map, int difference);
+
+/**
  * Place la pacman sur le renderer avec le bon skin
  * @param pacman Une instance de structure de joueur
  * @param ren Un pointeur sur une structure contenant l'état du rendu
@@ -44,26 +62,30 @@ void affiche_pacman (Pacman *pacman, SDL_Renderer* ren);
 /**
  * Modifie la position en pixel de l'instance du pacman et sa direction
  * @param pacman Une instance de structure de joueur à déplacer
+ * @param map La map sur laquelle va être affiché le pacman
  */
-void aller_a_droite (Pacman *pacman);
+void aller_a_droite (Pacman *pacman, Map *map);
 
 /**
  * Modifie la position en pixel de l'instance du pacman et sa direction
  * @param pacman Une instance de structure de joueur à déplacer
+ * @param map La map sur laquelle va être affiché le pacman
  */
-void aller_a_gauche (Pacman *pacman);
+void aller_a_gauche (Pacman *pacman, Map *map);
 
 /**
  * Modifie la position en pixel de l'instance du pacman et sa direction
  * @param pacman Une instance de structure de joueur à déplacer
+ * @param map La map sur laquelle va être affiché le pacman
  */
-void aller_en_haut (Pacman *pacman);
+void aller_en_haut (Pacman *pacman, Map *map);
 
 /**
  * Modifie la position en pixel de l'instance du pacman et sa direction
  * @param pacman Une instance de structure de joueur à déplacer
+ * @param map La map sur laquelle va être affiché le pacman
  */
-void aller_en_bas (Pacman *pacman);
+void aller_en_bas (Pacman *pacman, Map *map);
 
 /**
  * Opérations logique pour le déplacement continu du pacman
@@ -80,6 +102,13 @@ int avance_pacman (Pacman *pacman, Map *map, int *score);
  * @param map La map sur laquelle se déplace le pacman
  * @param score Le score global à modifier si <gum> ou <cherry> rencontré
  */
-void update_score (Pacman *pacman, int map[MAP_Y][MAP_X], int *score);
+void update_score (Pacman *pacman, Map *map, int *score);
+
+/**
+ * Gère la téléportation toriques de bord de map du pacman
+ * @param pacman Une instance de structure de joueur à déplacer
+ * @param map La map sur laquelle se déplace le pacman
+ */
+void gestion_map_torique (Pacman *pacman, Map *map);
 
 #endif

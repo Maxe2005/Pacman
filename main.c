@@ -20,6 +20,7 @@ int main (int argc, char *argv[]){
     const char *nom_map = "Map_originale.csv";
     //save_map_text(nom_map, &map);
     Map *map = load_map_text(nom_map);
+
     SDL_Texture* tils[4];
     init_tils(tils, ren);
     TTF_Font* font[1];
@@ -28,7 +29,7 @@ int main (int argc, char *argv[]){
     // Initialisation Pacman
     Pacman pacman;
     init_textures_pacman(&pacman, ren);
-    premier_placement_pacman(&pacman, map, 1, 1);
+    premier_placement_pacman(&pacman, map, 14, 23);
 
     // Initialisation ghosts
     Ghost Pinky;
@@ -40,13 +41,13 @@ int main (int argc, char *argv[]){
     Ghost Clyde;
     init_textures_Clyde(&Clyde, ren);
     Ghost* ghosts[4] = {&Pinky, &Blinky, &Inky, &Clyde};
-    premier_placement_ghost(&Pinky, map, 5, 1);
-    premier_placement_ghost(&Blinky, map, 17, 1);
-    premier_placement_ghost(&Inky, map, 1, 19);
-    premier_placement_ghost(&Clyde, map, 17, 19);
+    premier_placement_ghost(&Pinky, map, 12, 11);
+    premier_placement_ghost(&Blinky, map, 13, 11);
+    premier_placement_ghost(&Inky, map, 14, 11);
+    premier_placement_ghost(&Clyde, map, 15, 11);
 
     // Initialisation des vies
-    SDL_Texture * skin_vies = loadTexture("ressources/pakuman_0.bmp", ren);
+    SDL_Texture * skin_vies = loadTexture("ressources/pacman/pakuman_0.bmp", ren);
     pacman.nb_vies = 3;
 
     // Initialisation variables globales
