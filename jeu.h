@@ -6,6 +6,13 @@
 #include "plateau.h"
 #include "ghost.h"
 
+typedef struct {
+    SDL_Texture** tils;
+    Pacman* pacman;
+    unsigned int score;
+    TTF_Font *font[1];
+} Partie ;
+
 /**
  * Initialise les différentes polices de caractère avec les tailles correspondantes
  * @param font Le tableau de police vide à remplire
@@ -15,16 +22,28 @@ void init_font (TTF_Font* font[1]);
 /**
  * Début du lancement du jeu
  * @param ren Un pointeur sur une structure contenant l'état du rendu
- * @param map La map à afficher
- * @param tils Le tableau contenant les textures des différents tils
- * @param pacman Une instance de structure de joueur
- * @param font tableau de police 
- * 
  */
-void debut_jeu (SDL_Renderer* ren);
+void init_partie (SDL_Renderer* ren);
 
+/**
+ * Affiche sur le renderer le bouton start
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ * @param bouton_start La texture du bouton
+ */
+void affiche_bouton_start (SDL_Renderer* ren, SDL_Texture* bouton_start);
 
+/**
+ * Affiche sur le renderer le logo
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ * @param logo La texture du logo
+ */
+void affiche_logo (SDL_Renderer* ren, SDL_Texture* logo);
 
+/**
+ * Début du lancement du jeu
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ */
+void ecran_acceuil (SDL_Renderer* ren);
 
 
 /**
@@ -38,21 +57,7 @@ void debut_jeu (SDL_Renderer* ren);
  * @param font Un tableau de police 
  * @param running Un booléen qui permet la boucle de jeu
  */
-void ecran_acceuil (SDL_Renderer* ren,int map[MAP_Y][MAP_X],SDL_Texture** tils,Pacman* pacman,char text_score[15],unsigned int score,TTF_Font *font[1],int* running);
-
-
-/**
- * Début du lancement du jeu
- * @param ren Un pointeur sur une structure contenant l'état du rendu
- * @param map La map à afficher
- * @param tils Le tableau contenant les textures des différents tils
- * @param pacman Une instance de structure de joueur
- * @param texte Le score qui s'affiche dans le bandeau en haut
- * @param score La valeur du score qui s'affiche en haut
- * @param font Un tableau de police 
- * @param running Un booléen qui permet la boucle de jeu
- */
-void boucle_de_jeu(SDL_Renderer* ren,int map[MAP_Y][MAP_X],SDL_Texture** tils,Pacman* pacman,char text_score[15],unsigned int score,TTF_Font *font[1],int* running);
+void boucle_de_jeu(SDL_Renderer* ren,int map[MAP_Y][MAP_X],SDL_Texture** tils,Pacman* pacman,unsigned int score,TTF_Font *font[1]);
 
 
 #endif

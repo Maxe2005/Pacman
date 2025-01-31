@@ -7,73 +7,90 @@
 
 void init_font (TTF_Font* font[1]) {
     font[0] = createFont("ressources/DejaVuSans-Bold.ttf", 20); //Font de titres
-
 }
 
 
-void debut_jeu (SDL_Renderer* ren) {
+void init_partie (SDL_Renderer* ren) {
     unsigned int score = 0;
-    char text_score[15];
-    int running = 1;
-    // Initialisation map, textures pour map et font pour titres
 
+    // Initialisation map, textures pour map et font pour titres
     int map[MAP_Y][MAP_X];
     init_map(map);
     SDL_Texture* tils[4];
     init_tils(tils, ren);
     TTF_Font* font[1];
     init_font(font);
+
+    // Initialisation Pacman
     Pacman pacman;
     init_textures_pacman(&pacman, ren);
     premier_placement_pacman(&pacman, map, 1, 1);
-    ecran_acceuil (ren,map,tils,&pacman,text_score,score,font,&running);
 
+    boucle_de_jeu (ren,map,tils,&pacman,score,font);
+}
 
-    
-
-}  
-
-void ecran_acceuil (SDL_Renderer* ren,int map[MAP_Y][MAP_X],SDL_Texture** tils,Pacman* pacman,char text_score[15],unsigned int score,TTF_Font *font[1],int* running){
-    char lancement;
-    SDL_Texture* logo =loadTexture("ressources/pac-man-logo.bmp", ren);
-    SDL_Texture* bouton_start =loadTexture("ressources/bouton_start_pacman.bmp", ren);
-    int verification; // permet de ne pas charger trop d'image plus bas
-    clock_t start_time = clock();
-    const double temps_reaction_pacman = 2000.0 / 1000.0 * CLOCKS_PER_SEC; //temps_reaction_pacman convertion de milisecondes à clocks
-    verification = 0;
+void affiche_logo (SDL_Renderer* ren, SDL_Texture* logo) {
     renderTexture(logo, ren,(int)(FEN_X /4),(int)(FEN_Y/8),(int)(FEN_X/2),(int)(FEN_Y/4));
-    while (*running) {
-        clock_t current_time = clock();
+}
+
+void affiche_bouton_start (SDL_Renderer* ren, SDL_Texture* bouton_start) {
+    renderTexture(bouton_start, ren,(int)(FEN_X /4),(int)(FEN_Y/2),(int)(FEN_X/2),(int)(FEN_Y/4));
+}
+
+void ecran_acceuil (SDL_Renderer* ren){
+    SDL_Texture* logo = loadTexture("ressources/pac-man-logo.bmp", ren);
+    SDL_Texture* bouton_start = loadTexture("ressources/bouton_start_pacman.bmp", ren);
+
+    clock_t current_time;
+    clock_t start_time = clock();
+    const double temps_clignotement_bouton_start = 250.0 / 1000.0 * CLOCKS_PER_SEC; //temps_reaction_pacman convertion de milisecondes à clocks
+    
+    SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
+    SDL_RenderClear(ren);
+    affiche_logo(ren, logo);
+    affiche_bouton_start(ren, bouton_start);
+
+    char lancement;
+    int is_bouton_start_visible = 1; // Booleen qui permet de faire clignoter le bouton start
+    int running = 1;
+
+    while (running) {
+        current_time = clock();
         updateDisplay(ren);
-        if ((double)(current_time - start_time) >= (temps_reaction_pacman / 2) && verification==0) {
-            renderTexture(bouton_start, ren,(int)(FEN_X /4),(int)(FEN_Y/2),(int)(FEN_X/2),(int)(FEN_Y/4));
-            verification=1;
-        }
-         if ((double)(current_time - start_time) >= temps_reaction_pacman && verification==1) {
-            SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
-            SDL_RenderClear(ren);
-            renderTexture(logo, ren,(int)(FEN_X /4),(int)(FEN_Y/8),(int)(FEN_X/2),(int)(FEN_Y/4));
-            verification=0;
+
+        if ((double)(current_time - start_time) >= temps_clignotement_bouton_start) {
+            if (is_bouton_start_visible == 1){
+                SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
+                SDL_RenderClear(ren);
+                affiche_logo(ren, logo);
+                is_bouton_start_visible = 0;
+            } else {
+                affiche_bouton_start(ren, bouton_start);
+                is_bouton_start_visible = 1;
+            }
             start_time = current_time;
         }
         
-        
-        lancement = processKeyboard(running);
+        lancement = processKeyboard(&running);
         if (lancement == 'L'){
-            boucle_de_jeu(ren,map,tils,pacman,text_score,score,font,running);
+            init_partie(ren);
+            running = 0;
+        }
+    }
 }
-}
-}
 
 
 
 
 
 
-void boucle_de_jeu(SDL_Renderer* ren,int map[MAP_Y][MAP_X],SDL_Texture** tils,Pacman* pacman,char text_score[15],unsigned int score,TTF_Font *font[1],int* running){
+void boucle_de_jeu(SDL_Renderer* ren,int map[MAP_Y][MAP_X],SDL_Texture** tils,Pacman* pacman,unsigned int score,TTF_Font *font[1]){
     char dir;
-    SDL_Color white = {255, 255, 255, 255} ;
-    while (*running){
+    SDL_Color white = {255, 255, 255, 255};
+    char text_score[15];
+    int running = 1;
+
+    while (running){
         SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
         SDL_RenderClear(ren);
         affiche_map(map, tils, ren);
@@ -82,24 +99,16 @@ void boucle_de_jeu(SDL_Renderer* ren,int map[MAP_Y][MAP_X],SDL_Texture** tils,Pa
         printText(10, 20, text_score, 300, 60, font[0], white, ren);
         updateDisplay(ren);
 
-        dir = processKeyboard(running);
+        dir = processKeyboard(&running);
         if (dir != ' '){
             pacman->next_direction = dir;
         }
         if (dir == 'M'){
-            *running = 0;
+            running = 0;
 
         }
         avance_pacman(pacman, map, &score);
     }
-    *running = 1;
-    SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
-    SDL_RenderClear(ren);
-    debut_jeu (ren); // retour à l'écran d'acceuil
-    
-        
+
+    ecran_acceuil (ren); // retour à l'écran d'acceuil
 }
-
-
-
-//void set_affichage_global (SDL_Renderer *ren, int map[MAP_Y][MAP_X]) {}
