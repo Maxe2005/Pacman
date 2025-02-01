@@ -140,13 +140,6 @@ void choix_direction_aleatoire (Ghost *ghost, char choix_valides[4], const int n
     ghost->direction = choix_valides[nb_alea(0, nb_choix - 1)];
 }
 
-void is_colision_pacman (Ghost *ghost, Pacman *pacman) {
-    if (ghost->position_px_x - pacman->position_px_x < ghost->taille_px && ghost->position_px_x - pacman->position_px_x < pacman->taille_px
-        && ghost->position_px_y - pacman->position_px_y < ghost->taille_px && ghost->position_px_y - pacman->position_px_y < pacman->taille_px) {
-            collision_avec_ghost(pacman);
-        }
-}
-
 void gestion_map_torique_g (Ghost *ghost, Map *map) {
     if (ghost->position_x == map->x) {
         ghost->position_x = 0;
@@ -166,9 +159,8 @@ void gestion_map_torique_g (Ghost *ghost, Map *map) {
     }
 }
 
-int avance_ghost (Ghost *ghost, Map *map, Pacman *pacman){
+int avance_ghost (Ghost *ghost, Map *map){
     if (ghost->is_affiche == 1) {
-        is_colision_pacman(ghost, pacman);
         if (((ghost->position_px_x - ORIGINE_X + (int)((ghost->taille_px - map->taille_case)/2)) % map->taille_case == 0) && ((ghost->position_px_y - ORIGINE_Y + (int)((ghost->taille_px - map->taille_case)/2)) % map->taille_case == 0)){ // <=> ghost au milieu d'une case (et pas en transition entre 2)
             ghost->position_x = (ghost->position_px_x - ORIGINE_X + (int)((ghost->taille_px - map->taille_case)/2)) / map->taille_case;
             ghost->position_y = (ghost->position_px_y - ORIGINE_Y + (int)((ghost->taille_px - map->taille_case)/2)) / map->taille_case;

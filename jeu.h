@@ -12,7 +12,10 @@ typedef struct {
     Pacman* pacman;
     Ghost** ghosts;
     TTF_Font** font;
+    SDL_Texture * skin_vies;
     unsigned int score;
+    int nb_vies; // Le nombre de vies restantes au pacman/joueur
+    unsigned int nb_ghosts; //Le nombre de ghost en circulation sur la map 
 } Partie ;
 
 /**
@@ -30,10 +33,29 @@ void init_font (TTF_Font* font[1]);
 void affiche_les_vies (SDL_Renderer* ren, SDL_Texture * skin_vies, const int nb_vies);
 
 /**
- * Gère le actions à effectuer quand le pacman rentre en collision avec un ghost
+ * Vérifie si le ghost est en contacte avec le pacman et gère les actions à effectuer
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ * @param ghosts Le tableau avec toutes les instance de structure de fantôme
  * @param pacman Une instance de structure de joueur
+ * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
+ * @param running Le booleen qui peut arrêter la boucle principale
+ * @return 1 si collision avec un fantôme, 0 sinom
  */
-void collision_avec_ghost (Pacman *pacman);
+int is_collision_pacman_ghost (SDL_Renderer* ren, Ghost** ghosts, Pacman *pacman, Partie* partie, int* running);
+
+/**
+ * Tout est dans le titre !
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
+ */
+void annimation_mort_pacman (SDL_Renderer* ren, Partie* partie);
+
+/**
+ * Efface et affiche sur le renderer l'écran de jeu
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
+ */
+void affiche_ecran_jeu (SDL_Renderer* ren, Partie* partie);
 
 /**
  * Début du lancement du jeu
@@ -61,6 +83,19 @@ void affiche_logo (SDL_Renderer* ren, SDL_Texture* logo);
  */
 void ecran_acceuil (SDL_Renderer* ren);
 
+/**
+ * Tout est dans le titre ! s
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
+ */
+void affiche_ecran_game_over (SDL_Renderer* ren, Partie* partie);
+
+/**
+ * Place les pacman et les fantômes à leur position de départ avant le début de la partie
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
+ */
+void placament_pacman_et_ghost (SDL_Renderer* ren, Partie* partie);
 
 /**
  * Début du lancement du jeu

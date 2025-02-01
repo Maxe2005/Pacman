@@ -1,8 +1,4 @@
 #include "jeu.h"
-#include "plateau.h"
-#include "pacman.h"
-#include "ghost.h"
-
 
 
 void init_font (TTF_Font* font[1]) {
@@ -16,12 +12,83 @@ void affiche_les_vies (SDL_Renderer* ren, SDL_Texture * skin_vies, const int nb_
     }
 }
 
-void collision_avec_ghost (Pacman *pacman) {
-    pacman->nb_vies--;
-    if (pacman->nb_vies == 0) {
-        // TODO menu game over
+int is_collision_pacman_ghost (SDL_Renderer* ren, Ghost** ghosts, Pacman *pacman, Partie* partie, int* running) {
+    for (int i = 0; i < partie->nb_ghosts; i++){
+        if (abs(ghosts[i]->position_px_x - pacman->position_px_x) < ghosts[i]->taille_px/2 && abs(ghosts[i]->position_px_x - pacman->position_px_x) < pacman->taille_px/2
+                && abs(ghosts[i]->position_px_y - pacman->position_px_y) < ghosts[i]->taille_px/2 && abs(ghosts[i]->position_px_y - pacman->position_px_y) < pacman->taille_px/2) {
+            partie->nb_vies--;
+            *running = 0;
+            if (partie->nb_vies == 0) {
+                affiche_ecran_game_over(ren, partie);
+                SDL_Delay(5000);
+                ecran_acceuil(ren);
+            } else {
+                annimation_mort_pacman(ren, partie);
+                placament_pacman_et_ghost(ren, partie);
+                boucle_de_jeu(ren, partie);
+            }
+            return 1;
+        }
     }
-    // TODO stop la loop et reconmencer partie
+    return 0;
+}
+
+void affiche_ecran_game_over (SDL_Renderer* ren, Partie* partie) {
+    int division_x_titre = 5; // doit être >= 3
+    int division_y_titre = 4; // doit être >= 3
+    int titre_x = (int)(FEN_X/division_x_titre);
+    int titre_y = (int)(FEN_Y/division_y_titre);
+    int taille_titre_x = (int)(FEN_X/division_x_titre * (division_x_titre-2));
+    int taille_titre_y = taille_titre_x/3 ;
+
+    int division_x_score = 5; // doit être >= 3
+    int division_y_score = 5;
+    int score_x = titre_x + (int)(taille_titre_x / division_x_score);
+    int score_y = titre_y + taille_titre_y + (int)(taille_titre_y / division_y_score);
+    int taille_score_x = (int)(taille_titre_x/division_x_score * (division_x_score-2));
+    int taille_score_y = taille_score_x/5;
+
+    char text_score[15];
+    SDL_Color white = {255, 255, 255, 255};
+    SDL_Color red = {255, 0, 0, 255};
+
+    // Effacer
+    SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
+    SDL_RenderClear(ren);
+
+    printText(titre_x, titre_y, "Game Over", taille_titre_x, taille_titre_y, partie->font[0], red, ren);
+    sprintf(text_score, "Score : %d",partie->score);
+    printText(score_x, score_y, text_score, taille_score_x, taille_score_y, partie->font[0], white, ren);
+    updateDisplay(ren);
+}
+
+void annimation_mort_pacman (SDL_Renderer* ren, Partie* partie) {
+    char directions[4] = {'d', 'b', 'g', 'h'};
+    unsigned int i = 0; 
+
+    while ( i < 10 ){
+        affiche_ecran_jeu(ren, partie);
+        partie->pacman->direction = directions[i%4] ;
+        affiche_pacman(partie->pacman, ren);
+        updateDisplay(ren);
+        SDL_Delay(100);
+        i++;
+    }
+}
+
+void affiche_ecran_jeu (SDL_Renderer* ren, Partie* partie) {
+    // Effacer
+    SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
+    SDL_RenderClear(ren);
+
+    // Score
+    char text_score[15];
+    SDL_Color white = {255, 255, 255, 255};
+    sprintf(text_score, "Score : %d",partie->score);
+    printText(MARGE_BANDEAU_HAUT, MARGE_BANDEAU_HAUT, text_score, MARGE_BANDEAU_HAUT + 250, TAILLE_BANDEAU_HAUT - 2*MARGE_BANDEAU_HAUT, partie->font[0], white, ren);
+    
+    affiche_les_vies(ren, partie->skin_vies, partie->nb_vies);
+    affiche_map(partie->map, partie->tils, ren);
 }
 
 void free_partie (Partie* partie) {
@@ -34,6 +101,7 @@ void free_partie (Partie* partie) {
 
 void init_partie (SDL_Renderer* ren) {
     Partie* partie = malloc(sizeof(Partie));
+
     partie->score = 0;
 
     // Initialisation map, textures pour map et font pour titres
@@ -44,7 +112,6 @@ void init_partie (SDL_Renderer* ren) {
     //save_map_text(nom_map, &map);
     partie->map = load_map_text(nom_map);
 
-
     partie->tils = malloc(sizeof(SDL_Texture*) * 4);
     init_tils(partie->tils, ren);
 
@@ -54,10 +121,9 @@ void init_partie (SDL_Renderer* ren) {
     // Initialisation Pacman
     partie->pacman = malloc(sizeof(Pacman));
     init_textures_pacman(partie->pacman, ren);
-    premier_placement_pacman(partie->pacman, partie->map, 1, 1);
     // Initialisation des vies
-    SDL_Texture * skin_vies = loadTexture("ressources/pacman/pakuman_0.bmp", ren);
-    partie->pacman->nb_vies = 3;
+    partie->skin_vies = loadTexture("ressources/pacman/pakuman_0.bmp", ren);
+    partie->nb_vies = 3;
 
     // Initialisation ghosts
     partie->ghosts = malloc(sizeof(Ghost) * 4);
@@ -65,25 +131,27 @@ void init_partie (SDL_Renderer* ren) {
         partie->ghosts[i] = malloc(sizeof(Ghost));
         init_ghost(partie->ghosts[i], ren, i);
     }
-    for (int i = 0; i < 4; i++) {
-    premier_placement_ghost(partie->ghosts[i], partie->map, 12 + i, 11);
-    }
-
+    
+    placament_pacman_et_ghost(ren, partie);
     boucle_de_jeu (ren, partie);
+}
+
+void placament_pacman_et_ghost (SDL_Renderer* ren, Partie* partie){
+    premier_placement_pacman(partie->pacman, partie->map, 14, 23);
+
+    partie->nb_ghosts = 0;
+    for (int i = 0; i < 4; i++) {
+        premier_placement_ghost(partie->ghosts[i], partie->map, 12 + i, 11);
+        partie->nb_ghosts++;
+    }
 }
 
 void boucle_de_jeu(SDL_Renderer* ren, Partie* partie){
     char dir;
-    SDL_Color white = {255, 255, 255, 255};
-    char text_score[15];
     int running = 1;
 
     while (running){
-        SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
-        SDL_RenderClear(ren);
-        sprintf(text_score, "Score : %d",partie->score);
-        printText(MARGE_BANDEAU_HAUT, MARGE_BANDEAU_HAUT, text_score, MARGE_BANDEAU_HAUT + 250, TAILLE_BANDEAU_HAUT - 2*MARGE_BANDEAU_HAUT, partie->font[0], white, ren);
-        affiche_map(partie->map, partie->tils, ren);
+        affiche_ecran_jeu(ren, partie);
         affiche_pacman(partie->pacman, ren);
         for (int i = 0; i < 4; i++) {
             affiche_ghost(partie->ghosts[i], ren);
@@ -92,8 +160,9 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie){
 
         avance_pacman(partie->pacman, partie->map, &(partie->score));
         for (int i = 0; i < 4; i++) {
-            avance_ghost(partie->ghosts[i], partie->map, partie->pacman);
+            avance_ghost(partie->ghosts[i], partie->map);
         }
+        is_collision_pacman_ghost(ren, partie->ghosts, partie->pacman, partie, &running);
 
         dir = processKeyboard(&running);
         if (dir != ' '){

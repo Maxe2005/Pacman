@@ -4,7 +4,6 @@
 #include "ressources.h"
 #include "plateau.h"
 #include "pacman.h"
-#include "jeu.h"
 
 #define VITESSE_GHOST 1
 
@@ -134,19 +133,12 @@ int nb_alea(int min, int max);
 void choix_direction_aleatoire (Ghost *ghost, char choix_valides[4], const int nb_choix);
 
 /**
- * Vérifie si le ghost est en contacte avec le pacman
- * @param ghost Une instance de structure de fantôme
- * @param pacman Une instance de structure de joueur
- */
-void is_colision_pacman (Ghost *ghost, Pacman *pacman);
-
-/**
  * Opérations logique pour le déplacement continu du ghost
  * @param ghost Une instance de structure de fantôme
  * @param map La map sur laquelle va être affiché le ghost
  * @return 0 si tout c'est bien passé, 1 si erreur
  */
-int avance_ghost (Ghost *ghost, Map *map, Pacman *pacman);
+int avance_ghost (Ghost *ghost, Map *map);
 
 /**
  * Gère la téléportation toriques de bord de map des ghost
