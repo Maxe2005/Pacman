@@ -10,6 +10,7 @@
 
 typedef struct
 {
+    char nom[6];
     int position_x;
     int position_y;
     int position_px_x;
@@ -21,6 +22,14 @@ typedef struct
     int is_affiche; // Booleen définissant si le fantôme est sur le map
     SDL_Texture* skin[4];
 } Ghost ;
+
+/**
+ * Initialise et répartit les différents ghosts
+ * @param ghost L'instance de structure ghost à remplire
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ * @param num_ghost Un numéro pour identifier les différents fantômes
+ */
+void init_ghost (Ghost *ghost, SDL_Renderer* ren, int num_ghost);
 
 /** Charge les textures de Blinky (le fantôme rouge) dans le tableau "skin" de Ghost
  * @param ghost Une instance de structure du fantome

@@ -103,6 +103,12 @@ char processKeyboard(int *running){
 			case SDL_KEYUP://SDL_KEYDOWN:
 				key=e.key.keysym.sym;
 				switch(key){
+					case SDLK_p:
+						pdirection='L'; /* on définit le lancement du jeu depuis l'affichage au début*/
+						break;
+					case SDLK_BACKSPACE:
+						pdirection='M'; /* on définit le lancement du jeu depuis l'affichage au début*/
+						break;
 					case SDLK_LEFT:
 						pdirection='g';
 						break;
