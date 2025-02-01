@@ -8,6 +8,7 @@
 void init_font (TTF_Font* font[1]) {
     font[0] = createFont("ressources/DejaVuSans-Bold.ttf", 20); //Font de titres
 }
+
 void affiche_les_vies (SDL_Renderer* ren, SDL_Texture * skin_vies, const int nb_vies) {
     const int taille = TAILLE_BANDEAU_HAUT - 2*MARGE_BANDEAU_HAUT;
     for (int i = 1; i <= nb_vies; i++) {
@@ -22,10 +23,12 @@ void collision_avec_ghost (Pacman *pacman) {
     }
     // TODO stop la loop et reconmencer partie
 }
+
 void free_partie (Partie* partie) {
     free(partie->tils);
     free(partie->font);
     free(partie->pacman);
+    freeMap(partie->map);
     free(partie);
 }
 
@@ -34,8 +37,13 @@ void init_partie (SDL_Renderer* ren) {
     partie->score = 0;
 
     // Initialisation map, textures pour map et font pour titres
-    int map[MAP_Y][MAP_X];
-    init_map(map);
+    //Map mape = init_map_dessin();
+    //Map mape = init_map_tils();
+    //partie->map = &mape;
+    const char *nom_map = "Map_originale.csv";
+    //save_map_text(nom_map, &map);
+    partie->map = load_map_text(nom_map);
+
 
     partie->tils = malloc(sizeof(SDL_Texture*) * 4);
     init_tils(partie->tils, ren);
@@ -46,12 +54,25 @@ void init_partie (SDL_Renderer* ren) {
     // Initialisation Pacman
     partie->pacman = malloc(sizeof(Pacman));
     init_textures_pacman(partie->pacman, ren);
-    premier_placement_pacman(partie->pacman, map, 1, 1);
+    premier_placement_pacman(partie->pacman, partie->map, 1, 1);
+    // Initialisation des vies
+    SDL_Texture * skin_vies = loadTexture("ressources/pacman/pakuman_0.bmp", ren);
+    partie->pacman->nb_vies = 3;
 
-    boucle_de_jeu (ren, partie, map);
+    // Initialisation ghosts
+    partie->ghosts = malloc(sizeof(Ghost) * 4);
+    for (int i = 0; i < 4; i++) {
+        partie->ghosts[i] = malloc(sizeof(Ghost));
+        init_ghost(partie->ghosts[i], ren, i);
+    }
+    for (int i = 0; i < 4; i++) {
+    premier_placement_ghost(partie->ghosts[i], partie->map, 12 + i, 11);
+    }
+
+    boucle_de_jeu (ren, partie);
 }
 
-void boucle_de_jeu(SDL_Renderer* ren, Partie* partie, int map[MAP_Y][MAP_X]){
+void boucle_de_jeu(SDL_Renderer* ren, Partie* partie){
     char dir;
     SDL_Color white = {255, 255, 255, 255};
     char text_score[15];
@@ -60,13 +81,19 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie, int map[MAP_Y][MAP_X]){
     while (running){
         SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
         SDL_RenderClear(ren);
-        affiche_map(map, partie->tils, ren);
-        affiche_pacman(partie->pacman, ren);
         sprintf(text_score, "Score : %d",partie->score);
-        printText(10, 20, text_score, 300, 60, partie->font[0], white, ren);
+        printText(MARGE_BANDEAU_HAUT, MARGE_BANDEAU_HAUT, text_score, MARGE_BANDEAU_HAUT + 250, TAILLE_BANDEAU_HAUT - 2*MARGE_BANDEAU_HAUT, partie->font[0], white, ren);
+        affiche_map(partie->map, partie->tils, ren);
+        affiche_pacman(partie->pacman, ren);
+        for (int i = 0; i < 4; i++) {
+            affiche_ghost(partie->ghosts[i], ren);
+        }
         updateDisplay(ren);
 
-        avance_pacman(partie->pacman, map, &(partie->score));
+        avance_pacman(partie->pacman, partie->map, &(partie->score));
+        for (int i = 0; i < 4; i++) {
+            avance_ghost(partie->ghosts[i], partie->map, partie->pacman);
+        }
 
         dir = processKeyboard(&running);
         if (dir != ' '){

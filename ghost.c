@@ -1,12 +1,30 @@
 #include "ghost.h"
 
+void init_ghost (Ghost *ghost, SDL_Renderer* ren, int num_ghost){
+    if (num_ghost == 0){
+        init_textures_Blinky(ghost, ren);
+        strcpy(ghost->nom, "Blinky");
+    } else {
+    if (num_ghost == 1){
+        init_textures_Pinky(ghost, ren);
+        strcpy(ghost->nom, "Pinky");
+    } else {
+    if (num_ghost == 2){
+        init_textures_Inky(ghost, ren);
+        strcpy(ghost->nom, "Inky");
+    } else {
+    if (num_ghost == 3){
+        init_textures_Clyde(ghost, ren);
+        strcpy(ghost->nom, "Clyde");
+    }}}}
+    ghost->is_affiche = 0;
+}
 
 void init_textures_Blinky (Ghost *ghost, SDL_Renderer* ren){
     ghost->skin[0] = loadTexture("ressources/ghost/ghost1_0.bmp", ren);
     ghost->skin[1] = loadTexture("ressources/ghost/ghost1_1.bmp", ren);
     ghost->skin[2] = loadTexture("ressources/ghost/ghost1_2.bmp", ren);
     ghost->skin[3] = loadTexture("ressources/ghost/ghost1_3.bmp", ren);
-    ghost->is_affiche = 0;
 }
 
 void init_textures_Pinky (Ghost *ghost, SDL_Renderer* ren){
@@ -14,7 +32,6 @@ void init_textures_Pinky (Ghost *ghost, SDL_Renderer* ren){
     ghost->skin[1] = loadTexture("ressources/ghost/ghost2_1.bmp", ren);
     ghost->skin[2] = loadTexture("ressources/ghost/ghost2_2.bmp", ren);
     ghost->skin[3] = loadTexture("ressources/ghost/ghost2_3.bmp", ren);
-    ghost->is_affiche = 0;
 }
 
 void init_textures_Inky (Ghost *ghost, SDL_Renderer* ren){
@@ -22,7 +39,6 @@ void init_textures_Inky (Ghost *ghost, SDL_Renderer* ren){
     ghost->skin[1] = loadTexture("ressources/ghost/ghost3_1.bmp", ren);
     ghost->skin[2] = loadTexture("ressources/ghost/ghost3_2.bmp", ren);
     ghost->skin[3] = loadTexture("ressources/ghost/ghost3_3.bmp", ren);
-    ghost->is_affiche = 0;
 }
 
 void init_textures_Clyde (Ghost *ghost, SDL_Renderer* ren){
@@ -30,7 +46,6 @@ void init_textures_Clyde (Ghost *ghost, SDL_Renderer* ren){
     ghost->skin[1] = loadTexture("ressources/ghost/ghost4_1.bmp", ren);
     ghost->skin[2] = loadTexture("ressources/ghost/ghost4_2.bmp", ren);
     ghost->skin[3] = loadTexture("ressources/ghost/ghost4_3.bmp", ren);
-    ghost->is_affiche = 0;
 }
 
 int conversion_case_pixel_en_x_g (Ghost *ghost, Map *map, int difference){

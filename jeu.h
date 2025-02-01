@@ -7,10 +7,12 @@
 #include "ghost.h"
 
 typedef struct {
+    Map* map;
     SDL_Texture** tils;
     Pacman* pacman;
-    unsigned int score;
+    Ghost** ghosts;
     TTF_Font** font;
+    unsigned int score;
 } Partie ;
 
 /**
@@ -63,15 +65,9 @@ void ecran_acceuil (SDL_Renderer* ren);
 /**
  * Début du lancement du jeu
  * @param ren Un pointeur sur une structure contenant l'état du rendu
- * @param map La map à afficher
- * @param tils Le tableau contenant les textures des différents tils
- * @param pacman Une instance de structure de joueur
- * @param texte Le score qui s'affiche dans le bandeau en haut
- * @param score La valeur du score qui s'affiche en haut
- * @param font Un tableau de police 
- * @param running Un booléen qui permet la boucle de jeu
+ * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
  */
-void boucle_de_jeu(SDL_Renderer* ren, Partie* partie, int map[MAP_Y][MAP_X]);
+void boucle_de_jeu(SDL_Renderer* ren, Partie* partie);
 
 /**
  * Libère la mémoire réservé à la partie
