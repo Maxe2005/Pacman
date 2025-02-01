@@ -9,25 +9,64 @@ void init_font (TTF_Font* font[1]) {
     font[0] = createFont("ressources/DejaVuSans-Bold.ttf", 20); //Font de titres
 }
 
+void free_partie (Partie* partie) {
+    free(partie->tils);
+    free(partie->font);
+    free(partie->pacman);
+    free(partie);
+}
 
 void init_partie (SDL_Renderer* ren) {
-    unsigned int score = 0;
+    Partie* partie = malloc(sizeof(Partie));
+    partie->score = 0;
 
     // Initialisation map, textures pour map et font pour titres
     int map[MAP_Y][MAP_X];
     init_map(map);
-    SDL_Texture* tils[4];
-    init_tils(tils, ren);
-    TTF_Font* font[1];
-    init_font(font);
+
+    partie->tils = malloc(sizeof(SDL_Texture*) * 4);
+    init_tils(partie->tils, ren);
+
+    partie->font = malloc(sizeof(TTF_Font*) * 1);
+    init_font(partie->font);
 
     // Initialisation Pacman
-    Pacman pacman;
-    init_textures_pacman(&pacman, ren);
-    premier_placement_pacman(&pacman, map, 1, 1);
+    partie->pacman = malloc(sizeof(Pacman));
+    init_textures_pacman(partie->pacman, ren);
+    premier_placement_pacman(partie->pacman, map, 1, 1);
 
-    boucle_de_jeu (ren,map,tils,&pacman,score,font);
+    boucle_de_jeu (ren, partie, map);
 }
+
+void boucle_de_jeu(SDL_Renderer* ren, Partie* partie, int map[MAP_Y][MAP_X]){
+    char dir;
+    SDL_Color white = {255, 255, 255, 255};
+    char text_score[15];
+    int running = 1;
+
+    while (running){
+        SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
+        SDL_RenderClear(ren);
+        affiche_map(map, partie->tils, ren);
+        affiche_pacman(partie->pacman, ren);
+        sprintf(text_score, "Score : %d",partie->score);
+        printText(10, 20, text_score, 300, 60, partie->font[0], white, ren);
+        updateDisplay(ren);
+
+        avance_pacman(partie->pacman, map, &(partie->score));
+
+        dir = processKeyboard(&running);
+        if (dir != ' '){
+            partie->pacman->next_direction = dir;
+        }
+        if (dir == 'M'){
+            free_partie(partie);
+            ecran_acceuil (ren); // retour à l'écran d'acceuil
+            running = 0;
+        }
+    }
+}
+
 
 void affiche_logo (SDL_Renderer* ren, SDL_Texture* logo) {
     renderTexture(logo, ren,(int)(FEN_X /4),(int)(FEN_Y/8),(int)(FEN_X/2),(int)(FEN_Y/4));
@@ -43,7 +82,7 @@ void ecran_acceuil (SDL_Renderer* ren){
 
     clock_t current_time;
     clock_t start_time = clock();
-    const double temps_clignotement_bouton_start = 250.0 / 1000.0 * CLOCKS_PER_SEC; //temps_reaction_pacman convertion de milisecondes à clocks
+    const double temps_clignotement_bouton_start = 125.0 / 1000.0 * CLOCKS_PER_SEC; //temps_reaction_pacman convertion de milisecondes à clocks
     
     SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
     SDL_RenderClear(ren);
@@ -79,36 +118,3 @@ void ecran_acceuil (SDL_Renderer* ren){
     }
 }
 
-
-
-
-
-
-void boucle_de_jeu(SDL_Renderer* ren,int map[MAP_Y][MAP_X],SDL_Texture** tils,Pacman* pacman,unsigned int score,TTF_Font *font[1]){
-    char dir;
-    SDL_Color white = {255, 255, 255, 255};
-    char text_score[15];
-    int running = 1;
-
-    while (running){
-        SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
-        SDL_RenderClear(ren);
-        affiche_map(map, tils, ren);
-        affiche_pacman(pacman, ren);
-        sprintf(text_score, "Score : %d",score);
-        printText(10, 20, text_score, 300, 60, font[0], white, ren);
-        updateDisplay(ren);
-
-        dir = processKeyboard(&running);
-        if (dir != ' '){
-            pacman->next_direction = dir;
-        }
-        if (dir == 'M'){
-            running = 0;
-
-        }
-        avance_pacman(pacman, map, &score);
-    }
-
-    ecran_acceuil (ren); // retour à l'écran d'acceuil
-}

@@ -10,7 +10,7 @@ typedef struct {
     SDL_Texture** tils;
     Pacman* pacman;
     unsigned int score;
-    TTF_Font *font[1];
+    TTF_Font** font;
 } Partie ;
 
 /**
@@ -57,7 +57,12 @@ void ecran_acceuil (SDL_Renderer* ren);
  * @param font Un tableau de police 
  * @param running Un booléen qui permet la boucle de jeu
  */
-void boucle_de_jeu(SDL_Renderer* ren,int map[MAP_Y][MAP_X],SDL_Texture** tils,Pacman* pacman,unsigned int score,TTF_Font *font[1]);
+void boucle_de_jeu(SDL_Renderer* ren, Partie* partie, int map[MAP_Y][MAP_X]);
 
+/**
+ * Libère la mémoire réservé à la partie
+ * @param partie La partie qui vient juste de se terminer
+ */
+void free_partie (Partie* partie);
 
 #endif
