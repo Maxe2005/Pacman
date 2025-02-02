@@ -6,6 +6,8 @@
 #include "plateau.h"
 #include "ghost.h"
 
+#define TEMPS_MODE_FRIGHTENED 10 // en secondes
+
 typedef struct {
     Map* map;
     SDL_Texture** tils;
@@ -109,5 +111,16 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie);
  * @param partie La partie qui vient juste de se terminer
  */
 void free_partie (Partie* partie);
+
+/**
+ * Met à niveau le score si le pacman est sur <gum> ou <cherry>. Déclanche le mode <frightened> si <Big Gum> rencontré
+ * @param pacman Une instance de structure de joueur à déplacer
+ * @param map La map sur laquelle se déplace le pacman
+ * @param score Le score global à modifier si <gum> ou <cherry> rencontré
+ * @param nb_ghosts Le nombre de ghost en circulation sur la map 
+ * @param ghosts Le tableau avec toutes les instance de structure de fantôme
+ * @return 1 Si le mode frightened vient d'être activé, 0 sinon
+ */
+int update_score (Pacman *pacman, Map *map, int *score, int nb_ghosts, Ghost** ghosts);
 
 #endif

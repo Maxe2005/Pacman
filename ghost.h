@@ -5,7 +5,9 @@
 #include "plateau.h"
 #include "pacman.h"
 
-#define VITESSE_GHOST 1
+#define VITESSE_GHOST 2
+#define VITESSE_GHOST_FRIGHTENED 1
+#define VITESSE_GHOST_EATEN 4
 
 typedef struct
 {
@@ -18,8 +20,13 @@ typedef struct
     int target_x;
     int target_y;
     char direction;
+    int vitesse;
     int is_affiche; // Booleen définissant si le fantôme est sur le map
-    SDL_Texture* skin[4];
+    char etat_precedent[11];// L'état précédent du ghost : chase, scatter, frightened ou eaten
+    char etat[11]; // L'état du ghost : chase, scatter, frightened ou eaten
+    SDL_Texture* skin_normal[4];
+    SDL_Texture* skin_frightened[4];
+    SDL_Texture* skin_eaten[4];
 } Ghost ;
 
 /**
@@ -138,7 +145,7 @@ void choix_direction_aleatoire (Ghost *ghost, char choix_valides[4], const int n
  * @param map La map sur laquelle va être affiché le ghost
  * @return 0 si tout c'est bien passé, 1 si erreur
  */
-int avance_ghost (Ghost *ghost, Map *map);
+int avance_ghost (Ghost *ghost, Map *map, Pacman* pacman, Ghost* Blinky);
 
 /**
  * Gère la téléportation toriques de bord de map des ghost
@@ -146,5 +153,114 @@ int avance_ghost (Ghost *ghost, Map *map);
  * @param map La map sur laquelle va être affiché le ghost
  */
 void gestion_map_torique_g (Ghost *ghost, Map *map);
+
+/**
+ * Défini le point target de Blinky en mode chase
+ * @param ghost Une instance de structure de fantôme
+ * @param pacman Une instance de structure de joueur
+ */
+void chase_target_Blinky (Ghost *ghost, Pacman* pacman);
+
+/**
+ * Défini le point target de Pinky en mode chase
+ * @param ghost Une instance de structure de fantôme
+ * @param pacman Une instance de structure de joueur
+ */
+void chase_target_Pinky (Ghost *ghost, Pacman* pacman);
+
+/**
+ * Défini le point target de Inky en mode chase
+ * @param ghost Une instance de structure de fantôme
+ * @param pacman Une instance de structure de joueur
+ * @param Blinky L'instance de fantôme de Blinky (car le target de Inky dépend de la position de Blinky)
+ */
+void chase_target_Inky (Ghost *ghost, Pacman* pacman, Ghost* Blinky);
+
+/**
+ * Défini le point target de Clyde en mode chase
+ * @param ghost Une instance de structure de fantôme
+ * @param pacman Une instance de structure de joueur
+ * @param map La map sur laquelle va être affiché le ghost
+ */
+void chase_target_Clyde (Ghost *ghost, Pacman* pacman, Map *map);
+
+/**
+ * Défini le point target de Blinky en mode scatter
+ * @param ghost Une instance de structure de fantôme
+ * @param map La map sur laquelle va être affiché le ghost
+ */
+void scatter_target_Blinky (Ghost *ghost, Map *map);
+
+/**
+ * Défini le point target de Pinky en mode scatter
+ * @param ghost Une instance de structure de fantôme
+ * @param map La map sur laquelle va être affiché le ghost
+ */
+void scatter_target_Pinky (Ghost *ghost, Map *map);
+
+/**
+ * Défini le point target de Inky en mode scatter
+ * @param ghost Une instance de structure de fantôme
+ * @param map La map sur laquelle va être affiché le ghost
+ */
+void scatter_target_Inky (Ghost *ghost, Map *map);
+
+/**
+ * Défini le point target de Clyde en mode scatter
+ * @param ghost Une instance de structure de fantôme
+ * @param map La map sur laquelle va être affiché le ghost
+ */
+void scatter_target_Clyde (Ghost *ghost, Map *map);
+
+/**
+ * Définie la nouvelle direction du fantôme en fonction de leurs états différents
+ * @param ghost Une instance de structure de fantôme
+ * @param choix_valides Un tableau avec des direction pratiquables (sans murs)
+ * @param nb_choix Le nombre de directions dans <choix_valides>
+ * @param pacman Une instance de structure de joueur
+ * @param Blinky L'instance de fantôme de Blinky (car le target de Inky dépend de la position de Blinky)
+ * @param map La map sur laquelle va être affiché le ghost
+ */
+void choix_direction (Ghost *ghost, char choix_valides[4], const int nb_choix, Pacman* pacman, Ghost* Blinky, Map *map);
+
+/**
+ * Regarde la direction actuelle du fantôme et de fait se déplacer dans cette direction
+ * @param ghost Une instance de structure de fantôme
+ * @param map La map sur laquelle va être affiché le ghost
+ */
+void suivre_direction (Ghost *ghost, Map *map);
+
+/**
+ * Regarde la direction actuelle du fantôme et de fait se déplacer dans la direction inverse
+ * @param ghost Une instance de structure de fantôme
+ * @param map La map sur laquelle va être affiché le ghost
+ */
+void faire_demi_tour (Ghost *ghost, Map *map);
+
+/**
+ * Modifie la direction du fantôme pour aller vers le point target
+ * @param ghost Une instance de structure de fantôme
+ * @param choix_valides Un tableau avec des direction pratiquables (sans murs)
+ * @param nb_choix Le nombre de directions dans <choix_valides>
+ * @param map La map sur laquelle va être affiché le ghost
+ */
+void choix_direction_vers_target (Ghost *ghost, char choix_valides[4], const int nb_choix, Map *map);
+
+/**
+ * Calcule la distance entre 2 points sur la map
+ * @param x1 abscisse du premier point 
+ * @param y1 ordonnée du premier point 
+ * @param x2 abscisse du deuxième point 
+ * @param y2 ordonnée du deuxième point
+ * @return La distance entre ces deux points
+ */
+int distance_entre_2_points (int x1, int y1, int x2, int y2);
+
+/**
+ * Fait les actions à effectuer lors d'un changement d'état
+ * @param ghost Une instance de structure de fantôme
+ * @param map La map sur laquelle va être affiché le ghost
+ */
+void changement_etat (Ghost *ghost, Map *map);
 
 #endif
