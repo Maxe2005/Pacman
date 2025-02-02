@@ -90,7 +90,7 @@ void affiche_ecran_jeu (SDL_Renderer* ren, Partie* partie) {
     char text_score[100];
     SDL_Color white = {255, 255, 255, 255};
     sprintf(text_score, "Score : %d",partie->score);
-    printText(MARGE_BANDEAU_HAUT, MARGE_BANDEAU_HAUT, text_score, MARGE_BANDEAU_HAUT + 500, TAILLE_BANDEAU_HAUT - 2*MARGE_BANDEAU_HAUT, partie->font[0], white, ren);
+    printText(MARGE_BANDEAU_HAUT, MARGE_BANDEAU_HAUT, text_score, MARGE_BANDEAU_HAUT + 250, TAILLE_BANDEAU_HAUT - 2*MARGE_BANDEAU_HAUT, partie->font[0], white, ren);
     
     affiche_les_vies(ren, partie->skin_vies, partie->nb_vies);
     affiche_map(partie->map, partie->tils, ren);
@@ -218,7 +218,6 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie){
             }
             }
             start_time = current_time;
-            printf("Passage au mode %s / n: %d\n",mode, num_mode);
         }
         if (is_mode_frightened == 1 && current_time - start_time >= TEMPS_MODE_FRIGHTENED){
             // Fin du mode frightened
@@ -226,6 +225,11 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie){
                 if (strcmp(partie->ghosts[i]->etat, "frightened") == 0){
                     strcpy(partie->ghosts[i]->etat, mode);
                 }
+            }
+        }
+        for (int i = 0; i < partie->nb_ghosts; i++){
+            if (strcmp(partie->ghosts[i]->etat, "eaten") == 0 && partie->ghosts[i]->position_x == partie->ghosts[i]->target_x && partie->ghosts[i]->position_y == partie->ghosts[i]->target_y){
+                strcpy(partie->ghosts[i]->etat, mode);
             }
         }
 
@@ -253,8 +257,7 @@ int update_score (Pacman *pacman, Map *map, int *score, int nb_ghosts, Ghost** g
     } else {
     if (map->contenu[pacman->position_y][pacman->position_x] == 5){ // <Big_Gum> consommé
         map->contenu[pacman->position_y][pacman->position_x] = 0;
-        // Ici démarer le mode <frightened>
-        printf("Début mode frightened\n");
+        // Ici démare le mode <frightened>
         for (int i = 0; i < nb_ghosts; i++){
             strcpy(ghosts[i]->etat, "frightened");
         }
