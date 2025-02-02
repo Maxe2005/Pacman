@@ -138,17 +138,34 @@ void init_partie (SDL_Renderer* ren) {
 
 void placament_pacman_et_ghost (SDL_Renderer* ren, Partie* partie){
     premier_placement_pacman(partie->pacman, partie->map, 14, 23);
-
+    
     partie->nb_ghosts = 0;
     for (int i = 0; i < 4; i++) {
         premier_placement_ghost(partie->ghosts[i], partie->map, 12 + i, 11);
+        strcpy(partie->ghosts[i]->etat, "chase");
+        changement_etat(partie->ghosts[i], partie->map);
         partie->nb_ghosts++;
     }
+    /*
+    printf("target Blinky : (x,y) : (%d,%d)\n", partie->ghosts[0]->target_x, partie->ghosts[0]->target_y);
+    printf("target Pinky : (x,y) : (%d,%d)\n", partie->ghosts[1]->target_x, partie->ghosts[1]->target_y);
+    printf("target Inky : (x,y) : (%d,%d)\n", partie->ghosts[2]->target_x, partie->ghosts[2]->target_y);
+    printf("target Clyde : (x,y) : (%d,%d)\n", partie->ghosts[3]->target_x, partie->ghosts[3]->target_y);*/
+    /*
+    partie->nb_ghosts = 1;
+    premier_placement_ghost(partie->ghosts[3], partie->map, 12, 11);
+    strcpy(partie->ghosts[3]->etat, "chase");
+    changement_etat(partie->ghosts[3], partie->map);*/
 }
 
 void boucle_de_jeu(SDL_Renderer* ren, Partie* partie){
     char dir;
     int running = 1;
+
+    clock_t current_time;
+    clock_t start_time = clock();
+    const double temps_clignotement_bouton_start = 100.0 / 1000.0 * CLOCKS_PER_SEC; //temps_reaction_pacman convertion de milisecondes à clocks
+    
 
     while (running){
         affiche_ecran_jeu(ren, partie);
@@ -158,11 +175,15 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie){
         }
         updateDisplay(ren);
 
+        current_time = clock();
+        //if ((double)(current_time - start_time) >= temps_clignotement_bouton_start) {
         avance_pacman(partie->pacman, partie->map, &(partie->score));
         for (int i = 0; i < 4; i++) {
-            avance_ghost(partie->ghosts[i], partie->map);
+            avance_ghost(partie->ghosts[i], partie->map, partie->pacman, partie->ghosts[0]);
         }
         is_collision_pacman_ghost(ren, partie->ghosts, partie->pacman, partie, &running);
+        //start_time = current_time;
+        //}
 
         dir = processKeyboard(&running);
         if (dir != ' '){
@@ -191,7 +212,7 @@ void ecran_acceuil (SDL_Renderer* ren){
 
     clock_t current_time;
     clock_t start_time = clock();
-    const double temps_clignotement_bouton_start = 125.0 / 1000.0 * CLOCKS_PER_SEC; //temps_reaction_pacman convertion de milisecondes à clocks
+    const double temps_clignotement_bouton_start = 125.0 / 1000.0 * CLOCKS_PER_SEC; //temps_clignotement_bouton_start convertion de milisecondes à clocks
     
     SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
     SDL_RenderClear(ren);
