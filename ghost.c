@@ -292,6 +292,7 @@ void scatter_target_Clyde (Ghost *ghost, Map *map) {
 
 void changement_etat (Ghost *ghost, Map *map) {
     if (strcmp(ghost->etat, "scatter") == 0){
+        ghost->vitesse = VITESSE_GHOST;
         if (strcmp(ghost->nom,"Blinky") == 0) {
             scatter_target_Blinky(ghost, map);
         } else {
@@ -313,7 +314,10 @@ void changement_etat (Ghost *ghost, Map *map) {
     } else {
     if (strcmp(ghost->etat, "frightened") == 0){
         ghost->vitesse = VITESSE_GHOST_FRIGHTENED;
-    }}}
+    } else {
+    if (strcmp(ghost->etat, "chase") == 0){
+        ghost->vitesse = VITESSE_GHOST;
+    }}}}
     strcpy(ghost->etat_precedent, ghost->etat);
 }
 

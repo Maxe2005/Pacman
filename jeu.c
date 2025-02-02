@@ -154,11 +154,13 @@ void placament_pacman_et_ghost (SDL_Renderer* ren, Partie* partie){
 void boucle_de_jeu(SDL_Renderer* ren, Partie* partie){
     char dir;
     int running = 1;
+    int is_mode_frightened = 0; // Booleen pour savoir si le mode frightened est actif
+    time_t start_time_frightened = time(NULL);
 
     int duree_mode_scatter[] = {7,7,5,5};
     int duree_mode_chase[] = {20,20,20};
     int num_mode_max = sizeof(duree_mode_scatter) / sizeof(duree_mode_scatter[0]);
-    int num_mode = 0; // Le n éme mode
+    int num_mode = 0; // Le n ème duo de modes scatter et chase
     char mode[8] = "scatter";
     int temps_mode = duree_mode_scatter[num_mode];
     for (int i = 0; i < partie->nb_ghosts; i++){
@@ -180,7 +182,10 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie){
 
         // Gestion des personnages (pacman et ghosts)
         avance_pacman(partie->pacman, partie->map);
-        update_score(partie->pacman, partie->map, &(partie->score), partie->nb_ghosts, partie->ghosts);
+        if (update_score(partie->pacman, partie->map, &(partie->score), partie->nb_ghosts, partie->ghosts) == 1){
+            is_mode_frightened = 1;
+            time_t start_time_frightened = time(NULL);
+        }
         for (int i = 0; i < 4; i++) {
             avance_ghost(partie->ghosts[i], partie->map, partie->pacman, partie->ghosts[0]);
         }
@@ -188,8 +193,6 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie){
 
         // Gestion des mode/etat des fantômes (chase, scatter, frightened et eaten)
         time_t current_time = time(NULL);
-        //printf("num_mode: %d, num_mode_max: %d / dif: %ld, temps_mode: %d\n", //current_time: %ld, start_time: %ld
-        //    num_mode, num_mode_max, current_time-start_time, temps_mode);
         if (num_mode < num_mode_max && current_time - start_time >= temps_mode){ // Si contition rempli : il est temps de changer de mode !
             if (strcmp(mode,"scatter") == 0){
                 strcpy(mode, "chase"); // Nouveau mode
@@ -217,6 +220,14 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie){
             start_time = current_time;
             printf("Passage au mode %s / n: %d\n",mode, num_mode);
         }
+        if (is_mode_frightened == 1 && current_time - start_time >= TEMPS_MODE_FRIGHTENED){
+            // Fin du mode frightened
+            for (int i = 0; i < partie->nb_ghosts; i++){
+                if (strcmp(partie->ghosts[i]->etat, "frightened") == 0){
+                    strcpy(partie->ghosts[i]->etat, mode);
+                }
+            }
+        }
 
         // Gestion des événements
         dir = processKeyboard(&running);
@@ -231,7 +242,7 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie){
     }
 }
 
-void update_score (Pacman *pacman, Map *map, int *score, int nb_ghosts, Ghost** ghosts){
+int update_score (Pacman *pacman, Map *map, int *score, int nb_ghosts, Ghost** ghosts){
     if (map->contenu[pacman->position_y][pacman->position_x] == 4){
         *score += 10;
         map->contenu[pacman->position_y][pacman->position_x] = 0; //Vider la case car le <Gum> à été consommé
@@ -247,8 +258,10 @@ void update_score (Pacman *pacman, Map *map, int *score, int nb_ghosts, Ghost** 
         for (int i = 0; i < nb_ghosts; i++){
             strcpy(ghosts[i]->etat, "frightened");
         }
+        return 1;
     }
     }}
+    return 0;
 }
 
 void affiche_logo (SDL_Renderer* ren, SDL_Texture* logo) {
