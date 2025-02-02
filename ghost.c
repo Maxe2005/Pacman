@@ -17,35 +17,44 @@ void init_ghost (Ghost *ghost, SDL_Renderer* ren, int num_ghost){
         init_textures_Clyde(ghost, ren);
         strcpy(ghost->nom, "Clyde");
     }}}}
+    ghost->skin_frightened[0] = loadTexture("ressources/pacman/pakuman_0.bmp", ren);
+    ghost->skin_frightened[1] = loadTexture("ressources/pacman/pakuman_1.bmp", ren);
+    ghost->skin_frightened[2] = loadTexture("ressources/pacman/pakuman_2.bmp", ren);
+    ghost->skin_frightened[3] = loadTexture("ressources/pacman/pakuman_3.bmp", ren);
+    ghost->skin_eaten[0] = loadTexture("ressources/cherry.bmp", ren);
+    ghost->skin_eaten[1] = loadTexture("ressources/cherry.bmp", ren);
+    ghost->skin_eaten[2] = loadTexture("ressources/cherry.bmp", ren);
+    ghost->skin_eaten[3] = loadTexture("ressources/cherry.bmp", ren);
     ghost->is_affiche = 0;
+    ghost->vitesse = VITESSE_GHOST;
 }
 
 void init_textures_Blinky (Ghost *ghost, SDL_Renderer* ren){
-    ghost->skin[0] = loadTexture("ressources/ghost/ghost1_0.bmp", ren);
-    ghost->skin[1] = loadTexture("ressources/ghost/ghost1_1.bmp", ren);
-    ghost->skin[2] = loadTexture("ressources/ghost/ghost1_2.bmp", ren);
-    ghost->skin[3] = loadTexture("ressources/ghost/ghost1_3.bmp", ren);
+    ghost->skin_normal[0] = loadTexture("ressources/ghost/ghost1_0.bmp", ren);
+    ghost->skin_normal[1] = loadTexture("ressources/ghost/ghost1_1.bmp", ren);
+    ghost->skin_normal[2] = loadTexture("ressources/ghost/ghost1_2.bmp", ren);
+    ghost->skin_normal[3] = loadTexture("ressources/ghost/ghost1_3.bmp", ren);
 }
 
 void init_textures_Pinky (Ghost *ghost, SDL_Renderer* ren){
-    ghost->skin[0] = loadTexture("ressources/ghost/ghost2_0.bmp", ren);
-    ghost->skin[1] = loadTexture("ressources/ghost/ghost2_1.bmp", ren);
-    ghost->skin[2] = loadTexture("ressources/ghost/ghost2_2.bmp", ren);
-    ghost->skin[3] = loadTexture("ressources/ghost/ghost2_3.bmp", ren);
+    ghost->skin_normal[0] = loadTexture("ressources/ghost/ghost2_0.bmp", ren);
+    ghost->skin_normal[1] = loadTexture("ressources/ghost/ghost2_1.bmp", ren);
+    ghost->skin_normal[2] = loadTexture("ressources/ghost/ghost2_2.bmp", ren);
+    ghost->skin_normal[3] = loadTexture("ressources/ghost/ghost2_3.bmp", ren);
 }
 
 void init_textures_Inky (Ghost *ghost, SDL_Renderer* ren){
-    ghost->skin[0] = loadTexture("ressources/ghost/ghost3_0.bmp", ren);
-    ghost->skin[1] = loadTexture("ressources/ghost/ghost3_1.bmp", ren);
-    ghost->skin[2] = loadTexture("ressources/ghost/ghost3_2.bmp", ren);
-    ghost->skin[3] = loadTexture("ressources/ghost/ghost3_3.bmp", ren);
+    ghost->skin_normal[0] = loadTexture("ressources/ghost/ghost3_0.bmp", ren);
+    ghost->skin_normal[1] = loadTexture("ressources/ghost/ghost3_1.bmp", ren);
+    ghost->skin_normal[2] = loadTexture("ressources/ghost/ghost3_2.bmp", ren);
+    ghost->skin_normal[3] = loadTexture("ressources/ghost/ghost3_3.bmp", ren);
 }
 
 void init_textures_Clyde (Ghost *ghost, SDL_Renderer* ren){
-    ghost->skin[0] = loadTexture("ressources/ghost/ghost4_0.bmp", ren);
-    ghost->skin[1] = loadTexture("ressources/ghost/ghost4_1.bmp", ren);
-    ghost->skin[2] = loadTexture("ressources/ghost/ghost4_2.bmp", ren);
-    ghost->skin[3] = loadTexture("ressources/ghost/ghost4_3.bmp", ren);
+    ghost->skin_normal[0] = loadTexture("ressources/ghost/ghost4_0.bmp", ren);
+    ghost->skin_normal[1] = loadTexture("ressources/ghost/ghost4_1.bmp", ren);
+    ghost->skin_normal[2] = loadTexture("ressources/ghost/ghost4_2.bmp", ren);
+    ghost->skin_normal[3] = loadTexture("ressources/ghost/ghost4_3.bmp", ren);
 }
 
 int conversion_case_pixel_en_x_g (Ghost *ghost, Map *map, int difference){
@@ -72,19 +81,29 @@ void premier_placement_ghost (Ghost *ghost, Map *map, const int x, const int y){
 void affiche_ghost (Ghost *ghost, SDL_Renderer* ren) {
     if (ghost->is_affiche == 1) {
         SDL_Texture* tex;
+        SDL_Texture** skin;
+        if (strcmp(ghost->etat, "frightened") == 0){
+            skin = ghost->skin_frightened;
+        } else {
+        if (strcmp(ghost->etat, "eaten") == 0){
+            skin = ghost->skin_eaten;
+        } else {
+            skin = ghost->skin_normal;
+        }
+        }
         if (ghost->direction == 'd'){
-            tex = ghost->skin[0];
+            tex = skin[0];
         } else {
         if (ghost->direction == 'g'){
-            tex = ghost->skin[2];
+            tex = skin[2];
         } else {
         if (ghost->direction == 'h'){
-            tex = ghost->skin[1];
+            tex = skin[1];
         } else {
         if (ghost->direction == 'b'){
-            tex = ghost->skin[3];
+            tex = skin[3];
         } else {
-            tex = ghost->skin[1]; //Par défaut le ghost regarde en haut
+            tex = skin[0]; //Par défaut le ghost regarde a droite
         }}}}
         renderTexture(tex, ren, ghost->position_px_x, ghost->position_px_y, ghost->taille_px, ghost->taille_px);
     }
@@ -93,10 +112,10 @@ void affiche_ghost (Ghost *ghost, SDL_Renderer* ren) {
 void aller_a_droite_g (Ghost *ghost, Map *map){
     ghost->direction = 'd';
     // Test si le ghost ne vas pas trop vite donc qu'il ne loupe pas le centre des cases car c'est une position obligatoire qui sert pour la de prise de décisions
-    if ((ghost->position_px_x + VITESSE_GHOST - ORIGINE_X + (int)((ghost->taille_px - map->taille_case)/2)) / map->taille_case > ghost->position_x && (ghost->position_px_x + VITESSE_GHOST - ORIGINE_X + (int)((ghost->taille_px - map->taille_case)/2)) % map->taille_case > 0) {
+    if ((ghost->position_px_x + ghost->vitesse - ORIGINE_X + (int)((ghost->taille_px - map->taille_case)/2)) / map->taille_case > ghost->position_x && (ghost->position_px_x + ghost->vitesse - ORIGINE_X + (int)((ghost->taille_px - map->taille_case)/2)) % map->taille_case > 0) {
         ghost->position_px_x = conversion_case_pixel_en_x_g(ghost, map, 1);
     } else {
-        ghost->position_px_x += VITESSE_GHOST;
+        ghost->position_px_x += ghost->vitesse;
     }
 }
 
@@ -104,10 +123,10 @@ void aller_a_gauche_g (Ghost *ghost, Map *map){
     ghost->direction = 'g';
     // Test si le ghost ne vas pas trop vite donc qu'il ne loupe pas le centre des cases car c'est une position obligatoire qui sert pour la de prise de décisions
     // Si, avec la map torrique, la position est négative, les calculs de bases ne marchent plus... Pour corriger cela je teste en décalant de 2 cases vers la droite (donc plus de valeurs négatives)
-    if ((ghost->position_px_x - VITESSE_GHOST - ORIGINE_X + (int)((ghost->taille_px - map->taille_case)/2) + (2*map->taille_case)) / map->taille_case < ghost->position_x + 1 && (ghost->position_px_x - VITESSE_GHOST - ORIGINE_X + (int)((ghost->taille_px - map->taille_case)/2) + (2*map->taille_case)) % map->taille_case > 0) {
+    if ((ghost->position_px_x - ghost->vitesse - ORIGINE_X + (int)((ghost->taille_px - map->taille_case)/2) + (2*map->taille_case)) / map->taille_case < ghost->position_x + 1 && (ghost->position_px_x - ghost->vitesse - ORIGINE_X + (int)((ghost->taille_px - map->taille_case)/2) + (2*map->taille_case)) % map->taille_case > 0) {
         ghost->position_px_x = conversion_case_pixel_en_x_g(ghost, map, -1);
     } else {
-        ghost->position_px_x -= VITESSE_GHOST;
+        ghost->position_px_x -= ghost->vitesse;
     }
 }
 
@@ -115,20 +134,20 @@ void aller_en_haut_g (Ghost *ghost, Map *map){
     ghost->direction = 'h';
     // Test si le ghost ne vas pas trop vite donc qu'il ne loupe pas le centre des cases car c'est une position obligatoire qui sert pour la de prise de décisions
     // Si, avec la map torrique, la position est négative, les calculs de bases ne marchent plus... Pour corriger cela je teste en décalant de 2 cases vers le bas (donc plus de valeurs négatives)
-    if ((ghost->position_px_y - VITESSE_GHOST - ORIGINE_Y + (int)((ghost->taille_px - map->taille_case)/2) + (2*map->taille_case)) / map->taille_case < ghost->position_y + 1 && (ghost->position_px_y - VITESSE_GHOST - ORIGINE_Y + (int)((ghost->taille_px - map->taille_case)/2) + (2*map->taille_case)) % map->taille_case > 0) {
+    if ((ghost->position_px_y - ghost->vitesse - ORIGINE_Y + (int)((ghost->taille_px - map->taille_case)/2) + (2*map->taille_case)) / map->taille_case < ghost->position_y + 1 && (ghost->position_px_y - ghost->vitesse - ORIGINE_Y + (int)((ghost->taille_px - map->taille_case)/2) + (2*map->taille_case)) % map->taille_case > 0) {
         ghost->position_px_y = conversion_case_pixel_en_y_g(ghost, map, -1);
     } else {
-        ghost->position_px_y -= VITESSE_GHOST;
+        ghost->position_px_y -= ghost->vitesse;
     }
 }
 
 void aller_en_bas_g (Ghost *ghost, Map *map){
     ghost->direction = 'b';
     // Test si le ghost ne vas pas trop vite donc qu'il ne loupe pas le centre des cases car c'est une position obligatoire qui sert pour la de prise de décisions
-    if ((ghost->position_px_y + VITESSE_GHOST - ORIGINE_Y + (int)((ghost->taille_px - map->taille_case)/2)) / map->taille_case > ghost->position_y && (ghost->position_px_y + VITESSE_GHOST - ORIGINE_Y) % map->taille_case > 0) {
+    if ((ghost->position_px_y + ghost->vitesse - ORIGINE_Y + (int)((ghost->taille_px - map->taille_case)/2)) / map->taille_case > ghost->position_y && (ghost->position_px_y + ghost->vitesse - ORIGINE_Y) % map->taille_case > 0) {
         ghost->position_px_y = conversion_case_pixel_en_y_g(ghost, map, 1);
     } else {
-        ghost->position_px_y += VITESSE_GHOST;
+        ghost->position_px_y += ghost->vitesse;
     }
 }
 
@@ -287,9 +306,15 @@ void changement_etat (Ghost *ghost, Map *map) {
         }}}}
     } else {
     if (strcmp(ghost->etat, "eaten") == 0){
-
-    }
-    }
+        ghost->vitesse = VITESSE_GHOST_EATEN;
+        // Target au dessus de la base des fantômes
+        ghost->target_x = 13; // TODO target dépend de la map !
+        ghost->target_y = 11;
+    } else {
+    if (strcmp(ghost->etat, "frightened") == 0){
+        ghost->vitesse = VITESSE_GHOST_FRIGHTENED;
+    }}}
+    strcpy(ghost->etat_precedent, ghost->etat);
 }
 
 void gestion_map_torique_g (Ghost *ghost, Map *map) {
@@ -313,15 +338,14 @@ void gestion_map_torique_g (Ghost *ghost, Map *map) {
 
 int avance_ghost (Ghost *ghost, Map *map, Pacman* pacman, Ghost* Blinky){
     if (ghost->is_affiche == 1) {
-        if (strcmp(ghost->etat,ghost->etat_precedent) != 0) {
-            strcpy(ghost->etat_precedent, ghost->etat);
-            if (strcmp(ghost->etat_precedent,"frightened") != 0) {
-                // Dans ce cas faire demi tour (La seule exception pour laquelle le fantôme peut faire demi tour):
-                faire_demi_tour(ghost, map);
-            } else {
+        if (strcmp(ghost->etat,ghost->etat_precedent) != 0 && strcmp(ghost->etat_precedent,"frightened") != 0) {
+            // Dans ce cas faire demi tour (La seule exception pour laquelle le fantôme peut faire demi tour):
+            changement_etat(ghost, map);
+            faire_demi_tour(ghost, map);
+        } else {
+            if (strcmp(ghost->etat,ghost->etat_precedent) != 0) {
                 changement_etat(ghost, map);
             }
-        } else {
             if (((ghost->position_px_x - ORIGINE_X + (int)((ghost->taille_px - map->taille_case)/2)) % map->taille_case == 0) && ((ghost->position_px_y - ORIGINE_Y + (int)((ghost->taille_px - map->taille_case)/2)) % map->taille_case == 0)){ // <=> ghost au milieu d'une case (et pas en transition entre 2)
                 ghost->position_x = (ghost->position_px_x - ORIGINE_X + (int)((ghost->taille_px - map->taille_case)/2)) / map->taille_case;
                 ghost->position_y = (ghost->position_px_y - ORIGINE_Y + (int)((ghost->taille_px - map->taille_case)/2)) / map->taille_case;
@@ -333,7 +357,7 @@ int avance_ghost (Ghost *ghost, Map *map, Pacman* pacman, Ghost* Blinky){
 
                 // Vérification des directions valides (impossibilié de faire demi-tour)
                 // ! Attention ! ordre des directions très important ! pour les priorités de déplacements : haut > gauche > bas > droite
-                if (map->contenu[mod(ghost->position_y - 1, map->y)][ghost->position_x] != 1 && ghost->direction != 'b') {
+                if (map->contenu[mod(ghost->position_y - 1, map->y)][ghost->position_x] != 1 && ghost->direction != 'b') { // TODO ajouter les bouts de map safe (pas possible d'aller en haut)
                     choix_valides[nb_choix++] = 'h'; // Haut
                 }
                 if (map->contenu[ghost->position_y][mod(ghost->position_x - 1, map->x)] != 1 && ghost->direction != 'd') {

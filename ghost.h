@@ -5,7 +5,9 @@
 #include "plateau.h"
 #include "pacman.h"
 
-#define VITESSE_GHOST 1
+#define VITESSE_GHOST 2
+#define VITESSE_GHOST_FRIGHTENED 1
+#define VITESSE_GHOST_EATEN 4
 
 typedef struct
 {
@@ -18,10 +20,13 @@ typedef struct
     int target_x;
     int target_y;
     char direction;
+    int vitesse;
     int is_affiche; // Booleen définissant si le fantôme est sur le map
-    char etat_precedent[10];// L'état précédent du ghost : chase, scatter, frightened ou eaten
-    char etat[10]; // L'état du ghost : chase, scatter, frightened ou eaten
-    SDL_Texture* skin[4];
+    char etat_precedent[11];// L'état précédent du ghost : chase, scatter, frightened ou eaten
+    char etat[11]; // L'état du ghost : chase, scatter, frightened ou eaten
+    SDL_Texture* skin_normal[4];
+    SDL_Texture* skin_frightened[4];
+    SDL_Texture* skin_eaten[4];
 } Ghost ;
 
 /**

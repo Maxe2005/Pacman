@@ -110,12 +110,11 @@ void gestion_map_torique (Pacman *pacman, Map *map) {
     }
 }
 
-int avance_pacman (Pacman *pacman, Map *map, int *score){
+int avance_pacman (Pacman *pacman, Map *map){
     if (((pacman->position_px_x - ORIGINE_X + (int)((pacman->taille_px - map->taille_case)/2)) % map->taille_case == 0) && ((pacman->position_px_y - ORIGINE_Y + (int)((pacman->taille_px - map->taille_case)/2)) % map->taille_case == 0)){ // <=> pacman au milieu d'une case (et pas en transition entre 2)
         pacman->position_x = (pacman->position_px_x - ORIGINE_X + (int)((pacman->taille_px - map->taille_case)/2)) / map->taille_case;
         pacman->position_y = (pacman->position_px_y - ORIGINE_Y + (int)((pacman->taille_px - map->taille_case)/2)) / map->taille_case;
         gestion_map_torique(pacman, map);
-        update_score(pacman, map, score);
 
         // Prise en compte de la nouvelle diretion :
         if (pacman->next_direction == 'd' && map->contenu[pacman->position_y][mod(pacman->position_x + 1, map->x)] != 1){
@@ -194,18 +193,3 @@ int avance_pacman (Pacman *pacman, Map *map, int *score){
     }
 }
 
-void update_score (Pacman *pacman, Map *map, int *score){
-    if (map->contenu[pacman->position_y][pacman->position_x] == 4){
-        *score += 10;
-        map->contenu[pacman->position_y][pacman->position_x] = 0; //Vider la case car le <Gum> à été consommé
-    } else {
-    if (map->contenu[pacman->position_y][pacman->position_x] == 6){
-        *score += 100;
-        map->contenu[pacman->position_y][pacman->position_x] = 0; //Vider la case car le <Cherry> à été consommé
-    } else {
-    if (map->contenu[pacman->position_y][pacman->position_x] == 5){ // <Big_Gum> consommé
-        map->contenu[pacman->position_y][pacman->position_x] = 0;
-        // TODO : Ici démarer le mode <frightened>
-    }
-    }}
-}

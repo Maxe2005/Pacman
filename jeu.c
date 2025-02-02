@@ -16,17 +16,22 @@ int is_collision_pacman_ghost (SDL_Renderer* ren, Ghost** ghosts, Pacman *pacman
     for (int i = 0; i < partie->nb_ghosts; i++){
         if (abs(ghosts[i]->position_px_x - pacman->position_px_x) < ghosts[i]->taille_px/2 && abs(ghosts[i]->position_px_x - pacman->position_px_x) < pacman->taille_px/2
                 && abs(ghosts[i]->position_px_y - pacman->position_px_y) < ghosts[i]->taille_px/2 && abs(ghosts[i]->position_px_y - pacman->position_px_y) < pacman->taille_px/2) {
-            partie->nb_vies--;
-            *running = 0;
-            if (partie->nb_vies == 0) {
-                affiche_ecran_game_over(ren, partie);
-                SDL_Delay(5000);
-                ecran_acceuil(ren);
-            } else {
-                annimation_mort_pacman(ren, partie);
-                placament_pacman_et_ghost(ren, partie);
-                boucle_de_jeu(ren, partie);
-            }
+            if (strcmp(ghosts[i]->etat,"frightened") == 0){
+                strcpy(ghosts[i]->etat,"eaten");
+                partie->score += 200;
+            } else { if (strcmp(ghosts[i]->etat,"eaten") != 0){
+                partie->nb_vies--;
+                *running = 0;
+                if (partie->nb_vies == 0) {
+                    affiche_ecran_game_over(ren, partie);
+                    SDL_Delay(5000);
+                    ecran_acceuil(ren);
+                } else {
+                    annimation_mort_pacman(ren, partie);
+                    placament_pacman_et_ghost(ren, partie);
+                    boucle_de_jeu(ren, partie);
+                }
+            }}
             return 1;
         }
     }
@@ -82,10 +87,10 @@ void affiche_ecran_jeu (SDL_Renderer* ren, Partie* partie) {
     SDL_RenderClear(ren);
 
     // Score
-    char text_score[15];
+    char text_score[100];
     SDL_Color white = {255, 255, 255, 255};
     sprintf(text_score, "Score : %d",partie->score);
-    printText(MARGE_BANDEAU_HAUT, MARGE_BANDEAU_HAUT, text_score, MARGE_BANDEAU_HAUT + 250, TAILLE_BANDEAU_HAUT - 2*MARGE_BANDEAU_HAUT, partie->font[0], white, ren);
+    printText(MARGE_BANDEAU_HAUT, MARGE_BANDEAU_HAUT, text_score, MARGE_BANDEAU_HAUT + 500, TAILLE_BANDEAU_HAUT - 2*MARGE_BANDEAU_HAUT, partie->font[0], white, ren);
     
     affiche_les_vies(ren, partie->skin_vies, partie->nb_vies);
     affiche_map(partie->map, partie->tils, ren);
@@ -142,32 +147,30 @@ void placament_pacman_et_ghost (SDL_Renderer* ren, Partie* partie){
     partie->nb_ghosts = 0;
     for (int i = 0; i < 4; i++) {
         premier_placement_ghost(partie->ghosts[i], partie->map, 12 + i, 11);
-        strcpy(partie->ghosts[i]->etat, "chase");
-        changement_etat(partie->ghosts[i], partie->map);
         partie->nb_ghosts++;
     }
-    /*
-    printf("target Blinky : (x,y) : (%d,%d)\n", partie->ghosts[0]->target_x, partie->ghosts[0]->target_y);
-    printf("target Pinky : (x,y) : (%d,%d)\n", partie->ghosts[1]->target_x, partie->ghosts[1]->target_y);
-    printf("target Inky : (x,y) : (%d,%d)\n", partie->ghosts[2]->target_x, partie->ghosts[2]->target_y);
-    printf("target Clyde : (x,y) : (%d,%d)\n", partie->ghosts[3]->target_x, partie->ghosts[3]->target_y);*/
-    /*
-    partie->nb_ghosts = 1;
-    premier_placement_ghost(partie->ghosts[3], partie->map, 12, 11);
-    strcpy(partie->ghosts[3]->etat, "chase");
-    changement_etat(partie->ghosts[3], partie->map);*/
 }
 
 void boucle_de_jeu(SDL_Renderer* ren, Partie* partie){
     char dir;
     int running = 1;
 
-    clock_t current_time;
-    clock_t start_time = clock();
-    const double temps_clignotement_bouton_start = 100.0 / 1000.0 * CLOCKS_PER_SEC; //temps_reaction_pacman convertion de milisecondes à clocks
-    
+    int duree_mode_scatter[] = {7,7,5,5};
+    int duree_mode_chase[] = {20,20,20};
+    int num_mode_max = sizeof(duree_mode_scatter) / sizeof(duree_mode_scatter[0]);
+    int num_mode = 0; // Le n éme mode
+    char mode[8] = "scatter";
+    int temps_mode = duree_mode_scatter[num_mode];
+    for (int i = 0; i < partie->nb_ghosts; i++){
+        strcpy(partie->ghosts[i]->etat, "scatter");
+        changement_etat(partie->ghosts[i], partie->map);
+    }
+    //printf("Passage au mode %s / n: %d\n",mode, num_mode);
+    //clock_t start_time = clock();    
+    time_t start_time = time(NULL);
 
     while (running){
+        // Affichage
         affiche_ecran_jeu(ren, partie);
         affiche_pacman(partie->pacman, ren);
         for (int i = 0; i < 4; i++) {
@@ -175,16 +178,47 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie){
         }
         updateDisplay(ren);
 
-        current_time = clock();
-        //if ((double)(current_time - start_time) >= temps_clignotement_bouton_start) {
-        avance_pacman(partie->pacman, partie->map, &(partie->score));
+        // Gestion des personnages (pacman et ghosts)
+        avance_pacman(partie->pacman, partie->map);
+        update_score(partie->pacman, partie->map, &(partie->score), partie->nb_ghosts, partie->ghosts);
         for (int i = 0; i < 4; i++) {
             avance_ghost(partie->ghosts[i], partie->map, partie->pacman, partie->ghosts[0]);
         }
         is_collision_pacman_ghost(ren, partie->ghosts, partie->pacman, partie, &running);
-        //start_time = current_time;
-        //}
 
+        // Gestion des mode/etat des fantômes (chase, scatter, frightened et eaten)
+        time_t current_time = time(NULL);
+        //printf("num_mode: %d, num_mode_max: %d / dif: %ld, temps_mode: %d\n", //current_time: %ld, start_time: %ld
+        //    num_mode, num_mode_max, current_time-start_time, temps_mode);
+        if (num_mode < num_mode_max && current_time - start_time >= temps_mode){ // Si contition rempli : il est temps de changer de mode !
+            if (strcmp(mode,"scatter") == 0){
+                strcpy(mode, "chase"); // Nouveau mode
+                if (num_mode == num_mode_max-1){
+                    num_mode++;
+                } else {
+                    temps_mode = duree_mode_chase[num_mode];
+                }
+                for (int i = 0; i < partie->nb_ghosts; i++){
+                    if (strcmp(partie->ghosts[i]->etat, "scatter") == 0){ // Le ghost change de mode en forçant seulement si il est à l'état scatter, sinom il le fera tout seul quand son autre état se désactivera. 
+                        strcpy(partie->ghosts[i]->etat, "chase");
+                    }
+                }
+            } else {
+            if (strcmp(mode,"chase") == 0){
+                strcpy(mode, "scatter"); // Nouveau mode
+                temps_mode = duree_mode_chase[++num_mode];
+                for (int i = 0; i < partie->nb_ghosts; i++){
+                    if (strcmp(partie->ghosts[i]->etat, "chase") == 0){ // Le ghost change de mode en forçant seulement si il est à l'état chase, sinom il le fera tout seul quand son autre état se désactivera. 
+                        strcpy(partie->ghosts[i]->etat, "scatter");
+                    }
+                }
+            }
+            }
+            start_time = current_time;
+            printf("Passage au mode %s / n: %d\n",mode, num_mode);
+        }
+
+        // Gestion des événements
         dir = processKeyboard(&running);
         if (dir != ' '){
             partie->pacman->next_direction = dir;
@@ -197,6 +231,25 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie){
     }
 }
 
+void update_score (Pacman *pacman, Map *map, int *score, int nb_ghosts, Ghost** ghosts){
+    if (map->contenu[pacman->position_y][pacman->position_x] == 4){
+        *score += 10;
+        map->contenu[pacman->position_y][pacman->position_x] = 0; //Vider la case car le <Gum> à été consommé
+    } else {
+    if (map->contenu[pacman->position_y][pacman->position_x] == 6){
+        *score += 100;
+        map->contenu[pacman->position_y][pacman->position_x] = 0; //Vider la case car le <Cherry> à été consommé
+    } else {
+    if (map->contenu[pacman->position_y][pacman->position_x] == 5){ // <Big_Gum> consommé
+        map->contenu[pacman->position_y][pacman->position_x] = 0;
+        // Ici démarer le mode <frightened>
+        printf("Début mode frightened\n");
+        for (int i = 0; i < nb_ghosts; i++){
+            strcpy(ghosts[i]->etat, "frightened");
+        }
+    }
+    }}
+}
 
 void affiche_logo (SDL_Renderer* ren, SDL_Texture* logo) {
     renderTexture(logo, ren,(int)(FEN_X /4),(int)(FEN_Y/8),(int)(FEN_X/2),(int)(FEN_Y/4));
