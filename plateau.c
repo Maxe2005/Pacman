@@ -519,3 +519,15 @@ int mod (int a, int b) {
     int r = a % b;
     return r < 0 ? r + b : r;
 }
+
+int compte_nb_gum (Map* map) {
+    int nb_gum = 0;
+    for (int j = 0; j<map->y; j++){
+        for (int i = 0; i<map->x; i++){
+            if (map->contenu[j][i] == 4){
+                nb_gum++;
+            }
+        }
+    }
+    return nb_gum;
+}

@@ -194,9 +194,8 @@ void scatter_target_Blinky (Ghost *ghost, Map *map);
 /**
  * Défini le point target de Pinky en mode scatter
  * @param ghost Une instance de structure de fantôme
- * @param map La map sur laquelle va être affiché le ghost
  */
-void scatter_target_Pinky (Ghost *ghost, Map *map);
+void scatter_target_Pinky (Ghost *ghost);
 
 /**
  * Défini le point target de Inky en mode scatter

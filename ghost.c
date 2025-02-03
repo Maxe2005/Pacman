@@ -275,7 +275,7 @@ void scatter_target_Blinky (Ghost *ghost, Map *map) {
     ghost->target_y = -4;
 }
 
-void scatter_target_Pinky (Ghost *ghost, Map *map) {
+void scatter_target_Pinky (Ghost *ghost) {
     ghost->target_x = 2;
     ghost->target_y = -4;
 }
@@ -297,7 +297,7 @@ void changement_etat (Ghost *ghost, Map *map) {
             scatter_target_Blinky(ghost, map);
         } else {
         if (strcmp(ghost->nom,"Pinky") == 0) {
-            scatter_target_Pinky(ghost, map);
+            scatter_target_Pinky(ghost);
         } else {
         if (strcmp(ghost->nom,"Inky") == 0) {
             scatter_target_Inky(ghost, map);
@@ -385,6 +385,7 @@ int avance_ghost (Ghost *ghost, Map *map, Pacman* pacman, Ghost* Blinky){
             suivre_direction(ghost, map);
         }
     }
+    return 0;
 }
 
 void suivre_direction (Ghost *ghost, Map *map){

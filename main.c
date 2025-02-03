@@ -16,8 +16,7 @@ int main (int argc, char *argv[]){
     
     ecran_acceuil(ren);
     
-
-    QuitSDL;
+    QuitSDL(window, ren);
     return 0;
 }
 
