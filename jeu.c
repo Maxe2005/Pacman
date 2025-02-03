@@ -24,8 +24,6 @@ int is_collision_pacman_ghost (SDL_Renderer* ren, Ghost** ghosts, Pacman *pacman
                 *running = 0;
                 if (partie->nb_vies == 0) {
                     ecran_game_over(ren, partie);
-                    SDL_Delay(5000);
-                    ecran_acceuil(ren);
                 } else {
                     annimation_mort_pacman(ren, partie);
                     placament_pacman_et_ghost(partie);
@@ -87,7 +85,6 @@ void init_partie (SDL_Renderer* ren) {
     const char *nom_map = "Map_originale.csv";
     //save_map_text(nom_map, &map);
     partie->map = load_map_text(nom_map);
-    partie->nb_gums = compte_nb_gum(partie->map);
 
     partie->tils = malloc(sizeof(SDL_Texture*) * 4);
     init_tils(partie->tils, ren);
@@ -110,6 +107,7 @@ void init_partie (SDL_Renderer* ren) {
     }
     
     placament_pacman_et_ghost(partie);
+    partie->nb_gums = compte_nb_gum(partie->map);
     boucle_de_jeu (ren, partie);
 }
 
@@ -165,7 +163,8 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie){
 
         // Gagné ?
         if (partie->nb_gums <= 0){
-
+            running = 0;
+            ecran_victoire(ren, partie);
         }
 
         // Gestion des mode/etat des fantômes (chase, scatter, frightened et eaten)
@@ -250,13 +249,14 @@ void affiche_logo (SDL_Renderer* ren, SDL_Texture* logo) {
     renderTexture(logo, ren,(int)(FEN_X /4),(int)(FEN_Y/8),(int)(FEN_X/2),(int)(FEN_Y/4));
 }
 
-void affiche_bouton_start (SDL_Renderer* ren, SDL_Texture* bouton_start) {
+void affiche_bouton_start_2 (SDL_Renderer* ren, SDL_Texture* bouton_start) {
     renderTexture(bouton_start, ren,(int)(FEN_X /4),(int)(FEN_Y/2),(int)(FEN_X/2),(int)(FEN_Y/4));
 }
 
 void ecran_acceuil (SDL_Renderer* ren){
     SDL_Texture* logo = loadTexture("ressources/pac-man-logo.bmp", ren);
     SDL_Texture* bouton_start = loadTexture("ressources/bouton_start_pacman.bmp", ren);
+    TTF_Font * font = createFont("ressources/DejaVuSans-Bold.ttf", 20);
 
     clock_t current_time;
     clock_t start_time = clock();
@@ -265,7 +265,8 @@ void ecran_acceuil (SDL_Renderer* ren){
     SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
     SDL_RenderClear(ren);
     affiche_logo(ren, logo);
-    affiche_bouton_start(ren, bouton_start);
+    //affiche_bouton_start_2(ren, bouton_start);
+    affiche_bouton_start(ren, font);
 
     char lancement;
     int is_bouton_start_visible = 1; // Booleen qui permet de faire clignoter le bouton start
@@ -282,7 +283,8 @@ void ecran_acceuil (SDL_Renderer* ren){
                 affiche_logo(ren, logo);
                 is_bouton_start_visible = 0;
             } else {
-                affiche_bouton_start(ren, bouton_start);
+                //affiche_bouton_start_2(ren, bouton_start);
+                affiche_bouton_start(ren, font);
                 is_bouton_start_visible = 1;
             }
             start_time = current_time;
@@ -297,8 +299,41 @@ void ecran_acceuil (SDL_Renderer* ren){
 }
 
 void ecran_game_over (SDL_Renderer* ren, Partie* partie){
-    affiche_titre_et_score(ren, partie, "Game Over", "green");
-    updateDisplay(ren);
+    clock_t current_time;
+    clock_t start_time = clock();
+    const double temps_clignotement_bouton_start = 125.0 / 1000.0 * CLOCKS_PER_SEC; //temps_clignotement_bouton_start convertion de milisecondes à clocks
+    
+    SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
+    SDL_RenderClear(ren);
+    affiche_titre_et_score(ren, partie, "Game Over", "red");
+
+    char lancement;
+    int is_bouton_start_visible = 1; // Booleen qui permet de faire clignoter le bouton start
+    int running = 1;
+
+    while (running) {
+        current_time = clock();
+        updateDisplay(ren);
+
+        if ((double)(current_time - start_time) >= temps_clignotement_bouton_start) {
+            if (is_bouton_start_visible == 1){
+                SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
+                SDL_RenderClear(ren);
+                affiche_titre_et_score(ren, partie, "Game Over", "red");
+                is_bouton_start_visible = 0;
+            } else {
+                affiche_bouton_start(ren, partie->font[0]);
+                is_bouton_start_visible = 1;
+            }
+            start_time = current_time;
+        }
+        
+        lancement = processKeyboard(&running);
+        if (lancement == 'L'){
+            ecran_acceuil(ren);
+            running = 0;
+        }
+    }
 }
 
 void ecran_victoire (SDL_Renderer* ren, Partie* partie){
@@ -313,7 +348,7 @@ void ecran_victoire (SDL_Renderer* ren, Partie* partie){
     char lancement;
     int is_bouton_start_visible = 1; // Booleen qui permet de faire clignoter le bouton start
     int running = 1;
-/*
+
     while (running) {
         current_time = clock();
         updateDisplay(ren);
@@ -325,7 +360,7 @@ void ecran_victoire (SDL_Renderer* ren, Partie* partie){
                 affiche_titre_et_score(ren, partie, "You Win", "green");
                 is_bouton_start_visible = 0;
             } else {
-                affiche_bouton_start(ren, bouton_start);
+                affiche_bouton_start(ren, partie->font[0]);
                 is_bouton_start_visible = 1;
             }
             start_time = current_time;
@@ -333,15 +368,27 @@ void ecran_victoire (SDL_Renderer* ren, Partie* partie){
         
         lancement = processKeyboard(&running);
         if (lancement == 'L'){
-            init_partie(ren);
+            ecran_acceuil(ren);
             running = 0;
         }
-    }*/
+    }
+}
+
+void affiche_bouton_start(SDL_Renderer* ren, TTF_Font * font){
+    int division_x_titre = 4; // doit être >= 3
+    int division_y_titre = 6; // doit être >= 3
+    int titre_x = (int)(FEN_X/division_x_titre);
+    int titre_y = (int)(FEN_Y/division_y_titre*4);
+    int taille_titre_x = (int)(FEN_X/division_x_titre * (division_x_titre-2));
+    int taille_titre_y = taille_titre_x/4 ;
+
+    SDL_Color red = {255, 0, 0, 255};
+    printText(titre_x, titre_y, "PRESS SPACE", taille_titre_x, taille_titre_y, font, red, ren);
 }
 
 void affiche_titre_et_score (SDL_Renderer* ren, Partie* partie, char *titre, char *color) {
     int division_x_titre = 5; // doit être >= 3
-    int division_y_titre = 4; // doit être >= 3
+    int division_y_titre = 6; // doit être >= 3
     int titre_x = (int)(FEN_X/division_x_titre);
     int titre_y = (int)(FEN_Y/division_y_titre);
     int taille_titre_x = (int)(FEN_X/division_x_titre * (division_x_titre-2));
@@ -364,10 +411,6 @@ void affiche_titre_et_score (SDL_Renderer* ren, Partie* partie, char *titre, cha
         SDL_Color couleur = {0, 255, 0, 255};
     }
     }
-    
-    // Effacer
-    SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
-    SDL_RenderClear(ren);
 
     printText(titre_x, titre_y, titre, taille_titre_x, taille_titre_y, partie->font[0], couleur, ren);
     sprintf(text_score, "Score : %d",partie->score);

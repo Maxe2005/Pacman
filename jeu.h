@@ -71,7 +71,7 @@ void init_partie (SDL_Renderer* ren);
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  * @param bouton_start La texture du bouton
  */
-void affiche_bouton_start (SDL_Renderer* ren, SDL_Texture* bouton_start);
+void affiche_bouton_start_2 (SDL_Renderer* ren, SDL_Texture* bouton_start);
 
 /**
  * Affiche sur le renderer le logo
@@ -127,5 +127,19 @@ int update_score (Partie* partie);
  * @param color La couleur du titre à afficher
  */
 void affiche_titre_et_score (SDL_Renderer* ren, Partie* partie, char *titre, char *color);
+
+/**
+ * Affiche sur le renderer le bouton start
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ * @param font La font du texte à afficher
+ */
+void affiche_bouton_start(SDL_Renderer* ren, TTF_Font * font);
+
+/**
+ * Tout est dans le titre !
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
+ */
+void ecran_victoire (SDL_Renderer* ren, Partie* partie);
 
 #endif
