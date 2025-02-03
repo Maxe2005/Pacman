@@ -104,13 +104,16 @@ char processKeyboard(int *running){
 				key=e.key.keysym.sym;
 				switch(key){
 					case SDLK_p:
-						pdirection='L'; /* on définit le lancement du jeu depuis l'affichage au début*/
+						pdirection='L'; // lancement du jeu
 						break;
 					case SDLK_SPACE:
-						pdirection='L'; /* on définit le lancement du jeu depuis l'affichage au début*/
+						pdirection='L'; // lancement du jeu
 						break;
 					case SDLK_BACKSPACE:
-						pdirection='M'; /* on définit le lancement du jeu depuis l'affichage au début*/
+						pdirection='M'; // retour à l'accueil
+						break;
+					case SDLK_m:
+						pdirection='m'; // aller au menu des musiques
 						break;
 					case SDLK_LEFT:
 						pdirection='g';
@@ -135,6 +138,27 @@ char processKeyboard(int *running){
 						break;
 					case SDLK_s:
 						pdirection='b';
+						break;
+					case SDLK_1:
+						pdirection='1';
+						break;
+					case SDLK_2:
+						pdirection='2';
+						break;
+					case SDLK_3:
+						pdirection='3';
+						break;
+					case SDLK_4:
+						pdirection='4';
+						break;
+					case SDLK_5:
+						pdirection='5';
+						break;
+					case SDLK_6:
+						pdirection='6';
+						break;
+					case SDLK_b: // Pour quitter la boucle
+						*running = 0;
 						break;
 					default:
 						break;

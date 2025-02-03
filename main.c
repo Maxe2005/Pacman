@@ -10,23 +10,22 @@ int main (int argc, char *argv[]){
     // Initialisation globale fenêtre
     initSDL();
     initTTF();
+    init_audio();
+
     SDL_Window* window = createWindow("Pacman C²HAMD", FEN_X, FEN_Y);
     SDL_Renderer* ren = createRenderer(window);
-    
-    if (!init_audio()) {
-        return 1; // Erreur d'initialisation
-    }
 
-    printf("Lecture du son...\n");
-    jouer_son("son.wav");
+    Musique* musique = malloc(sizeof(Musique));
 
-    cleanup_audio();
+    init_musiques_et_sons (musique);
+    musique->musique_accueil = loadMusic(musique->musiques_src[0]);
+    musique->musique_jeu = loadMusic(musique->musiques_src[1]);
+    musique->musique_super_mode = loadMusic(musique->musiques_src[2]);
 
+    ecran_acceuil(ren, musique);
 
-    ecran_acceuil(ren);
-    
-
-    QuitSDL;
+    clear_musique(musique);
+    QuitSDL(window,ren);
     return 0;
 }
 

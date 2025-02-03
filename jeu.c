@@ -12,7 +12,7 @@ void affiche_les_vies (SDL_Renderer* ren, SDL_Texture * skin_vies, const int nb_
     }
 }
 
-int is_collision_pacman_ghost (SDL_Renderer* ren, Ghost** ghosts, Pacman *pacman, Partie* partie, int* running) {
+int is_collision_pacman_ghost (SDL_Renderer* ren, Ghost** ghosts, Pacman *pacman, Partie* partie, int* running, Musique* musique) {
     for (int i = 0; i < partie->nb_ghosts; i++){
         if (abs(ghosts[i]->position_px_x - pacman->position_px_x) < ghosts[i]->taille_px/2 && abs(ghosts[i]->position_px_x - pacman->position_px_x) < pacman->taille_px/2
                 && abs(ghosts[i]->position_px_y - pacman->position_px_y) < ghosts[i]->taille_px/2 && abs(ghosts[i]->position_px_y - pacman->position_px_y) < pacman->taille_px/2) {
@@ -25,11 +25,11 @@ int is_collision_pacman_ghost (SDL_Renderer* ren, Ghost** ghosts, Pacman *pacman
                 if (partie->nb_vies == 0) {
                     affiche_ecran_game_over(ren, partie);
                     SDL_Delay(5000);
-                    ecran_acceuil(ren);
+                    ecran_acceuil(ren,musique);
                 } else {
                     annimation_mort_pacman(ren, partie);
                     placament_pacman_et_ghost(ren, partie);
-                    boucle_de_jeu(ren, partie);
+                    boucle_de_jeu(ren, partie, musique);
                 }
             }}
             return 1;
@@ -104,7 +104,7 @@ void free_partie (Partie* partie) {
     free(partie);
 }
 
-void init_partie (SDL_Renderer* ren) {
+void init_partie (SDL_Renderer* ren, Musique* musique) {
     Partie* partie = malloc(sizeof(Partie));
 
     partie->score = 0;
@@ -138,7 +138,7 @@ void init_partie (SDL_Renderer* ren) {
     }
     
     placament_pacman_et_ghost(ren, partie);
-    boucle_de_jeu (ren, partie);
+    boucle_de_jeu (ren, partie, musique);
 }
 
 void placament_pacman_et_ghost (SDL_Renderer* ren, Partie* partie){
@@ -151,7 +151,10 @@ void placament_pacman_et_ghost (SDL_Renderer* ren, Partie* partie){
     }
 }
 
-void boucle_de_jeu(SDL_Renderer* ren, Partie* partie){
+void boucle_de_jeu(SDL_Renderer* ren, Partie* partie, Musique* musique){
+    //playNewMusic("ressources/musiques/PacMan.mp3");
+    playMusic(musique->musique_jeu);
+
     char dir;
     int running = 1;
     int is_mode_frightened = 0; // Booleen pour savoir si le mode frightened est actif
@@ -167,10 +170,8 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie){
         strcpy(partie->ghosts[i]->etat, "scatter");
         changement_etat(partie->ghosts[i], partie->map);
     }
-    //printf("Passage au mode %s / n: %d\n",mode, num_mode);
-    //clock_t start_time = clock();    
-    time_t start_time = time(NULL);
 
+    time_t start_time = time(NULL);
     while (running){
         // Affichage
         affiche_ecran_jeu(ren, partie);
@@ -189,7 +190,7 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie){
         for (int i = 0; i < 4; i++) {
             avance_ghost(partie->ghosts[i], partie->map, partie->pacman, partie->ghosts[0]);
         }
-        is_collision_pacman_ghost(ren, partie->ghosts, partie->pacman, partie, &running);
+        is_collision_pacman_ghost(ren, partie->ghosts, partie->pacman, partie, &running, musique);
 
         // Gestion des mode/etat des fantômes (chase, scatter, frightened et eaten)
         time_t current_time = time(NULL);
@@ -235,12 +236,12 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie){
 
         // Gestion des événements
         dir = processKeyboard(&running);
-        if (dir != ' '){
+        if (dir == 'd' || dir == 'g' || dir == 'h' || dir == 'b'){
             partie->pacman->next_direction = dir;
         }
         if (dir == 'M'){
             free_partie(partie);
-            ecran_acceuil (ren); // retour à l'écran d'acceuil
+            ecran_acceuil (ren,musique); // retour à l'écran d'acceuil
             running = 0;
         }
     }
@@ -275,7 +276,10 @@ void affiche_bouton_start (SDL_Renderer* ren, SDL_Texture* bouton_start) {
     renderTexture(bouton_start, ren,(int)(FEN_X /4),(int)(FEN_Y/2),(int)(FEN_X/2),(int)(FEN_Y/4));
 }
 
-void ecran_acceuil (SDL_Renderer* ren){
+void ecran_acceuil (SDL_Renderer* ren, Musique* musique){
+    //playNewMusic("ressources/musiques/Pacman-Remix.mp3");
+    playMusic(musique->musique_accueil);
+
     SDL_Texture* logo = loadTexture("ressources/pac-man-logo.bmp", ren);
     SDL_Texture* bouton_start = loadTexture("ressources/bouton_start_pacman.bmp", ren);
 
@@ -311,9 +315,48 @@ void ecran_acceuil (SDL_Renderer* ren){
         
         lancement = processKeyboard(&running);
         if (lancement == 'L'){
-            init_partie(ren);
+            init_partie(ren,musique);
             running = 0;
         }
+        if (lancement == 'm'){
+            ecran_musique(ren, musique);
+            running = 0;
+        }
+    }
+}
+
+void ecran_musique (SDL_Renderer* ren, Musique* musique){
+    SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
+    SDL_RenderClear(ren);
+    updateDisplay(ren);
+
+    int running = 1;
+    char touche_pressee;
+    while (running) {
+        touche_pressee = processKeyboard(&running);
+        if (touche_pressee == 'L' || touche_pressee == 'M'){
+            ecran_acceuil(ren,musique);
+            running = 0;
+        }
+        if (touche_pressee == '1'){
+            musique->musique_accueil = loadMusic(musique->musiques_src[0]);
+        }
+        if (touche_pressee == '2'){
+            musique->musique_accueil = loadMusic(musique->musiques_src[1]);
+        }
+        if (touche_pressee == '3'){
+            musique->musique_accueil = loadMusic(musique->musiques_src[2]);
+        }
+        if (touche_pressee == '4'){
+            musique->musique_jeu = loadMusic(musique->musiques_src[0]);
+        }
+        if (touche_pressee == '5'){
+            musique->musique_jeu = loadMusic(musique->musiques_src[1]);
+        }
+        if (touche_pressee == '6'){
+            musique->musique_jeu = loadMusic(musique->musiques_src[2]);
+        }
+
     }
 }
 
