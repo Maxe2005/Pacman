@@ -97,7 +97,7 @@ void clearRenderer(SDL_Renderer *ren){
 char processKeyboard(int *running){
 	char pdirection = ' ';
 	SDL_Event e;
-	int key,button;
+	int key;
 	while (SDL_PollEvent(&e)){
 		switch(e.type){
 			case SDL_KEYUP://SDL_KEYDOWN:

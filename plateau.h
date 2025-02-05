@@ -139,4 +139,11 @@ void ajout_gum_dessin (int i, int j, Map *map, SDL_Texture* tils[4], SDL_Rendere
  */
 int mod (int a, int b);
 
+/**
+ * Compte de nombre de gum totaux à manger sur la map
+ * @param map La map à afficher
+ * @return Le nombre de gum actuellement sur la map
+ */
+int compte_nb_gum (Map* map);
+
 #endif

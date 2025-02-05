@@ -19,7 +19,8 @@ typedef struct {
     SDL_Texture * skin_vies;
     unsigned int score;
     int nb_vies; // Le nombre de vies restantes au pacman/joueur
-    unsigned int nb_ghosts; //Le nombre de ghost en circulation sur la map 
+    int nb_ghosts; // Le nombre de ghost en circulation sur la map 
+    int nb_gums; // Le nombre de gums restants sur la map
 } Partie ;
 
 /**
@@ -75,7 +76,7 @@ void init_partie (SDL_Renderer* ren,Musique* musique);
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  * @param bouton_start La texture du bouton
  */
-void affiche_bouton_start (SDL_Renderer* ren, SDL_Texture* bouton_start);
+void affiche_bouton_start_2 (SDL_Renderer* ren, SDL_Texture* bouton_start);
 
 /**
  * Affiche sur le renderer le logo
@@ -92,18 +93,17 @@ void affiche_logo (SDL_Renderer* ren, SDL_Texture* logo);
 void ecran_acceuil (SDL_Renderer* ren, Musique* musique);
 
 /**
- * Tout est dans le titre ! s
+ * Tout est dans le titre !
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
  */
-void affiche_ecran_game_over (SDL_Renderer* ren, Partie* partie);
+void ecran_game_over (SDL_Renderer* ren, Partie* partie);
 
 /**
  * Place les pacman et les fantômes à leur position de départ avant le début de la partie
- * @param ren Un pointeur sur une structure contenant l'état du rendu
  * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
  */
-void placament_pacman_et_ghost (SDL_Renderer* ren, Partie* partie);
+void placament_pacman_et_ghost (Partie* partie);
 
 /**
  * Début du lancement du jeu
@@ -121,12 +121,33 @@ void free_partie (Partie* partie);
 
 /**
  * Met à niveau le score si le pacman est sur <gum> ou <cherry>. Déclanche le mode <frightened> si <Big Gum> rencontré
- * @param pacman Une instance de structure de joueur à déplacer
- * @param map La map sur laquelle se déplace le pacman
- * @param score Le score global à modifier si <gum> ou <cherry> rencontré
+ * @param partie La partie en cours
  * @return 1 Si le mode frightened vient d'être activé, 0 sinon
  */
-int update_score (Pacman *pacman, Map *map, int *score);
+int update_score (Partie* partie);
+
+/**
+ * Affiche sur le renderer un gros titre (avec la couleur) et le score
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
+ * @param titre Le titre à afficher
+ * @param color La couleur du titre à afficher
+ */
+void affiche_titre_et_score (SDL_Renderer* ren, Partie* partie, char *titre, char *color);
+
+/**
+ * Affiche sur le renderer le bouton start
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ * @param font La font du texte à afficher
+ */
+void affiche_bouton_start(SDL_Renderer* ren, TTF_Font * font);
+
+/**
+ * Tout est dans le titre !
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
+ */
+void ecran_victoire (SDL_Renderer* ren, Partie* partie);
 
 /**
  * Permet de changer la musique en jeu
