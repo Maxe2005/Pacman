@@ -8,11 +8,12 @@
 #define NB_SONS 2
 
 typedef struct {
-    char *musiques_src[NB_MUSIQUES];
-    char *sons_src[NB_SONS];
+    Mix_Music* musiques_src[NB_MUSIQUES];
+    Mix_Chunk* sons_src[NB_SONS];
     Mix_Music* musique_accueil;
     Mix_Music* musique_jeu;
     Mix_Music* musique_super_mode;
+    Mix_Chunk* eat_ghost;
 } Musique ;
 
 /**
@@ -32,6 +33,12 @@ void init_musiques_et_sons (Musique* musique);
  * @param musique La structure contenant toutes les infos pour les musiques
  */
 void liberer_musiques_et_sons(Musique* musique);
+
+/**
+ * Initialise les musiques et les sons du jeu par défault
+ * @param musique La structure contenant toutes les infos pour les musiques
+ */
+void musiques_et_sons_default (Musique* musique);
 
 /**
  * Fonction pour charger une musique

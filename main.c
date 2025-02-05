@@ -18,9 +18,7 @@ int main (int argc, char *argv[]){
     Musique* musique = malloc(sizeof(Musique));
 
     init_musiques_et_sons (musique);
-    musique->musique_accueil = loadMusic(musique->musiques_src[0]);
-    musique->musique_jeu = loadMusic(musique->musiques_src[1]);
-    musique->musique_super_mode = loadMusic(musique->musiques_src[2]);
+    musiques_et_sons_default(musique);
 
     ecran_acceuil(ren, musique);
 

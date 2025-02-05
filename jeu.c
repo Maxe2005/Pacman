@@ -17,6 +17,7 @@ int is_collision_pacman_ghost (SDL_Renderer* ren, Ghost** ghosts, Pacman *pacman
         if (abs(ghosts[i]->position_px_x - pacman->position_px_x) < ghosts[i]->taille_px/2 && abs(ghosts[i]->position_px_x - pacman->position_px_x) < pacman->taille_px/2
                 && abs(ghosts[i]->position_px_y - pacman->position_px_y) < ghosts[i]->taille_px/2 && abs(ghosts[i]->position_px_y - pacman->position_px_y) < pacman->taille_px/2) {
             if (strcmp(ghosts[i]->etat,"frightened") == 0){
+                playSoundEffect(musique->eat_ghost);
                 strcpy(ghosts[i]->etat,"eaten");
                 partie->score += 200;
             } else { if (strcmp(ghosts[i]->etat,"eaten") != 0){
@@ -27,7 +28,7 @@ int is_collision_pacman_ghost (SDL_Renderer* ren, Ghost** ghosts, Pacman *pacman
                     SDL_Delay(5000);
                     ecran_acceuil(ren,musique);
                 } else {
-                    annimation_mort_pacman(ren, partie);
+                    annimation_mort_pacman(ren, partie, musique);
                     placament_pacman_et_ghost(ren, partie);
                     boucle_de_jeu(ren, partie, musique);
                 }
@@ -67,7 +68,8 @@ void affiche_ecran_game_over (SDL_Renderer* ren, Partie* partie) {
     updateDisplay(ren);
 }
 
-void annimation_mort_pacman (SDL_Renderer* ren, Partie* partie) {
+void annimation_mort_pacman (SDL_Renderer* ren, Partie* partie, Musique* musique) {
+    playSoundEffect(musique->eat_ghost);
     char directions[4] = {'d', 'b', 'g', 'h'};
     unsigned int i = 0; 
 
@@ -183,8 +185,15 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie, Musique* musique){
 
         // Gestion des personnages (pacman et ghosts)
         avance_pacman(partie->pacman, partie->map);
-        if (update_score(partie->pacman, partie->map, &(partie->score), partie->nb_ghosts, partie->ghosts) == 1){
+        if (update_score(partie->pacman, partie->map, &(partie->score)) == 1){
+            // Début du mode frightened
+            pauseMusic();
+            playMusic(musique->musique_super_mode);
             is_mode_frightened = 1;
+            for (int i = 0; i < partie->nb_ghosts; i++){
+                strcpy(partie->ghosts[i]->etat, "frightened");
+                partie->ghosts[i]->is_clignotement = 0;
+            }
             time_t start_time_frightened = time(NULL);
         }
         for (int i = 0; i < 4; i++) {
@@ -220,12 +229,26 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie, Musique* musique){
             }
             start_time = current_time;
         }
-        if (is_mode_frightened == 1 && current_time - start_time >= TEMPS_MODE_FRIGHTENED){
-            // Fin du mode frightened
-            for (int i = 0; i < partie->nb_ghosts; i++){
-                if (strcmp(partie->ghosts[i]->etat, "frightened") == 0){
-                    strcpy(partie->ghosts[i]->etat, mode);
+        if (is_mode_frightened == 1){
+            if (current_time - start_time_frightened >= TEMPS_MODE_FRIGHTENED){
+                // Fin du mode frightened
+                playMusic(musique->musique_jeu);
+                is_mode_frightened = 0;
+                for (int i = 0; i < partie->nb_ghosts; i++){
+                    if (strcmp(partie->ghosts[i]->etat, "frightened") == 0){
+                        strcpy(partie->ghosts[i]->etat, mode);
+                        partie->ghosts[i]->is_clignotement = 0;
+                    }
                 }
+            } else {
+            if (current_time - start_time_frightened >= TEMPS_MODE_FRIGHTENED - TEMPS_MODE_FRIGHTENED * POURCENTAGE_FIN_FRIGHTENED/100){
+                // Clignotemment d'avertissement de fin de mode frightened
+                for (int i = 0; i < partie->nb_ghosts; i++){
+                    if (strcmp(partie->ghosts[i]->etat, "frightened") == 0){
+                        partie->ghosts[i]->is_clignotement = 1;
+                    }
+                }
+            }
             }
         }
         for (int i = 0; i < partie->nb_ghosts; i++){
@@ -247,7 +270,7 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie, Musique* musique){
     }
 }
 
-int update_score (Pacman *pacman, Map *map, int *score, int nb_ghosts, Ghost** ghosts){
+int update_score (Pacman *pacman, Map *map, int *score){
     if (map->contenu[pacman->position_y][pacman->position_x] == 4){
         *score += 10;
         map->contenu[pacman->position_y][pacman->position_x] = 0; //Vider la case car le <Gum> à été consommé
@@ -259,12 +282,8 @@ int update_score (Pacman *pacman, Map *map, int *score, int nb_ghosts, Ghost** g
     if (map->contenu[pacman->position_y][pacman->position_x] == 5){ // <Big_Gum> consommé
         map->contenu[pacman->position_y][pacman->position_x] = 0;
         // Ici démare le mode <frightened>
-        for (int i = 0; i < nb_ghosts; i++){
-            strcpy(ghosts[i]->etat, "frightened");
-        }
         return 1;
-    }
-    }}
+    }}}
     return 0;
 }
 
@@ -339,22 +358,22 @@ void ecran_musique (SDL_Renderer* ren, Musique* musique){
             running = 0;
         }
         if (touche_pressee == '1'){
-            musique->musique_accueil = loadMusic(musique->musiques_src[0]);
+            musique->musique_accueil = musique->musiques_src[0];
         }
         if (touche_pressee == '2'){
-            musique->musique_accueil = loadMusic(musique->musiques_src[1]);
+            musique->musique_accueil = musique->musiques_src[1];
         }
         if (touche_pressee == '3'){
-            musique->musique_accueil = loadMusic(musique->musiques_src[2]);
+            musique->musique_accueil = musique->musiques_src[2];
         }
         if (touche_pressee == '4'){
-            musique->musique_jeu = loadMusic(musique->musiques_src[0]);
+            musique->musique_jeu = musique->musiques_src[0];
         }
         if (touche_pressee == '5'){
-            musique->musique_jeu = loadMusic(musique->musiques_src[1]);
+            musique->musique_jeu = musique->musiques_src[1];
         }
         if (touche_pressee == '6'){
-            musique->musique_jeu = loadMusic(musique->musiques_src[2]);
+            musique->musique_jeu = musique->musiques_src[2];
         }
 
     }

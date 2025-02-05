@@ -7,7 +7,8 @@
 #include "ghost.h"
 #include "audio.h"
 
-#define TEMPS_MODE_FRIGHTENED 10 // en secondes
+#define TEMPS_MODE_FRIGHTENED 16 // en secondes
+#define POURCENTAGE_FIN_FRIGHTENED 20
 
 typedef struct {
     Map* map;
@@ -51,8 +52,9 @@ int is_collision_pacman_ghost (SDL_Renderer* ren, Ghost** ghosts, Pacman *pacman
  * Tout est dans le titre !
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
+ * @param musique La structure contenant toutes les infos pour les musiques
  */
-void annimation_mort_pacman (SDL_Renderer* ren, Partie* partie);
+void annimation_mort_pacman (SDL_Renderer* ren, Partie* partie, Musique* musique);
 
 /**
  * Efface et affiche sur le renderer l'écran de jeu
@@ -122,11 +124,9 @@ void free_partie (Partie* partie);
  * @param pacman Une instance de structure de joueur à déplacer
  * @param map La map sur laquelle se déplace le pacman
  * @param score Le score global à modifier si <gum> ou <cherry> rencontré
- * @param nb_ghosts Le nombre de ghost en circulation sur la map 
- * @param ghosts Le tableau avec toutes les instance de structure de fantôme
  * @return 1 Si le mode frightened vient d'être activé, 0 sinon
  */
-int update_score (Pacman *pacman, Map *map, int *score, int nb_ghosts, Ghost** ghosts);
+int update_score (Pacman *pacman, Map *map, int *score);
 
 /**
  * Permet de changer la musique en jeu

@@ -8,6 +8,7 @@
 #define VITESSE_GHOST 2
 #define VITESSE_GHOST_FRIGHTENED 1
 #define VITESSE_GHOST_EATEN 4
+#define FREQUENCE_CLIGNOTEMMENT 20
 
 typedef struct
 {
@@ -22,10 +23,12 @@ typedef struct
     char direction;
     int vitesse;
     int is_affiche; // Booleen définissant si le fantôme est sur le map
+    int is_clignotement; // Booleen pour clignoter à la fin du mode frightened
+    unsigned int frame; // Pour avoir un skin dynamique
     char etat_precedent[11];// L'état précédent du ghost : chase, scatter, frightened ou eaten
-    char etat[11]; // L'état du ghost : chase, scatter, frightened ou eaten
+    char etat[11]; // L'état du ghost : chase, scatter, c ou eaten
     SDL_Texture* skin_normal[4];
-    SDL_Texture* skin_frightened[4];
+    SDL_Texture* skin_frightened[2];
     SDL_Texture* skin_eaten[4];
 } Ghost ;
 

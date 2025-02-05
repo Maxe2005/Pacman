@@ -17,15 +17,15 @@ void init_ghost (Ghost *ghost, SDL_Renderer* ren, int num_ghost){
         init_textures_Clyde(ghost, ren);
         strcpy(ghost->nom, "Clyde");
     }}}}
-    ghost->skin_frightened[0] = loadTexture("ressources/pacman/pakuman_0.bmp", ren);
-    ghost->skin_frightened[1] = loadTexture("ressources/pacman/pakuman_1.bmp", ren);
-    ghost->skin_frightened[2] = loadTexture("ressources/pacman/pakuman_2.bmp", ren);
-    ghost->skin_frightened[3] = loadTexture("ressources/pacman/pakuman_3.bmp", ren);
-    ghost->skin_eaten[0] = loadTexture("ressources/cherry.bmp", ren);
-    ghost->skin_eaten[1] = loadTexture("ressources/cherry.bmp", ren);
-    ghost->skin_eaten[2] = loadTexture("ressources/cherry.bmp", ren);
-    ghost->skin_eaten[3] = loadTexture("ressources/cherry.bmp", ren);
+    ghost->skin_eaten[0] = loadTexture("ressources/pacman/pakuman_0.bmp", ren);
+    ghost->skin_eaten[1] = loadTexture("ressources/pacman/pakuman_1.bmp", ren);
+    ghost->skin_eaten[2] = loadTexture("ressources/pacman/pakuman_2.bmp", ren);
+    ghost->skin_eaten[3] = loadTexture("ressources/pacman/pakuman_3.bmp", ren);
+    ghost->skin_frightened[0] = loadTexture("ressources/cherry.bmp", ren);
+    ghost->skin_frightened[1] = loadTexture("ressources/wall.bmp", ren);
     ghost->is_affiche = 0;
+    ghost->is_clignotement = 0;
+    ghost->frame = 0;
     ghost->vitesse = VITESSE_GHOST;
 }
 
@@ -83,28 +83,33 @@ void affiche_ghost (Ghost *ghost, SDL_Renderer* ren) {
         SDL_Texture* tex;
         SDL_Texture** skin;
         if (strcmp(ghost->etat, "frightened") == 0){
-            skin = ghost->skin_frightened;
+            if (ghost->is_clignotement == 1 && (int)(ghost->frame/FREQUENCE_CLIGNOTEMMENT) % 2 == 1) {
+                tex = ghost->skin_frightened[1];
+            } else {
+                tex = ghost->skin_frightened[0];
+            }
         } else {
-        if (strcmp(ghost->etat, "eaten") == 0){
-            skin = ghost->skin_eaten;
-        } else {
-            skin = ghost->skin_normal;
+            if (strcmp(ghost->etat, "eaten") == 0){
+                skin = ghost->skin_eaten;
+            } else {
+                skin = ghost->skin_normal;
+            }
+            if (ghost->direction == 'd'){
+                tex = skin[0];
+            } else {
+            if (ghost->direction == 'g'){
+                tex = skin[2];
+            } else {
+            if (ghost->direction == 'h'){
+                tex = skin[1];
+            } else {
+            if (ghost->direction == 'b'){
+                tex = skin[3];
+            } else {
+                tex = skin[0]; //Par défaut le ghost regarde a droite
+            }}}}
         }
-        }
-        if (ghost->direction == 'd'){
-            tex = skin[0];
-        } else {
-        if (ghost->direction == 'g'){
-            tex = skin[2];
-        } else {
-        if (ghost->direction == 'h'){
-            tex = skin[1];
-        } else {
-        if (ghost->direction == 'b'){
-            tex = skin[3];
-        } else {
-            tex = skin[0]; //Par défaut le ghost regarde a droite
-        }}}}
+        ghost->frame++;
         renderTexture(tex, ren, ghost->position_px_x, ghost->position_px_y, ghost->taille_px, ghost->taille_px);
     }
 }

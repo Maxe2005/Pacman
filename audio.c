@@ -14,21 +14,29 @@ int init_audio() {
 }
 
 void init_musiques_et_sons(Musique* musique) {
-    musique->musiques_src[0] = strdup("ressources/musiques/Pacman-Remix.mp3");
-    musique->musiques_src[1] = strdup("ressources/musiques/PacMan.mp3");
-    musique->musiques_src[2] = strdup("ressources/musiques/SuperMode.mp3");
+    musique->musiques_src[0] = loadMusic("ressources/musiques/Pacman-Remix.mp3");
+    musique->musiques_src[1] = loadMusic("ressources/musiques/PacMan.mp3");
+    musique->musiques_src[2] = loadMusic("ressources/musiques/SuperMode.mp3");
 
-    musique->sons_src[0] = strdup("ressources/sons/rattle.wav"); 
-    musique->sons_src[1] = strdup("ressources/sons/son.wav"); 
+    musique->sons_src[0] = loadSoundEffect("ressources/sons/rattle.wav"); 
+    musique->sons_src[1] = loadSoundEffect("ressources/sons/son.wav"); 
 }
 
 void liberer_musiques_et_sons(Musique* musique) {
     for (int i = 0; i < NB_MUSIQUES; i++) {
-        free(musique->musiques_src[i]);
+        Mix_FreeMusic(musique->musiques_src[i]);
     }
     for (int i = 0; i < NB_SONS; i++) {
-        free(musique->sons_src[i]);
+        freeSoundEffect(musique->sons_src[i]);
     }
+}
+
+void musiques_et_sons_default (Musique* musique){
+    musique->musique_accueil = musique->musiques_src[0];
+    musique->musique_jeu = musique->musiques_src[1];
+    musique->musique_super_mode = musique->musiques_src[2];
+
+    musique->eat_ghost = musique->sons_src[0];
 }
 
 
@@ -41,7 +49,6 @@ Mix_Music* loadMusic(const char *filename) {
 }
 
 void playMusic(Mix_Music *music) {
-    stopMusic();
     if (music) {
         Mix_PlayMusic(music, -1); // -1 = boucle infinie
     }
@@ -88,8 +95,5 @@ void freeSoundEffect(Mix_Chunk *soundEffect) {
 void clear_musique (Musique* musique){
     stopMusic();
     liberer_musiques_et_sons(musique);
-    Mix_FreeMusic(musique->musique_accueil);
-    Mix_FreeMusic(musique->musique_jeu);
-    Mix_FreeMusic(musique->musique_super_mode);
     Mix_CloseAudio();
 }
