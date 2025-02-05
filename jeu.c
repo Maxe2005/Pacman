@@ -24,10 +24,10 @@ int is_collision_pacman_ghost (SDL_Renderer* ren, Ghost** ghosts, Pacman *pacman
                 partie->nb_vies--;
                 *running = 0;
                 if (partie->nb_vies == 0) {
-                    ecran_game_over(ren, partie);
+                    ecran_game_over(ren, partie, musique);
                 } else {
                     annimation_mort_pacman(ren, partie, musique);
-                    placament_pacman_et_ghost(ren, partie);
+                    placament_pacman_et_ghost(partie);
                     boucle_de_jeu(ren, partie, musique);
                 }
             }}
@@ -67,7 +67,7 @@ void affiche_ecran_game_over (SDL_Renderer* ren, Partie* partie) {
 }
 
 void annimation_mort_pacman (SDL_Renderer* ren, Partie* partie, Musique* musique) {
-    playSoundEffect(musique->eat_ghost);
+    playSoundEffect(musique->pacman_death);
     char directions[4] = {'d', 'b', 'g', 'h'};
     unsigned int i = 0; 
 
@@ -153,7 +153,6 @@ void placament_pacman_et_ghost (Partie* partie){
 }
 
 void boucle_de_jeu(SDL_Renderer* ren, Partie* partie, Musique* musique){
-    //playNewMusic("ressources/musiques/PacMan.mp3");
     playMusic(musique->musique_jeu);
 
     char dir;
@@ -193,17 +192,17 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie, Musique* musique){
                 strcpy(partie->ghosts[i]->etat, "frightened");
                 partie->ghosts[i]->is_clignotement = 0;
             }
-            time_t start_time_frightened = time(NULL);
+            start_time_frightened = time(NULL);
         }
         for (int i = 0; i < 4; i++) {
             avance_ghost(partie->ghosts[i], partie->map, partie->pacman, partie->ghosts[0]);
         }
-        is_collision_pacman_ghost(ren, partie->ghosts, partie->pacman, partie, &running);
+        is_collision_pacman_ghost(ren, partie->ghosts, partie->pacman, partie, &running, musique);
 
         // Gagné ?
         if (partie->nb_gums <= 0){
             running = 0;
-            ecran_victoire(ren, partie);
+            ecran_victoire(ren, partie, musique);
         }
 
         // Gestion des mode/etat des fantômes (chase, scatter, frightened et eaten)
@@ -255,7 +254,6 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie, Musique* musique){
                 }
             }
             }
-            start_time_frightened = current_time;
         }
         for (int i = 0; i < partie->nb_ghosts; i++){
             if (strcmp(partie->ghosts[i]->etat, "eaten") == 0 && partie->ghosts[i]->position_x == partie->ghosts[i]->target_x && partie->ghosts[i]->position_y == partie->ghosts[i]->target_y){
@@ -298,16 +296,10 @@ void affiche_logo (SDL_Renderer* ren, SDL_Texture* logo) {
     renderTexture(logo, ren,(int)(FEN_X /4),(int)(FEN_Y/8),(int)(FEN_X/2),(int)(FEN_Y/4));
 }
 
-void affiche_bouton_start_2 (SDL_Renderer* ren, SDL_Texture* bouton_start) {
-    renderTexture(bouton_start, ren,(int)(FEN_X /4),(int)(FEN_Y/2),(int)(FEN_X/2),(int)(FEN_Y/4));
-}
-
 void ecran_acceuil (SDL_Renderer* ren, Musique* musique){
-    //playNewMusic("ressources/musiques/Pacman-Remix.mp3");
     playMusic(musique->musique_accueil);
 
     SDL_Texture* logo = loadTexture("ressources/pac-man-logo.bmp", ren);
-    SDL_Texture* bouton_start = loadTexture("ressources/bouton_start_pacman.bmp", ren);
     TTF_Font * font = createFont("ressources/DejaVuSans-Bold.ttf", 20);
 
     clock_t current_time;
@@ -317,7 +309,6 @@ void ecran_acceuil (SDL_Renderer* ren, Musique* musique){
     SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
     SDL_RenderClear(ren);
     affiche_logo(ren, logo);
-    //affiche_bouton_start_2(ren, bouton_start);
     affiche_bouton_start(ren, font);
 
     char lancement;
@@ -335,7 +326,6 @@ void ecran_acceuil (SDL_Renderer* ren, Musique* musique){
                 affiche_logo(ren, logo);
                 is_bouton_start_visible = 0;
             } else {
-                //affiche_bouton_start_2(ren, bouton_start);
                 affiche_bouton_start(ren, font);
                 is_bouton_start_visible = 1;
             }
@@ -344,18 +334,26 @@ void ecran_acceuil (SDL_Renderer* ren, Musique* musique){
         
         lancement = processKeyboard(&running);
         if (lancement == 'L'){
+            playSoundEffect(musique->select);
             init_partie(ren,musique);
             running = 0;
         }
         if (lancement == 'm'){
+            playSoundEffect(musique->select);
             ecran_musique(ren, musique);
             running = 0;
         }
     }
 }
 
-void ecran_game_over (SDL_Renderer* ren, Partie* partie){
-    clock_t current_time;
+void ecran_game_over (SDL_Renderer* ren, Partie* partie, Musique* musique){
+    stopMusic();
+    playSoundEffect(musique->game_over);
+    clock_t start_time_song = clock();
+    int is_musique_commencee = 0;
+    int temps_avant_debut_musique = 7;
+
+    
     clock_t start_time = clock();
     const double temps_clignotement_bouton_start = 125.0 / 1000.0 * CLOCKS_PER_SEC; //temps_clignotement_bouton_start convertion de milisecondes à clocks
     
@@ -367,11 +365,12 @@ void ecran_game_over (SDL_Renderer* ren, Partie* partie){
     int is_bouton_start_visible = 1; // Booleen qui permet de faire clignoter le bouton start
     int running = 1;
 
+    clock_t current_time;
     while (running) {
         current_time = clock();
         updateDisplay(ren);
 
-        if ((double)(current_time - start_time) >= temps_clignotement_bouton_start) {
+        if (current_time - start_time >= temps_clignotement_bouton_start) {
             if (is_bouton_start_visible == 1){
                 SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
                 SDL_RenderClear(ren);
@@ -382,17 +381,25 @@ void ecran_game_over (SDL_Renderer* ren, Partie* partie){
                 is_bouton_start_visible = 1;
             }
             start_time = current_time;
+            
+        }
+
+        if (is_musique_commencee == 0 && current_time - start_time_song >= temps_avant_debut_musique) {
+            playMusic(musique->musique_accueil);
+            is_musique_commencee = 1;
         }
         
         lancement = processKeyboard(&running);
         if (lancement == 'L'){
-            ecran_acceuil(ren);
+            playSoundEffect(musique->select);
+            ecran_acceuil(ren, musique);
             running = 0;
         }
     }
 }
 
-void ecran_victoire (SDL_Renderer* ren, Partie* partie){
+void ecran_victoire (SDL_Renderer* ren, Partie* partie, Musique* musique){
+    playMusic(musique->musique_accueil);
     clock_t current_time;
     clock_t start_time = clock();
     const double temps_clignotement_bouton_start = 125.0 / 1000.0 * CLOCKS_PER_SEC; //temps_clignotement_bouton_start convertion de milisecondes à clocks
@@ -424,9 +431,46 @@ void ecran_victoire (SDL_Renderer* ren, Partie* partie){
         
         lancement = processKeyboard(&running);
         if (lancement == 'L'){
-            ecran_acceuil(ren);
+            playSoundEffect(musique->select);
+            ecran_acceuil(ren, musique);
             running = 0;
         }
+    }
+}
+
+void ecran_musique (SDL_Renderer* ren, Musique* musique){
+    SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
+    SDL_RenderClear(ren);
+    updateDisplay(ren);
+
+    int running = 1;
+    char touche_pressee;
+    while (running) {
+        touche_pressee = processKeyboard(&running);
+        if (touche_pressee == 'L' || touche_pressee == 'M'){
+            playSoundEffect(musique->select);
+            ecran_acceuil(ren,musique);
+            running = 0;
+        }
+        if (touche_pressee == '1'){
+            musique->musique_accueil = musique->musiques_src[0];
+        }
+        if (touche_pressee == '2'){
+            musique->musique_accueil = musique->musiques_src[1];
+        }
+        if (touche_pressee == '3'){
+            musique->musique_accueil = musique->musiques_src[2];
+        }
+        if (touche_pressee == '4'){
+            musique->musique_jeu = musique->musiques_src[0];
+        }
+        if (touche_pressee == '5'){
+            musique->musique_jeu = musique->musiques_src[1];
+        }
+        if (touche_pressee == '6'){
+            musique->musique_jeu = musique->musiques_src[2];
+        }
+
     }
 }
 
@@ -459,12 +503,16 @@ void affiche_titre_et_score (SDL_Renderer* ren, Partie* partie, char *titre, cha
 
     char text_score[15];
     SDL_Color white = {255, 255, 255, 255};
-    SDL_Color couleur;
+    SDL_Color couleur = {255, 255, 255, 255};;
     if (strcmp(color, "red") == 0){
-        SDL_Color couleur = {255, 0, 0, 255};
+        couleur.r = 255;
+        couleur.g = 0;
+        couleur.b = 0;
     } else {
     if (strcmp(color, "green") == 0){
-        SDL_Color couleur = {0, 255, 0, 255};
+        couleur.r = 0;
+        couleur.g = 255;
+        couleur.b = 0;
     }
     }
 
@@ -473,39 +521,4 @@ void affiche_titre_et_score (SDL_Renderer* ren, Partie* partie, char *titre, cha
     printText(score_x, score_y, text_score, taille_score_x, taille_score_y, partie->font[0], white, ren);
 }
 
-
-void ecran_musique (SDL_Renderer* ren, Musique* musique){
-    SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
-    SDL_RenderClear(ren);
-    updateDisplay(ren);
-
-    int running = 1;
-    char touche_pressee;
-    while (running) {
-        touche_pressee = processKeyboard(&running);
-        if (touche_pressee == 'L' || touche_pressee == 'M'){
-            ecran_acceuil(ren,musique);
-            running = 0;
-        }
-        if (touche_pressee == '1'){
-            musique->musique_accueil = musique->musiques_src[0];
-        }
-        if (touche_pressee == '2'){
-            musique->musique_accueil = musique->musiques_src[1];
-        }
-        if (touche_pressee == '3'){
-            musique->musique_accueil = musique->musiques_src[2];
-        }
-        if (touche_pressee == '4'){
-            musique->musique_jeu = musique->musiques_src[0];
-        }
-        if (touche_pressee == '5'){
-            musique->musique_jeu = musique->musiques_src[1];
-        }
-        if (touche_pressee == '6'){
-            musique->musique_jeu = musique->musiques_src[2];
-        }
-
-    }
-}
 

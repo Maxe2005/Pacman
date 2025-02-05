@@ -191,5 +191,6 @@ int avance_pacman (Pacman *pacman, Map *map){
             return 0;
         }
     }
+    return 0;
 }
 

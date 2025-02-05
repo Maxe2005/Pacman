@@ -7,7 +7,7 @@
 #include "ghost.h"
 #include "audio.h"
 
-#define TEMPS_MODE_FRIGHTENED 16 // en secondes
+#define TEMPS_MODE_FRIGHTENED 11 // en secondes
 #define POURCENTAGE_FIN_FRIGHTENED 20
 
 typedef struct {
@@ -72,13 +72,6 @@ void affiche_ecran_jeu (SDL_Renderer* ren, Partie* partie);
 void init_partie (SDL_Renderer* ren,Musique* musique);
 
 /**
- * Affiche sur le renderer le bouton start
- * @param ren Un pointeur sur une structure contenant l'état du rendu
- * @param bouton_start La texture du bouton
- */
-void affiche_bouton_start_2 (SDL_Renderer* ren, SDL_Texture* bouton_start);
-
-/**
  * Affiche sur le renderer le logo
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  * @param logo La texture du logo
@@ -96,8 +89,9 @@ void ecran_acceuil (SDL_Renderer* ren, Musique* musique);
  * Tout est dans le titre !
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
+ * @param musique La structure contenant toutes les infos pour les musiques
  */
-void ecran_game_over (SDL_Renderer* ren, Partie* partie);
+void ecran_game_over (SDL_Renderer* ren, Partie* partie, Musique* musique);
 
 /**
  * Place les pacman et les fantômes à leur position de départ avant le début de la partie
@@ -146,8 +140,9 @@ void affiche_bouton_start(SDL_Renderer* ren, TTF_Font * font);
  * Tout est dans le titre !
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
+ * @param musique La structure contenant toutes les infos pour les musiques
  */
-void ecran_victoire (SDL_Renderer* ren, Partie* partie);
+void ecran_victoire (SDL_Renderer* ren, Partie* partie, Musique* musique);
 
 /**
  * Permet de changer la musique en jeu

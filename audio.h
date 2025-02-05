@@ -4,8 +4,8 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 
-#define NB_MUSIQUES 3
-#define NB_SONS 2
+#define NB_MUSIQUES 4
+#define NB_SONS 6
 
 typedef struct {
     Mix_Music* musiques_src[NB_MUSIQUES];
@@ -14,6 +14,10 @@ typedef struct {
     Mix_Music* musique_jeu;
     Mix_Music* musique_super_mode;
     Mix_Chunk* eat_ghost;
+    Mix_Chunk* pacman_song;
+    Mix_Chunk* game_over;
+    Mix_Chunk* pacman_death;
+    Mix_Chunk* select;
 } Musique ;
 
 /**

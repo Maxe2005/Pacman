@@ -14,12 +14,17 @@ int init_audio() {
 }
 
 void init_musiques_et_sons(Musique* musique) {
-    musique->musiques_src[0] = loadMusic("ressources/musiques/Pacman-Remix.mp3");
-    musique->musiques_src[1] = loadMusic("ressources/musiques/PacMan.mp3");
+    musique->musiques_src[0] = loadMusic("ressources/musiques/Ambiance.mp3");
+    musique->musiques_src[1] = loadMusic("ressources/musiques/Font_de_jeu.mp3");
     musique->musiques_src[2] = loadMusic("ressources/musiques/SuperMode.mp3");
+    musique->musiques_src[3] = loadMusic("ressources/musiques/THEME.mp3");
 
     musique->sons_src[0] = loadSoundEffect("ressources/sons/rattle.wav"); 
-    musique->sons_src[1] = loadSoundEffect("ressources/sons/son.wav"); 
+    musique->sons_src[1] = loadSoundEffect("ressources/sons/Game_Over.wav"); 
+    musique->sons_src[2] = loadSoundEffect("ressources/sons/pacman_death.wav");
+    musique->sons_src[3] = loadSoundEffect("ressources/sons/Pacman_song.wav");
+    musique->sons_src[4] = loadSoundEffect("ressources/sons/Select.wav");
+    musique->sons_src[5] = loadSoundEffect("ressources/sons/eatghost.wav");
 }
 
 void liberer_musiques_et_sons(Musique* musique) {
@@ -32,11 +37,15 @@ void liberer_musiques_et_sons(Musique* musique) {
 }
 
 void musiques_et_sons_default (Musique* musique){
-    musique->musique_accueil = musique->musiques_src[0];
+    musique->musique_accueil = musique->musiques_src[3];
     musique->musique_jeu = musique->musiques_src[1];
     musique->musique_super_mode = musique->musiques_src[2];
 
-    musique->eat_ghost = musique->sons_src[0];
+    musique->game_over = musique->sons_src[1];
+    musique->pacman_death = musique->sons_src[2];
+    musique->pacman_song = musique->sons_src[3];
+    musique->select = musique->sons_src[4];
+    musique->eat_ghost = musique->sons_src[5];
 }
 
 
