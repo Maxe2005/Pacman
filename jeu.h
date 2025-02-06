@@ -40,14 +40,14 @@ void affiche_les_vies (SDL_Renderer* ren, SDL_Texture * skin_vies, const int nb_
 /**
  * Vérifie si le ghost est en contacte avec le pacman et gère les actions à effectuer
  * @param ren Un pointeur sur une structure contenant l'état du rendu
- * @param ghosts Le tableau avec toutes les instance de structure de fantôme
+ * @param ghost L'instance de structure de fantôme à tester
  * @param pacman Une instance de structure de joueur
  * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
  * @param running Le booleen qui peut arrêter la boucle principale
  * @param musique La structure contenant toutes les infos pour les musiques
  * @return 1 si collision avec un fantôme, 0 sinom
  */
-int is_collision_pacman_ghost (SDL_Renderer* ren, Ghost** ghosts, Pacman *pacman, Partie* partie, int* running,Musique* musique);
+int is_collision_pacman_ghost (SDL_Renderer* ren, Ghost* ghost, Pacman *pacman, Partie* partie, int* running,Musique* musique);
 
 /**
  * Tout est dans le titre !
@@ -69,7 +69,7 @@ void affiche_ecran_jeu (SDL_Renderer* ren, Partie* partie);
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  * @param musique La structure contenant toutes les infos pour les musiques
  */
-void init_partie (SDL_Renderer* ren,Musique* musique);
+void nouvelle_partie (SDL_Renderer* ren,Musique* musique);
 
 /**
  * Affiche sur le renderer le logo
@@ -100,12 +100,20 @@ void ecran_game_over (SDL_Renderer* ren, Partie* partie, Musique* musique);
 void placament_pacman_et_ghost (Partie* partie);
 
 /**
- * Début du lancement du jeu
+ * La boucle qui tourne durant toute la partie
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
  * @param musique La structure contenant toutes les infos pour les musiques
  */
 void boucle_de_jeu(SDL_Renderer* ren, Partie* partie,Musique* musique);
+
+/**
+ * Début du lancement du jeu
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
+ * @param musique La structure contenant toutes les infos pour les musiques
+ */
+void debut_jeu (SDL_Renderer* ren, Partie* partie, Musique* musique);
 
 /**
  * Libère la mémoire réservé à la partie

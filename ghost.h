@@ -9,6 +9,13 @@
 #define VITESSE_GHOST_FRIGHTENED 1
 #define VITESSE_GHOST_EATEN 4
 #define FREQUENCE_CLIGNOTEMMENT 20
+// Les différents états possibles des fantômes
+#define ETAT_CHASE 0
+#define ETAT_SCATTER 1
+#define ETAT_FRIGHTENED 2
+#define ETAT_EATEN 3
+#define ETAT_INSIDE_HOME 4
+#define ETAT_GO_OUTSIDE_HOME 5
 
 typedef struct
 {
@@ -25,8 +32,10 @@ typedef struct
     int is_affiche; // Booleen définissant si le fantôme est sur le map
     int is_clignotement; // Booleen pour clignoter à la fin du mode frightened
     unsigned int frame; // Pour avoir un skin dynamique
-    char etat_precedent[11];// L'état précédent du ghost : chase, scatter, frightened ou eaten
-    char etat[11]; // L'état du ghost : chase, scatter, c ou eaten
+    int etat_precedent;// L'état précédent du ghost : chase, scatter, frightened ou eaten
+    int etat; // L'état du ghost : chase, scatter, frightened ou eaten
+    int etat_prioritaire; // Les deux états de début de partie : inside_home et go_outside_home
+    int temps_avant_sortie_maison; // en secondes
     SDL_Texture* skin_normal[4];
     SDL_Texture* skin_frightened[2];
     SDL_Texture* skin_eaten[4];
@@ -53,7 +62,7 @@ void init_textures_Blinky (Ghost *ghost, SDL_Renderer* ren);
  * @param difference La différence de position (en cases) par rapport à la position actuelle (en cases) du pacman
  * @return La position en pixel du pacman (avec la différence demandée)
  */
-int conversion_case_pixel_en_x_g (Ghost *ghost, Map *map, int difference);
+int conversion_case_pixel_en_x_g (Ghost *ghost, Map *map, float difference);
 
 /**
  * Converti une position en cases (sur le tableau) en une position en pixel (sur la fenêtre)
@@ -62,7 +71,7 @@ int conversion_case_pixel_en_x_g (Ghost *ghost, Map *map, int difference);
  * @param difference La différence de position (en cases) par rapport à la position actuelle (en cases) du pacman
  * @return La position en pixel du pacman (avec la différence demandée)
  */
-int conversion_case_pixel_en_y_g (Ghost *ghost, Map *map, int difference);
+int conversion_case_pixel_en_y_g (Ghost *ghost, Map *map, float difference);
 
 /** Charge les textures de Inky (le fantôme cyan) dans le tableau "skin" de Ghost
  * @param ghost Une instance de structure du fantome
@@ -146,6 +155,8 @@ void choix_direction_aleatoire (Ghost *ghost, char choix_valides[4], const int n
  * Opérations logique pour le déplacement continu du ghost
  * @param ghost Une instance de structure de fantôme
  * @param map La map sur laquelle va être affiché le ghost
+ * @param pacman Le pacman joueur
+ * @param Blinky Le fantôme rouge Blinky
  * @return 0 si tout c'est bien passé, 1 si erreur
  */
 int avance_ghost (Ghost *ghost, Map *map, Pacman* pacman, Ghost* Blinky);
@@ -264,5 +275,30 @@ int distance_entre_2_points (int x1, int y1, int x2, int y2);
  * @param map La map sur laquelle va être affiché le ghost
  */
 void changement_etat (Ghost *ghost, Map *map);
+
+/**
+ * Fait faire des vas et vien de bas en haut au fantômes qui sont dans leur maison
+ * @param ghost Une instance de structure de fantôme
+ * @param map La map sur laquelle va être affiché le ghost
+ */
+void bouger_dans_maison (Ghost *ghost, Map *map);
+
+/**
+ * Fait sortir les ghosts de leur maison pour rentrer sur la map
+ * @param ghost Une instance de structure de fantôme
+ * @param map La map sur laquelle va être affiché le ghost
+ * @param target_x la position (en cases) au dessus (et à gauche) de la sortie de la maison des fantômes
+ * @param target_y la position (en cases) au dessus (et à gauche) de la sortie de la maison des fantômes
+ */
+int go_outside_home (Ghost *ghost, Map *map, int target_x, int target_y);
+
+/** 
+ * Fonction principale de la mise en évidence des directions possible plus du choix parmis elles
+ * @param ghost Une instance de structure de fantôme
+ * @param map La map sur laquelle va être affiché le ghost
+ * @param pacman Le pacman joueur
+ * @param Blinky Le fantôme rouge Blinky
+*/
+void master_choix_directions (Ghost *ghost, Map *map, Pacman* pacman, Ghost* Blinky);
 
 #endif

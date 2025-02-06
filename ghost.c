@@ -27,6 +27,7 @@ void init_ghost (Ghost *ghost, SDL_Renderer* ren, int num_ghost){
     ghost->is_clignotement = 0;
     ghost->frame = 0;
     ghost->vitesse = VITESSE_GHOST;
+    ghost->direction = ' ';
 }
 
 void init_textures_Blinky (Ghost *ghost, SDL_Renderer* ren){
@@ -41,6 +42,7 @@ void init_textures_Pinky (Ghost *ghost, SDL_Renderer* ren){
     ghost->skin_normal[1] = loadTexture("ressources/ghost/ghost2_1.bmp", ren);
     ghost->skin_normal[2] = loadTexture("ressources/ghost/ghost2_2.bmp", ren);
     ghost->skin_normal[3] = loadTexture("ressources/ghost/ghost2_3.bmp", ren);
+    ghost->temps_avant_sortie_maison = 1;
 }
 
 void init_textures_Inky (Ghost *ghost, SDL_Renderer* ren){
@@ -48,6 +50,7 @@ void init_textures_Inky (Ghost *ghost, SDL_Renderer* ren){
     ghost->skin_normal[1] = loadTexture("ressources/ghost/ghost3_1.bmp", ren);
     ghost->skin_normal[2] = loadTexture("ressources/ghost/ghost3_2.bmp", ren);
     ghost->skin_normal[3] = loadTexture("ressources/ghost/ghost3_3.bmp", ren);
+    ghost->temps_avant_sortie_maison = 4;
 }
 
 void init_textures_Clyde (Ghost *ghost, SDL_Renderer* ren){
@@ -55,14 +58,15 @@ void init_textures_Clyde (Ghost *ghost, SDL_Renderer* ren){
     ghost->skin_normal[1] = loadTexture("ressources/ghost/ghost4_1.bmp", ren);
     ghost->skin_normal[2] = loadTexture("ressources/ghost/ghost4_2.bmp", ren);
     ghost->skin_normal[3] = loadTexture("ressources/ghost/ghost4_3.bmp", ren);
+    ghost->temps_avant_sortie_maison = 8;
 }
 
-int conversion_case_pixel_en_x_g (Ghost *ghost, Map *map, int difference){
-    return ORIGINE_X + (ghost->position_x + difference) * map->taille_case - (int)((ghost->taille_px - map->taille_case)/2);
+int conversion_case_pixel_en_x_g (Ghost *ghost, Map *map, float difference){
+    return ORIGINE_X + (int)((ghost->position_x + difference) * map->taille_case) - (int)((ghost->taille_px - map->taille_case)/2);
 }
 
-int conversion_case_pixel_en_y_g (Ghost *ghost, Map *map, int difference){
-    return ORIGINE_Y + (ghost->position_y + difference) * map->taille_case - (int)((ghost->taille_px - map->taille_case)/2);
+int conversion_case_pixel_en_y_g (Ghost *ghost, Map *map, float difference){
+    return ORIGINE_Y + (int)((ghost->position_y + difference) * map->taille_case) - (int)((ghost->taille_px - map->taille_case)/2);
 }
 
 void premier_placement_ghost (Ghost *ghost, Map *map, const int x, const int y){
@@ -72,8 +76,12 @@ void premier_placement_ghost (Ghost *ghost, Map *map, const int x, const int y){
         printf("Erreur dans le premier placement de ghost sur la map");
     }
     ghost->taille_px = map->taille_perso;
-    ghost->position_px_x = conversion_case_pixel_en_x_g(ghost, map, 0);
-    ghost->position_px_y = conversion_case_pixel_en_y_g(ghost, map, 0);
+    ghost->position_px_x = conversion_case_pixel_en_x_g(ghost, map, 0.5);
+    if (strcmp(ghost->nom,"Blinky") == 0) {
+        ghost->position_px_y = conversion_case_pixel_en_y_g(ghost, map, 0.);
+    } else {
+        ghost->position_px_y = conversion_case_pixel_en_y_g(ghost, map, 0.5);
+    }
     ghost->direction = ' ';
     ghost->is_affiche = 1;
 }
@@ -82,14 +90,14 @@ void affiche_ghost (Ghost *ghost, SDL_Renderer* ren) {
     if (ghost->is_affiche == 1) {
         SDL_Texture* tex;
         SDL_Texture** skin;
-        if (strcmp(ghost->etat, "frightened") == 0){
+        if (ghost->etat == ETAT_FRIGHTENED){
             if (ghost->is_clignotement == 1 && (int)(ghost->frame/FREQUENCE_CLIGNOTEMMENT) % 2 == 1) {
                 tex = ghost->skin_frightened[1];
             } else {
                 tex = ghost->skin_frightened[0];
             }
         } else {
-            if (strcmp(ghost->etat, "eaten") == 0){
+            if (ghost->etat == ETAT_EATEN){
                 skin = ghost->skin_eaten;
             } else {
                 skin = ghost->skin_normal;
@@ -118,7 +126,7 @@ void aller_a_droite_g (Ghost *ghost, Map *map){
     ghost->direction = 'd';
     // Test si le ghost ne vas pas trop vite donc qu'il ne loupe pas le centre des cases car c'est une position obligatoire qui sert pour la de prise de décisions
     if ((ghost->position_px_x + ghost->vitesse - ORIGINE_X + (int)((ghost->taille_px - map->taille_case)/2)) / map->taille_case > ghost->position_x && (ghost->position_px_x + ghost->vitesse - ORIGINE_X + (int)((ghost->taille_px - map->taille_case)/2)) % map->taille_case > 0) {
-        ghost->position_px_x = conversion_case_pixel_en_x_g(ghost, map, 1);
+        ghost->position_px_x = conversion_case_pixel_en_x_g(ghost, map, 1.);
     } else {
         ghost->position_px_x += ghost->vitesse;
     }
@@ -129,7 +137,7 @@ void aller_a_gauche_g (Ghost *ghost, Map *map){
     // Test si le ghost ne vas pas trop vite donc qu'il ne loupe pas le centre des cases car c'est une position obligatoire qui sert pour la de prise de décisions
     // Si, avec la map torrique, la position est négative, les calculs de bases ne marchent plus... Pour corriger cela je teste en décalant de 2 cases vers la droite (donc plus de valeurs négatives)
     if ((ghost->position_px_x - ghost->vitesse - ORIGINE_X + (int)((ghost->taille_px - map->taille_case)/2) + (2*map->taille_case)) / map->taille_case < ghost->position_x + 1 && (ghost->position_px_x - ghost->vitesse - ORIGINE_X + (int)((ghost->taille_px - map->taille_case)/2) + (2*map->taille_case)) % map->taille_case > 0) {
-        ghost->position_px_x = conversion_case_pixel_en_x_g(ghost, map, -1);
+        ghost->position_px_x = conversion_case_pixel_en_x_g(ghost, map, -1.);
     } else {
         ghost->position_px_x -= ghost->vitesse;
     }
@@ -140,7 +148,7 @@ void aller_en_haut_g (Ghost *ghost, Map *map){
     // Test si le ghost ne vas pas trop vite donc qu'il ne loupe pas le centre des cases car c'est une position obligatoire qui sert pour la de prise de décisions
     // Si, avec la map torrique, la position est négative, les calculs de bases ne marchent plus... Pour corriger cela je teste en décalant de 2 cases vers le bas (donc plus de valeurs négatives)
     if ((ghost->position_px_y - ghost->vitesse - ORIGINE_Y + (int)((ghost->taille_px - map->taille_case)/2) + (2*map->taille_case)) / map->taille_case < ghost->position_y + 1 && (ghost->position_px_y - ghost->vitesse - ORIGINE_Y + (int)((ghost->taille_px - map->taille_case)/2) + (2*map->taille_case)) % map->taille_case > 0) {
-        ghost->position_px_y = conversion_case_pixel_en_y_g(ghost, map, -1);
+        ghost->position_px_y = conversion_case_pixel_en_y_g(ghost, map, -1.);
     } else {
         ghost->position_px_y -= ghost->vitesse;
     }
@@ -150,7 +158,7 @@ void aller_en_bas_g (Ghost *ghost, Map *map){
     ghost->direction = 'b';
     // Test si le ghost ne vas pas trop vite donc qu'il ne loupe pas le centre des cases car c'est une position obligatoire qui sert pour la de prise de décisions
     if ((ghost->position_px_y + ghost->vitesse - ORIGINE_Y + (int)((ghost->taille_px - map->taille_case)/2)) / map->taille_case > ghost->position_y && (ghost->position_px_y + ghost->vitesse - ORIGINE_Y) % map->taille_case > 0) {
-        ghost->position_px_y = conversion_case_pixel_en_y_g(ghost, map, 1);
+        ghost->position_px_y = conversion_case_pixel_en_y_g(ghost, map, 1.);
     } else {
         ghost->position_px_y += ghost->vitesse;
     }
@@ -223,10 +231,10 @@ void chase_target_Clyde (Ghost *ghost, Pacman* pacman, Map *map){
 }
 
 void choix_direction (Ghost *ghost, char choix_valides[4], const int nb_choix, Pacman* pacman, Ghost* Blinky, Map *map){
-    if (strcmp(ghost->etat,"frightened") == 0) {
+    if (ghost->etat == ETAT_FRIGHTENED) {
         choix_direction_aleatoire(ghost, choix_valides, nb_choix);
     } else {
-        if (strcmp(ghost->etat,"chase") == 0) {
+        if (ghost->etat == ETAT_CHASE) {
             if (strcmp(ghost->nom,"Blinky") == 0) {
                 chase_target_Blinky(ghost, pacman);
             } else {
@@ -296,7 +304,7 @@ void scatter_target_Clyde (Ghost *ghost, Map *map) {
 }
 
 void changement_etat (Ghost *ghost, Map *map) {
-    if (strcmp(ghost->etat, "scatter") == 0){
+    if (ghost->etat == ETAT_SCATTER){
         ghost->vitesse = VITESSE_GHOST;
         if (strcmp(ghost->nom,"Blinky") == 0) {
             scatter_target_Blinky(ghost, map);
@@ -311,86 +319,88 @@ void changement_etat (Ghost *ghost, Map *map) {
             scatter_target_Clyde(ghost, map);
         }}}}
     } else {
-    if (strcmp(ghost->etat, "eaten") == 0){
+    if (ghost->etat == ETAT_EATEN){
         ghost->vitesse = VITESSE_GHOST_EATEN;
         // Target au dessus de la base des fantômes
         ghost->target_x = 13; // TODO target dépend de la map !
         ghost->target_y = 11;
     } else {
-    if (strcmp(ghost->etat, "frightened") == 0){
+    if (ghost->etat == ETAT_FRIGHTENED){
         ghost->vitesse = VITESSE_GHOST_FRIGHTENED;
     } else {
-    if (strcmp(ghost->etat, "chase") == 0){
+    if (ghost->etat == ETAT_CHASE){
         ghost->vitesse = VITESSE_GHOST;
     }}}}
-    strcpy(ghost->etat_precedent, ghost->etat);
+    ghost->etat_precedent = ghost->etat;
 }
 
 void gestion_map_torique_g (Ghost *ghost, Map *map) {
     if (ghost->position_x == map->x) {
         ghost->position_x = 0;
-        ghost->position_px_x = conversion_case_pixel_en_x_g(ghost, map, -1);
+        ghost->position_px_x = conversion_case_pixel_en_x_g(ghost, map, -1.);
     }
     if (ghost->position_y == map->y) {
         ghost->position_y = 0;
-        ghost->position_px_y = conversion_case_pixel_en_y_g(ghost, map, -1);
+        ghost->position_px_y = conversion_case_pixel_en_y_g(ghost, map, -1.);
     }
     if (ghost->position_x == -1) {
         ghost->position_x = map->x - 1;
-        ghost->position_px_x = conversion_case_pixel_en_x_g(ghost, map, 1);
+        ghost->position_px_x = conversion_case_pixel_en_x_g(ghost, map, 1.);
     }
     if (ghost->position_y == -1) {
         ghost->position_y = map->y - 1;
-        ghost->position_px_y = conversion_case_pixel_en_y_g(ghost, map, +1);
+        ghost->position_px_y = conversion_case_pixel_en_y_g(ghost, map, +1.);
     }
 }
 
 int avance_ghost (Ghost *ghost, Map *map, Pacman* pacman, Ghost* Blinky){
     if (ghost->is_affiche == 1) {
-        if (strcmp(ghost->etat,ghost->etat_precedent) != 0 && strcmp(ghost->etat_precedent,"frightened") != 0) {
+        if (ghost->etat != ghost->etat_precedent && ghost->etat_precedent != ETAT_FRIGHTENED) {
             // Dans ce cas faire demi tour (La seule exception pour laquelle le fantôme peut faire demi tour):
             changement_etat(ghost, map);
             faire_demi_tour(ghost, map);
         } else {
-            if (strcmp(ghost->etat,ghost->etat_precedent) != 0) {
+            if (ghost->etat != ghost->etat_precedent) {
                 changement_etat(ghost, map);
             }
             if (((ghost->position_px_x - ORIGINE_X + (int)((ghost->taille_px - map->taille_case)/2)) % map->taille_case == 0) && ((ghost->position_px_y - ORIGINE_Y + (int)((ghost->taille_px - map->taille_case)/2)) % map->taille_case == 0)){ // <=> ghost au milieu d'une case (et pas en transition entre 2)
                 ghost->position_x = (ghost->position_px_x - ORIGINE_X + (int)((ghost->taille_px - map->taille_case)/2)) / map->taille_case;
                 ghost->position_y = (ghost->position_px_y - ORIGINE_Y + (int)((ghost->taille_px - map->taille_case)/2)) / map->taille_case;
                 gestion_map_torique_g(ghost, map);
-
-                // Initialisation de la liste des choix valides et du compteur
-                int nb_choix = 0; // Compte le nombre de directions valides
-                char choix_valides[4]; // Tableau pour stocker les directions possibles
-
-                // Vérification des directions valides (impossibilié de faire demi-tour)
-                // ! Attention ! ordre des directions très important ! pour les priorités de déplacements : haut > gauche > bas > droite
-                if (map->contenu[mod(ghost->position_y - 1, map->y)][ghost->position_x] != 1 && ghost->direction != 'b') { // TODO ajouter les bouts de map safe (pas possible d'aller en haut)
-                    choix_valides[nb_choix++] = 'h'; // Haut
-                }
-                if (map->contenu[ghost->position_y][mod(ghost->position_x - 1, map->x)] != 1 && ghost->direction != 'd') {
-                    choix_valides[nb_choix++] = 'g'; // Gauche
-                }
-                if (map->contenu[mod(ghost->position_y + 1, map->y)][ghost->position_x] != 1 && ghost->direction != 'h' && map->contenu[mod(ghost->position_y + 1, map->y)][ghost->position_x] != 3) {
-                    choix_valides[nb_choix++] = 'b'; // Bas
-                }
-                if (map->contenu[ghost->position_y][mod(ghost->position_x + 1, map->x)] != 1 && ghost->direction != 'g') {
-                    choix_valides[nb_choix++] = 'd'; // Droite
-                }
-
-                // Choisir une direction valide si des options existent
-                if (nb_choix > 0) {
-                    choix_direction (ghost, choix_valides, nb_choix, pacman, Blinky, map);
-                } else { // Pas de direction valide (ghost bloqué)
-                    printf("Le ghost est bloqué\n"); //si jamais une erreur est généré, on saura d'où il s'agit
-                    return 1;
-                }
+                master_choix_directions(ghost, map, pacman, Blinky);
             }  // <=> Le ghost est en transition entre 2 cases. Le seul mouvement possible est alors de continuer le mouvement.
             suivre_direction(ghost, map);
         }
     }
     return 0;
+}
+
+void master_choix_directions (Ghost *ghost, Map *map, Pacman* pacman, Ghost* Blinky){
+    // Initialisation de la liste des choix valides et du compteur
+    int nb_choix = 0; // Compte le nombre de directions valides
+    char choix_valides[4]; // Tableau pour stocker les directions possibles
+
+    // Vérification des directions valides (impossibilié de faire demi-tour)
+    // ! Attention ! ordre des directions très important ! pour les priorités de déplacements : haut > gauche > bas > droite
+    if (map->contenu[mod(ghost->position_y - 1, map->y)][ghost->position_x] != 1 && ghost->direction != 'b') { // TODO ajouter les bouts de map safe (pas possible d'aller en haut)
+        choix_valides[nb_choix++] = 'h'; // Haut
+    }
+    if (map->contenu[ghost->position_y][mod(ghost->position_x - 1, map->x)] != 1 && ghost->direction != 'd') {
+        choix_valides[nb_choix++] = 'g'; // Gauche
+    }
+    if (map->contenu[mod(ghost->position_y + 1, map->y)][ghost->position_x] != 1 && ghost->direction != 'h' && map->contenu[mod(ghost->position_y + 1, map->y)][ghost->position_x] != 3) {
+        choix_valides[nb_choix++] = 'b'; // Bas
+    }
+    if (map->contenu[ghost->position_y][mod(ghost->position_x + 1, map->x)] != 1 && ghost->direction != 'g') {
+        choix_valides[nb_choix++] = 'd'; // Droite
+    }
+
+    // Choisir une direction valide si des options existent
+    if (nb_choix > 0) {
+        choix_direction (ghost, choix_valides, nb_choix, pacman, Blinky, map);
+    } else { // Pas de direction valide (ghost bloqué)
+        printf("Le ghost est bloqué\n"); //si jamais une erreur est généré, on saura d'où il s'agit
+    }
 }
 
 void suivre_direction (Ghost *ghost, Map *map){
@@ -423,4 +433,40 @@ void faire_demi_tour (Ghost *ghost, Map *map){
     }
 }
 
+void bouger_dans_maison (Ghost *ghost, Map *map){
+    if ((ghost->position_px_y - ORIGINE_Y + (int)((ghost->taille_px - map->taille_case)/2) - (int)(map->taille_case/2)) % map->taille_case == 0){ // <=> ghost au milieu d'une case (et pas en transition entre 2)
+        ghost->position_y = (ghost->position_px_y - ORIGINE_Y + (int)((ghost->taille_px - map->taille_case)/2) - (int)(map->taille_case/2)) / map->taille_case;
+        if (map->contenu[ghost->position_y + 2][ghost->position_x] == 1){
+            ghost->direction = 'h';
+        } else {
+        if (map->contenu[ghost->position_y - 1][ghost->position_x] == 1 || map->contenu[ghost->position_y - 1][ghost->position_x] == 3){
+            ghost->direction = 'b';
+        }}
+    }
+    if (ghost->direction == 'h'){
+        ghost->position_px_y--;
+    } else {
+    if (ghost->direction == 'b'){
+        ghost->position_px_y++;
+    }}
+}
 
+int go_outside_home (Ghost *ghost, Map *map, int target_x, int target_y){
+    int target_x_px = ORIGINE_X + target_x * map->taille_case - (int)((ghost->taille_px - map->taille_case)/2) + (int)(map->taille_case/2);
+    int target_y_px = ORIGINE_Y + target_y * map->taille_case - (int)((ghost->taille_px - map->taille_case)/2);
+    if (ghost->position_px_x == target_x_px){
+        if (ghost->position_px_y == target_y_px){
+            return 0;
+        } else {
+            ghost->position_px_y--;
+            return 1;
+        }
+    } else {
+        if (ghost->position_px_x < target_x_px){
+            ghost->position_px_x++;
+        } else {
+            ghost->position_px_x--;
+        }
+        return 1;
+    }
+}
