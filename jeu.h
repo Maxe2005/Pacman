@@ -6,6 +6,7 @@
 #include "plateau.h"
 #include "ghost.h"
 #include "audio.h"
+#include "menus.h"
 
 #define TEMPS_MODE_FRIGHTENED 11 // en secondes
 #define POURCENTAGE_FIN_FRIGHTENED 20
@@ -81,13 +82,6 @@ void nouvelle_partie (SDL_Renderer* ren,Musique* musique, int niveau);
 void affiche_logo (SDL_Renderer* ren, SDL_Texture* logo);
 
 /**
- * Début du lancement du jeu
- * @param ren Un pointeur sur une structure contenant l'état du rendu
- * @param musique La structure contenant toutes les infos pour les musiques
- */
-void ecran_acceuil (SDL_Renderer* ren, Musique* musique);
-
-/**
  * Tout est dans le titre !
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
@@ -140,26 +134,12 @@ int update_score (Partie* partie);
 void affiche_titre_et_score (SDL_Renderer* ren, Partie* partie, char *titre, char *color);
 
 /**
- * Affiche sur le renderer le bouton start
- * @param ren Un pointeur sur une structure contenant l'état du rendu
- * @param font La font du texte à afficher
- */
-void affiche_bouton_start(SDL_Renderer* ren, TTF_Font * font);
-
-/**
  * Tout est dans le titre !
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
  * @param musique La structure contenant toutes les infos pour les musiques
  */
 void ecran_victoire (SDL_Renderer* ren, Partie* partie, Musique* musique);
-
-/**
- * Permet de changer la musique en jeu
- * @param ren Un pointeur sur une structure contenant l'état du rendu
- * @param musique La structure contenant toutes les infos pour les musiques
- */
-void ecran_musique (SDL_Renderer* ren, Musique* musique);
 
 /**
  * Initialise les durées des différents modes scatter et chase en fonction du niveau

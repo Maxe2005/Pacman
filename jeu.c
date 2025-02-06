@@ -32,35 +32,7 @@ int is_collision_pacman_ghost (SDL_Renderer* ren, Ghost* ghost, Pacman *pacman, 
         }}
         return 1;
     }
-}
-
-void affiche_ecran_game_over (SDL_Renderer* ren, Partie* partie) {
-    int division_x_titre = 5; // doit être >= 3
-    int division_y_titre = 4; // doit être >= 3
-    int titre_x = (int)(FEN_X/division_x_titre);
-    int titre_y = (int)(FEN_Y/division_y_titre);
-    int taille_titre_x = (int)(FEN_X/division_x_titre * (division_x_titre-2));
-    int taille_titre_y = taille_titre_x/3 ;
-
-    int division_x_score = 5; // doit être >= 3
-    int division_y_score = 5;
-    int score_x = titre_x + (int)(taille_titre_x / division_x_score);
-    int score_y = titre_y + taille_titre_y + (int)(taille_titre_y / division_y_score);
-    int taille_score_x = (int)(taille_titre_x/division_x_score * (division_x_score-2));
-    int taille_score_y = taille_score_x/5;
-
-    char text_score[15];
-    SDL_Color white = {255, 255, 255, 255};
-    SDL_Color red = {255, 0, 0, 255};
-
-    // Effacer
-    SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
-    SDL_RenderClear(ren);
-
-    printText(titre_x, titre_y, "Game Over", taille_titre_x, taille_titre_y, partie->font[0], red, ren);
-    sprintf(text_score, "Score : %d",partie->score);
-    printText(score_x, score_y, text_score, taille_score_x, taille_score_y, partie->font[0], white, ren);
-    updateDisplay(ren);
+    return 0;
 }
 
 void annimation_mort_pacman (SDL_Renderer* ren, Partie* partie, Musique* musique) {
@@ -396,56 +368,6 @@ void affiche_logo (SDL_Renderer* ren, SDL_Texture* logo) {
     renderTexture(logo, ren,(int)(FEN_X /4),(int)(FEN_Y/8),(int)(FEN_X/2),(int)(FEN_Y/4));
 }
 
-void ecran_acceuil (SDL_Renderer* ren, Musique* musique){
-    playMusic(musique->musique_accueil);
-
-    SDL_Texture* logo = loadTexture("ressources/pac-man-logo.bmp", ren);
-    TTF_Font * font = createFont("ressources/DejaVuSans-Bold.ttf", 20);
-
-    clock_t current_time;
-    clock_t start_time = clock();
-    const double temps_clignotement_bouton_start = 125.0 / 1000.0 * CLOCKS_PER_SEC; //temps_clignotement_bouton_start convertion de milisecondes à clocks
-    
-    SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
-    SDL_RenderClear(ren);
-    affiche_logo(ren, logo);
-    affiche_bouton_start(ren, font);
-
-    char lancement;
-    int is_bouton_start_visible = 1; // Booleen qui permet de faire clignoter le bouton start
-    int running = 1;
-
-    while (running) {
-        current_time = clock();
-        updateDisplay(ren);
-
-        if ((double)(current_time - start_time) >= temps_clignotement_bouton_start) {
-            if (is_bouton_start_visible == 1){
-                SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
-                SDL_RenderClear(ren);
-                affiche_logo(ren, logo);
-                is_bouton_start_visible = 0;
-            } else {
-                affiche_bouton_start(ren, font);
-                is_bouton_start_visible = 1;
-            }
-            start_time = current_time;
-        }
-        
-        lancement = processKeyboard(&running);
-        if (lancement == 'L'){
-            playSoundEffect(musique->select);
-            nouvelle_partie(ren,musique,1);
-            running = 0;
-        }
-        if (lancement == 'm'){
-            playSoundEffect(musique->select);
-            ecran_musique(ren, musique);
-            running = 0;
-        }
-    }
-}
-
 void ecran_game_over (SDL_Renderer* ren, Partie* partie, Musique* musique){
     stopMusic();
     playSoundEffect(musique->game_over);
@@ -492,6 +414,7 @@ void ecran_game_over (SDL_Renderer* ren, Partie* partie, Musique* musique){
         
         lancement = processKeyboard(&running);
         if (lancement == 'L'){
+            free_partie(partie);
             playSoundEffect(musique->select);
             ecran_acceuil(ren, musique);
             running = 0;
@@ -532,64 +455,19 @@ void ecran_victoire (SDL_Renderer* ren, Partie* partie, Musique* musique){
         
         lancement = processKeyboard(&running);
         if (lancement == 'M'){
+            free_partie(partie);
             playSoundEffect(musique->select);
             ecran_acceuil(ren, musique);
             running = 0;
         }
         if (lancement == 'L'){
+            int niveau_superieur = partie->niveau + 1;
+            free_partie(partie);
             playSoundEffect(musique->select);
-            nouvelle_partie(ren, musique, partie->niveau + 1);
+            nouvelle_partie(ren, musique, niveau_superieur);
             running = 0;
         }
     }
-}
-
-void ecran_musique (SDL_Renderer* ren, Musique* musique){
-    SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
-    SDL_RenderClear(ren);
-    updateDisplay(ren);
-
-    int running = 1;
-    char touche_pressee;
-    while (running) {
-        touche_pressee = processKeyboard(&running);
-        if (touche_pressee == 'L' || touche_pressee == 'M'){
-            playSoundEffect(musique->select);
-            ecran_acceuil(ren,musique);
-            running = 0;
-        }
-        if (touche_pressee == '1'){
-            musique->musique_accueil = musique->musiques_src[0];
-        }
-        if (touche_pressee == '2'){
-            musique->musique_accueil = musique->musiques_src[1];
-        }
-        if (touche_pressee == '3'){
-            musique->musique_accueil = musique->musiques_src[2];
-        }
-        if (touche_pressee == '4'){
-            musique->musique_jeu = musique->musiques_src[0];
-        }
-        if (touche_pressee == '5'){
-            musique->musique_jeu = musique->musiques_src[1];
-        }
-        if (touche_pressee == '6'){
-            musique->musique_jeu = musique->musiques_src[2];
-        }
-
-    }
-}
-
-void affiche_bouton_start(SDL_Renderer* ren, TTF_Font * font){
-    int division_x_titre = 4; // doit être >= 3
-    int division_y_titre = 6; // doit être >= 3
-    int titre_x = (int)(FEN_X/division_x_titre);
-    int titre_y = (int)(FEN_Y/division_y_titre*4);
-    int taille_titre_x = (int)(FEN_X/division_x_titre * (division_x_titre-2));
-    int taille_titre_y = taille_titre_x/4 ;
-
-    SDL_Color red = {255, 0, 0, 255};
-    printText(titre_x, titre_y, "PRESS SPACE", taille_titre_x, taille_titre_y, font, red, ren);
 }
 
 void affiche_titre_et_score (SDL_Renderer* ren, Partie* partie, char *titre, char *color) {
