@@ -10,12 +10,13 @@
 #define VITESSE_GHOST_EATEN 4
 #define FREQUENCE_CLIGNOTEMMENT 20
 // Les différents états possibles des fantômes
-#define ETAT_CHASE 0
-#define ETAT_SCATTER 1
-#define ETAT_FRIGHTENED 2
-#define ETAT_EATEN 3
-#define ETAT_INSIDE_HOME 4
-#define ETAT_GO_OUTSIDE_HOME 5
+#define ETAT_CHASE 1
+#define ETAT_SCATTER 2
+#define ETAT_FRIGHTENED 3
+#define ETAT_EATEN 4
+#define ETAT_INSIDE_HOME 5
+#define ETAT_GO_OUTSIDE_HOME 6
+#define ETAT_GO_INSIDE_HOME 7
 
 typedef struct
 {
@@ -287,10 +288,15 @@ void bouger_dans_maison (Ghost *ghost, Map *map);
  * Fait sortir les ghosts de leur maison pour rentrer sur la map
  * @param ghost Une instance de structure de fantôme
  * @param map La map sur laquelle va être affiché le ghost
- * @param target_x la position (en cases) au dessus (et à gauche) de la sortie de la maison des fantômes
- * @param target_y la position (en cases) au dessus (et à gauche) de la sortie de la maison des fantômes
  */
-int go_outside_home (Ghost *ghost, Map *map, int target_x, int target_y);
+int go_outside_home (Ghost *ghost, Map *map);
+
+/**
+ * Fait rentrer les ghosts dans leur maison pour revivre
+ * @param ghost Une instance de structure de fantôme
+ * @param map La map sur laquelle va être affiché le ghost
+ */
+int go_inside_home (Ghost *ghost, Map *map);
 
 /** 
  * Fonction principale de la mise en évidence des directions possible plus du choix parmis elles

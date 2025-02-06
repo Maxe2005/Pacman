@@ -16,9 +16,9 @@ int conversion_case_pixel_en_y (Pacman *pacman, Map *map, int difference){
     return ORIGINE_Y + (pacman->position_y + difference) * map->taille_case - (int)((pacman->taille_px - map->taille_case)/2);
 }
 
-void premier_placement_pacman (Pacman *pacman, Map *map, const int x, const int y){
-    pacman->position_x = x;
-    pacman->position_y = y;
+void premier_placement_pacman (Pacman *pacman, Map *map){
+    pacman->position_x = map->position_pacman_start_x;
+    pacman->position_y = map->position_pacman_start_y;
     if (map->contenu[pacman->position_y][pacman->position_x] == 1){
         printf("Erreur dans le premier placement de pacman sur la map");
     }

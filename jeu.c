@@ -86,8 +86,8 @@ void affiche_ecran_jeu (SDL_Renderer* ren, Partie* partie) {
     // Score
     char text_score[100];
     SDL_Color white = {255, 255, 255, 255};
-    sprintf(text_score, "Score : %d",partie->score);
-    printText(MARGE_BANDEAU_HAUT, MARGE_BANDEAU_HAUT, text_score, MARGE_BANDEAU_HAUT + 250, TAILLE_BANDEAU_HAUT - 2*MARGE_BANDEAU_HAUT, partie->font[0], white, ren);
+    sprintf(text_score, "Score : %d - Niveau : %d",partie->score, partie->niveau);
+    printText(MARGE_BANDEAU_HAUT, MARGE_BANDEAU_HAUT, text_score, MARGE_BANDEAU_HAUT + 500, TAILLE_BANDEAU_HAUT - 2*MARGE_BANDEAU_HAUT, partie->font[0], white, ren);
     
     affiche_les_vies(ren, partie->skin_vies, partie->nb_vies);
     affiche_map(partie->map, partie->tils, ren);
@@ -97,22 +97,26 @@ void free_partie (Partie* partie) {
     free(partie->tils);
     free(partie->font);
     free(partie->pacman);
+    for (int i = 0; i < 4; i++) {free(partie->ghosts[i]);}
+    free(partie->ghosts);
     freeMap(partie->map);
     free(partie);
 }
 
-void nouvelle_partie (SDL_Renderer* ren, Musique* musique) {
+void nouvelle_partie (SDL_Renderer* ren, Musique* musique, int niveau) {
     Partie* partie = malloc(sizeof(Partie));
 
     partie->score = 0;
+    partie->niveau = niveau;
 
     // Initialisation map, textures pour map et font pour titres
-    //Map mape = init_map_dessin();
+    Map mape = init_map_dessin();
     //Map mape = init_map_tils();
-    //partie->map = &mape;
-    const char *nom_map = "Map_originale.csv";
-    //save_map_text(nom_map, &map);
-    partie->map = load_map_text(nom_map);
+    partie->map = &mape;
+    const char *nom_map = "Map_originale.bin";
+    //save_map_text(nom_map, partie->map);
+    save_map_binary(nom_map, partie->map);
+    //partie->map = load_map_text(nom_map);
 
     partie->tils = malloc(sizeof(SDL_Texture*) * 4);
     init_tils(partie->tils, ren);
@@ -140,9 +144,16 @@ void nouvelle_partie (SDL_Renderer* ren, Musique* musique) {
 }
 
 void placament_pacman_et_ghost (Partie* partie){
-    premier_placement_pacman(partie->pacman, partie->map, 14, 23);
+    premier_placement_pacman(partie->pacman, partie->map);
     
-    int positions_ghost_depart[4][2] = {{13, 11}, {13, 14}, {11, 13}, {15, 13}};
+    int differance = 2;
+    if (partie->map->type == MAP_TYPE_TILS){
+        differance = 1;
+    }
+    int positions_ghost_depart[4][2] = {{partie->map->position_maison_ghosts_x, partie->map->position_maison_ghosts_y},
+                                        {partie->map->position_maison_ghosts_x, partie->map->position_maison_ghosts_y + 1 + differance},
+                                        {partie->map->position_maison_ghosts_x - differance, partie->map->position_maison_ghosts_y + 2},
+                                        {partie->map->position_maison_ghosts_x + differance, partie->map->position_maison_ghosts_y + 2}};
     partie->nb_ghosts = 0;
     for (int i = 0; i < 4; i++) {
         premier_placement_ghost(partie->ghosts[i], partie->map, positions_ghost_depart[i][0], positions_ghost_depart[i][1]);
@@ -158,8 +169,8 @@ void debut_jeu (SDL_Renderer* ren, Partie* partie, Musique* musique){
     int temps_avant_debut_musique = 5;
 
     int nb_cases_ready = 7;
-    int ready_x = ORIGINE_X + (13 - (nb_cases_ready - 2)/2) * partie->map->taille_case;
-    int ready_y = ORIGINE_Y + (11 + 6) * partie->map->taille_case - (int)((partie->map->taille_perso - partie->map->taille_case)/2);
+    int ready_x = ORIGINE_X + (partie->map->position_maison_ghosts_x - nb_cases_ready/2 + 1) * partie->map->taille_case;
+    int ready_y = ORIGINE_Y + (partie->map->position_maison_ghosts_y + 6) * partie->map->taille_case - (int)((partie->map->taille_perso - partie->map->taille_case)/2);
     int taille_ready_x = nb_cases_ready * partie->map->taille_case;
     int taille_ready_y = partie->map->taille_perso;
 
@@ -212,9 +223,10 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie, Musique* musique){
     int is_mode_frightened = 0; // Booleen pour savoir si le mode frightened est actif
     time_t start_time_frightened = time(NULL);
 
-    int duree_mode_scatter[] = {7,7,5,5};
-    int duree_mode_chase[] = {20,20,20};
-    int num_mode_max = sizeof(duree_mode_scatter) / sizeof(duree_mode_scatter[0]);
+    int duree_mode_scatter[4] = {0}; // Initialisation avec 0
+    int duree_mode_chase[3] = {0};   // Initialisation avec 0
+    int num_mode_max;
+    init_temps_modes_chase_scatter(duree_mode_scatter, duree_mode_chase, &num_mode_max, partie->niveau);
     int num_mode = 0; // Le n ème duo de modes scatter et chase
     int mode = ETAT_SCATTER;
     int temps_mode = duree_mode_scatter[num_mode];
@@ -247,8 +259,10 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie, Musique* musique){
             playMusic(musique->musique_super_mode);
             is_mode_frightened = 1;
             for (int i = 0; i < 4; i++){
-                partie->ghosts[i]->etat = ETAT_FRIGHTENED;
-                partie->ghosts[i]->is_clignotement = 0;
+                if (partie->ghosts[i]->etat != ETAT_EATEN){
+                    partie->ghosts[i]->etat = ETAT_FRIGHTENED;
+                    partie->ghosts[i]->is_clignotement = 0;
+                }
             }
             start_time_frightened = time(NULL);
         }
@@ -261,23 +275,34 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie, Musique* musique){
                 }
             } else {
             if (partie->ghosts[i]->etat_prioritaire == ETAT_GO_OUTSIDE_HOME){
-                if (go_outside_home(partie->ghosts[i], partie->map, 13, 11) == 0){ // TODO : target doit dépendre de la map !
+                if (go_outside_home(partie->ghosts[i], partie->map) == 0){
                     // Le fantôme est maintenant sur le maze
                     if (partie->ghosts[i]->etat != ETAT_FRIGHTENED){
                         partie->ghosts[i]->etat = mode;
                     }
+                    if (partie->nb_ghosts == 1 && strcmp(partie->ghosts[i]->nom, "Pinky") == 0){partie->nb_ghosts++;}
+                    else if (partie->nb_ghosts == 2 && strcmp(partie->ghosts[i]->nom, "Inky") == 0){partie->nb_ghosts++;}
+                    else if (partie->nb_ghosts == 3 && strcmp(partie->ghosts[i]->nom, "Clyde") == 0){partie->nb_ghosts++;}
                     partie->ghosts[i]->etat_prioritaire = mode;
-                    partie->ghosts[i]->position_x = 13;
-                    partie->ghosts[i]->position_y = 11;
+                    partie->ghosts[i]->position_x = partie->map->position_maison_ghosts_x;
+                    partie->ghosts[i]->position_y = partie->map->position_maison_ghosts_y;
                     changement_etat(partie->ghosts[i], partie->map);
-                    partie->nb_ghosts++;
                     master_choix_directions(partie->ghosts[i], partie->map, partie->pacman, partie->ghosts[0]);
                 } 
             } else {
+            if (partie->ghosts[i]->etat_prioritaire == ETAT_GO_INSIDE_HOME){
+                if (go_inside_home(partie->ghosts[i], partie->map) == 0){
+                    partie->ghosts[i]->etat_prioritaire = ETAT_GO_OUTSIDE_HOME;
+                    partie->ghosts[i]->etat = mode;
+                }
+            } else {
+            if (partie->ghosts[i]->etat == ETAT_EATEN && partie->ghosts[i]->position_x == partie->ghosts[i]->target_x && partie->ghosts[i]->position_y == partie->ghosts[i]->target_y){
+                partie->ghosts[i]->etat_prioritaire = ETAT_GO_INSIDE_HOME;
+                //partie->ghosts[i]->etat = mode;
+            } else {
                 avance_ghost(partie->ghosts[i], partie->map, partie->pacman, partie->ghosts[0]);
                 is_collision_pacman_ghost(ren, partie->ghosts[i], partie->pacman, partie, &running, musique);
-            }
-            }
+            }}}}
         }
 
         // Gagné ?
@@ -333,11 +358,6 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie, Musique* musique){
                     }
                 }
             }
-            }
-        }
-        for (int i = 0; i < partie->nb_ghosts; i++){
-            if (partie->ghosts[i]->etat == ETAT_EATEN && partie->ghosts[i]->position_x == partie->ghosts[i]->target_x && partie->ghosts[i]->position_y == partie->ghosts[i]->target_y){
-                partie->ghosts[i]->etat = mode;
             }
         }
 
@@ -415,7 +435,7 @@ void ecran_acceuil (SDL_Renderer* ren, Musique* musique){
         lancement = processKeyboard(&running);
         if (lancement == 'L'){
             playSoundEffect(musique->select);
-            nouvelle_partie(ren,musique);
+            nouvelle_partie(ren,musique,1);
             running = 0;
         }
         if (lancement == 'm'){
@@ -511,9 +531,14 @@ void ecran_victoire (SDL_Renderer* ren, Partie* partie, Musique* musique){
         }
         
         lancement = processKeyboard(&running);
-        if (lancement == 'L'){
+        if (lancement == 'M'){
             playSoundEffect(musique->select);
             ecran_acceuil(ren, musique);
+            running = 0;
+        }
+        if (lancement == 'L'){
+            playSoundEffect(musique->select);
+            nouvelle_partie(ren, musique, partie->niveau + 1);
             running = 0;
         }
     }
@@ -602,4 +627,30 @@ void affiche_titre_et_score (SDL_Renderer* ren, Partie* partie, char *titre, cha
     printText(score_x, score_y, text_score, taille_score_x, taille_score_y, partie->font[0], white, ren);
 }
 
+void init_temps_modes_chase_scatter (int duree_mode_scatter[4], int duree_mode_chase[3], int *num_mode_max, int niveau){
+    int taille_scatter = 0, taille_chase = 0; // Variables pour suivre les tailles utiles
+    if (niveau < 5) {
+        int tmp_scatter[] = {7, 7, 5, 5};
+        int tmp_chase[] = {20, 20, 20};
+        taille_scatter = 4;
+        taille_chase = 3;
+        for (int i = 0; i < taille_scatter; i++) duree_mode_scatter[i] = tmp_scatter[i];
+        for (int i = 0; i < taille_chase; i++) duree_mode_chase[i] = tmp_chase[i];
+    } else if (niveau < 21) {
+        int tmp_scatter[] = {5, 5, 5, 5};
+        int tmp_chase[] = {20, 20, 20};
+        taille_scatter = 4;
+        taille_chase = 3;
+        for (int i = 0; i < taille_scatter; i++) duree_mode_scatter[i] = tmp_scatter[i];
+        for (int i = 0; i < taille_chase; i++) duree_mode_chase[i] = tmp_chase[i];
+    } else {
+        int tmp_scatter[] = {5, 5};
+        int tmp_chase[] = {20};
+        taille_scatter = 2;
+        taille_chase = 1;
+        for (int i = 0; i < taille_scatter; i++) duree_mode_scatter[i] = tmp_scatter[i];
+        for (int i = 0; i < taille_chase; i++) duree_mode_chase[i] = tmp_chase[i];
+    }
+    *num_mode_max = taille_scatter;
+}
 

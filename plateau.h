@@ -3,19 +3,22 @@
 
 #include "ressources.h"
 
-//#define MAP_X 28
-//#define MAP_Y 31
 #define ORIGINE_X 10
 #define ORIGINE_Y TAILLE_BANDEAU_HAUT
-//#define TAILLE_CASE (int)((FEN_Y-TAILLE_BANDEAU_HAUT)/MAP_Y)
+#define MAP_TYPE_DESSIN 1
+#define MAP_TYPE_TILS 2
 
 typedef struct {
     int x; // Nombre de colones de la map
     int y; // Nombre de lignes de la map
     int taille_case;
     int **contenu; // Un pointeur vers le contenu de la map
-    char type[10]; // Savoir si c'est une map dessinée ou avec tils*
+    int type; // Savoir si c'est une map dessinée ou avec tils
     int taille_perso; // Taille nécessaire pour la taille des personages (pacman et fantômes)
+    int position_maison_ghosts_x; // Le point en haut (et à gauche si impaire) de la maison des fantômes
+    int position_maison_ghosts_y; // Le point en haut (et à gauche si impaire) de la maison des fantômes
+    int position_pacman_start_x; // La position du pacman en début de partie
+    int position_pacman_start_y; // La position du pacman en début de partie
 } Map ;
 
 /**

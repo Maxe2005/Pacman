@@ -21,6 +21,7 @@ typedef struct {
     int nb_vies; // Le nombre de vies restantes au pacman/joueur
     int nb_ghosts; // Le nombre de ghost en circulation sur la map 
     int nb_gums; // Le nombre de gums restants sur la map
+    int niveau; // Le niveau de la partie en cours
 } Partie ;
 
 /**
@@ -68,8 +69,9 @@ void affiche_ecran_jeu (SDL_Renderer* ren, Partie* partie);
  * Début du lancement du jeu
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  * @param musique La structure contenant toutes les infos pour les musiques
+ * @param niveau Le niveau de la partie à créer
  */
-void nouvelle_partie (SDL_Renderer* ren,Musique* musique);
+void nouvelle_partie (SDL_Renderer* ren,Musique* musique, int niveau);
 
 /**
  * Affiche sur le renderer le logo
@@ -158,5 +160,14 @@ void ecran_victoire (SDL_Renderer* ren, Partie* partie, Musique* musique);
  * @param musique La structure contenant toutes les infos pour les musiques
  */
 void ecran_musique (SDL_Renderer* ren, Musique* musique);
+
+/**
+ * Initialise les durées des différents modes scatter et chase en fonction du niveau
+ * @param duree_mode_scatter Le tableau avec les différentes durées des modes scatter
+ * @param duree_mode_chase Le tableau avec les différentes durées des modes chase
+ * @param num_mode_max Le max du nombre de durées par mode (normalement toujours en scatter)
+ * @param niveau Le niveau actuel de la partie
+ */
+void init_temps_modes_chase_scatter (int duree_mode_scatter[4], int duree_mode_chase[3], int *num_mode_max, int niveau);
 
 #endif

@@ -28,6 +28,9 @@ void init_ghost (Ghost *ghost, SDL_Renderer* ren, int num_ghost){
     ghost->frame = 0;
     ghost->vitesse = VITESSE_GHOST;
     ghost->direction = ' ';
+    ghost->etat = 0;
+    ghost->etat_precedent = 0;
+    ghost->etat_prioritaire = 0;
 }
 
 void init_textures_Blinky (Ghost *ghost, SDL_Renderer* ren){
@@ -76,12 +79,18 @@ void premier_placement_ghost (Ghost *ghost, Map *map, const int x, const int y){
         printf("Erreur dans le premier placement de ghost sur la map");
     }
     ghost->taille_px = map->taille_perso;
-    ghost->position_px_x = conversion_case_pixel_en_x_g(ghost, map, 0.5);
-    if (strcmp(ghost->nom,"Blinky") == 0) {
-        ghost->position_px_y = conversion_case_pixel_en_y_g(ghost, map, 0.);
+    if (map->type == MAP_TYPE_DESSIN){
+        ghost->position_px_x = conversion_case_pixel_en_x_g(ghost, map, 0.5);
+        if (strcmp(ghost->nom,"Blinky") == 0) {
+            ghost->position_px_y = conversion_case_pixel_en_y_g(ghost, map, 0.);
+        } else {
+            ghost->position_px_y = conversion_case_pixel_en_y_g(ghost, map, 0.5);
+        }
     } else {
-        ghost->position_px_y = conversion_case_pixel_en_y_g(ghost, map, 0.5);
-    }
+    if (map->type == MAP_TYPE_TILS){
+        ghost->position_px_x = conversion_case_pixel_en_x_g(ghost, map, 0.);
+        ghost->position_px_y = conversion_case_pixel_en_y_g(ghost, map, 0.);
+    }}
     ghost->direction = ' ';
     ghost->is_affiche = 1;
 }
@@ -322,8 +331,8 @@ void changement_etat (Ghost *ghost, Map *map) {
     if (ghost->etat == ETAT_EATEN){
         ghost->vitesse = VITESSE_GHOST_EATEN;
         // Target au dessus de la base des fantômes
-        ghost->target_x = 13; // TODO target dépend de la map !
-        ghost->target_y = 11;
+        ghost->target_x = map->position_maison_ghosts_x;
+        ghost->target_y = map->position_maison_ghosts_y;
     } else {
     if (ghost->etat == ETAT_FRIGHTENED){
         ghost->vitesse = VITESSE_GHOST_FRIGHTENED;
@@ -451,14 +460,34 @@ void bouger_dans_maison (Ghost *ghost, Map *map){
     }}
 }
 
-int go_outside_home (Ghost *ghost, Map *map, int target_x, int target_y){
-    int target_x_px = ORIGINE_X + target_x * map->taille_case - (int)((ghost->taille_px - map->taille_case)/2) + (int)(map->taille_case/2);
-    int target_y_px = ORIGINE_Y + target_y * map->taille_case - (int)((ghost->taille_px - map->taille_case)/2);
+int go_outside_home (Ghost *ghost, Map *map){
+    int target_x_px = ORIGINE_X + map->position_maison_ghosts_x * map->taille_case - (int)((ghost->taille_px - map->taille_case)/2) + (int)(map->taille_case/2);
+    int target_y_px = ORIGINE_Y + map->position_maison_ghosts_y * map->taille_case - (int)((ghost->taille_px - map->taille_case)/2);
     if (ghost->position_px_x == target_x_px){
         if (ghost->position_px_y == target_y_px){
             return 0;
         } else {
             ghost->position_px_y--;
+            return 1;
+        }
+    } else {
+        if (ghost->position_px_x < target_x_px){
+            ghost->position_px_x++;
+        } else {
+            ghost->position_px_x--;
+        }
+        return 1;
+    }
+}
+
+int go_inside_home (Ghost *ghost, Map *map){
+    int target_x_px = ORIGINE_X + map->position_maison_ghosts_x * map->taille_case - (int)((ghost->taille_px - map->taille_case)/2) + (int)(map->taille_case/2);
+    int target_y_px = ORIGINE_Y + (map->position_maison_ghosts_y + 2) * map->taille_case - (int)((ghost->taille_px - map->taille_case)/2);
+    if (ghost->position_px_x == target_x_px){
+        if (ghost->position_px_y == target_y_px){
+            return 0;
+        } else {
+            ghost->position_px_y++;
             return 1;
         }
     } else {

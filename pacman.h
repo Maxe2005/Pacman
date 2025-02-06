@@ -29,10 +29,8 @@ void init_textures_pacman (Pacman *pacman, SDL_Renderer* ren);
  * Vérifie si le pacman est bien placé et initialise ses position en pixel
  * @param pacman Une instance de structure de joueur
  * @param map La map sur laquel va être affiché le pacman
- * @param x La position sur la map de pacman au début
- * @param y La position sur la map de pacman au début
  */
-void premier_placement_pacman (Pacman *pacman, Map *map, const int x, const int y);
+void premier_placement_pacman (Pacman *pacman, Map *map);
 
 /**
  * Converti une position en cases (sur le tableau) en une position en pixel (sur la fenêtre)

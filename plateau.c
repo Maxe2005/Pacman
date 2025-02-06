@@ -10,9 +10,11 @@ void save_map_text(const char *filename, Map *map) {
         return;
     }
 
-    // Sauvegarde des dimensions et du type de map dans un format lisible
+    // Sauvegarde des données de map dans un format lisible
     fprintf(file, "%d %d\n", map->x, map->y);
-    fprintf(file, "%s\n", map->type);
+    fprintf(file, "%d\n", map->type);
+    fprintf(file, "%d %d\n", map->position_maison_ghosts_x, map->position_maison_ghosts_y);
+    fprintf(file, "%d %d\n", map->position_pacman_start_x, map->position_pacman_start_y);
 
     // Sauvegarde des données de la map
     for (int i = 0; i < map->y; i++) {
@@ -42,14 +44,16 @@ Map *load_map_text(const char *filename) {
         return NULL;
     }
 
-    // Lecture des dimensions et du type de map
+    // Lecture des données de map
     fscanf(file, "%d %d", &map->x, &map->y);
-    fscanf(file, "%s", map->type);
+    fscanf(file, "%d", &map->type);
+    fscanf(file, "%d %d", &map->position_maison_ghosts_x, &map->position_maison_ghosts_y);
+    fscanf(file, "%d %d", &map->position_pacman_start_x, &map->position_pacman_start_y);
     map->taille_case = (FEN_Y - TAILLE_BANDEAU_HAUT) / map->y;
 
-    if (strcmp(map->type, "dessin") == 0) {
+    if (map->type == MAP_TYPE_DESSIN) {
         map->taille_perso = 1.8 * map->taille_case;
-    } else if (strcmp(map->type, "tils") == 0) {
+    } else if (map->type == MAP_TYPE_TILS) {
         map->taille_perso = map->taille_case;
     } else {
         perror("Type de map inconnu");
@@ -83,7 +87,11 @@ void save_map_binary (const char *filename, Map *map) {
     // Sauvegarde des dimensions
     fwrite(&map->x, sizeof(int), 1, file);
     fwrite(&map->y, sizeof(int), 1, file);
-    fwrite(&map->type, sizeof(char), 10, file);
+    fwrite(&map->type, sizeof(int), 1, file);
+    fwrite(&map->position_maison_ghosts_x, sizeof(int), 1, file);
+    fwrite(&map->position_maison_ghosts_y, sizeof(int), 1, file);
+    fwrite(&map->position_pacman_start_x, sizeof(int), 1, file);
+    fwrite(&map->position_pacman_start_y, sizeof(int), 1, file);
 
     // Sauvegarde des données de la map
     for (int i = 0; i < map->y; i++) {
@@ -113,19 +121,21 @@ Map *load_map_binary (const char *filename) {
     // Lecture des dimensions
     fread(&map->x, sizeof(int), 1, file);
     fread(&map->y, sizeof(int), 1, file);
-    fread(&map->type, sizeof(char), 10, file);
+    fread(&map->type, sizeof(int), 1, file);
+    fread(&map->position_maison_ghosts_x, sizeof(int), 1, file);
+    fread(&map->position_maison_ghosts_y, sizeof(int), 1, file);
+    fread(&map->position_pacman_start_x, sizeof(int), 1, file);
+    fread(&map->position_pacman_start_y, sizeof(int), 1, file);
     map->taille_case = (FEN_Y-TAILLE_BANDEAU_HAUT)/map->y;
 
-    if (strcmp(map->type, "dessin") == 0){
+    if (map->type == MAP_TYPE_DESSIN) {
         map->taille_perso = 1.8 * map->taille_case;
+    } else if (map->type == MAP_TYPE_TILS) {
+        map->taille_perso = map->taille_case;
     } else {
-        if (strcmp(map->type, "tils") == 0){
-            map->taille_perso = map->taille_case;
-        } else {
-            perror("Type de map inconnu");
-            fclose(file);
-            return NULL;
-        }
+        perror("Type de map inconnu");
+        fclose(file);
+        return NULL;
     }
 
     // Allocation dynamique de la matrice
@@ -144,8 +154,12 @@ Map init_map_dessin (){
     map.x = 28;
     map.y = 31;
     map.taille_case = (FEN_Y-TAILLE_BANDEAU_HAUT)/map.y;
-    strcpy(map.type,"dessin");
-    map.taille_perso = 2*map.taille_case;
+    map.type = MAP_TYPE_DESSIN;
+    map.taille_perso = 1.8*map.taille_case;
+    map.position_maison_ghosts_x = 13;
+    map.position_maison_ghosts_y = 11;
+    map.position_pacman_start_x = 14;
+    map.position_pacman_start_y = 23;
 
     int valeurs[31][28] = {
     {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
@@ -196,8 +210,12 @@ Map init_map_tils () {
     map.x = 19;
     map.y = 21;
     map.taille_case = (FEN_Y-TAILLE_BANDEAU_HAUT)/map.y;
-    strcpy(map.type,"tils");
+    map.type = MAP_TYPE_TILS;
     map.taille_perso = map.taille_case;
+    map.position_maison_ghosts_x = 9;
+    map.position_maison_ghosts_y = 9;
+    map.position_pacman_start_x = 9;
+    map.position_pacman_start_y = 16;
 
     int valeurs[21][19] = {
     {1,1,1,1,1,1,1,1,0,1,0,1,1,1,1,1,1,1,1},
@@ -250,10 +268,10 @@ void init_tils (SDL_Texture* tils[4], SDL_Renderer* ren){
 
 
 void affiche_map (Map *map, SDL_Texture* tils[4], SDL_Renderer* ren){
-    if (strcmp(map->type,"tils") == 0) {
+    if (map->type == MAP_TYPE_TILS) {
         affiche_map_tils(map, tils, ren);
     } else {
-    if (strcmp(map->type,"dessin") == 0) {
+    if (map->type == MAP_TYPE_DESSIN) {
         affiche_map_draw(map, tils, ren);
     }
     }
