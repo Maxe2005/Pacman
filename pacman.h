@@ -4,7 +4,7 @@
 #include "ressources.h"
 #include "plateau.h"
 
-#define VITESSE_PACMAN 3
+#define VITESSE_PACMAN 2
 
 typedef struct
 {
@@ -15,15 +15,26 @@ typedef struct
     int taille_px;
     char direction;
     char next_direction;
-    SDL_Texture* skin[4];
+    SDL_Texture* skin[9];  // 9 textures pour Pacman
+    SDL_Texture* skin_mort[11]; // 11 textures pour l'animation de Pacman_mort
     int nb_vies;
+    int pacman_frame; // pour la gestion des frames
+    int pacman_frame_delay; // pour le délai entre les frames
+    int is_dead; // Nouvelle variable pour savoir si Pacman est mort
 } Pacman ;
+
 
 /** Charge les textures dans le tableau "skin" de Pacman
  * @param pacman Une instance de structure de joueur
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  */
 void init_textures_pacman (Pacman *pacman, SDL_Renderer* ren);
+
+/** Charge les textures dans le tableau "skin_mort" de Pacman lorsqu'il rentre en collision avec un ghost
+ * @param pacman Une instance de structure de joueur
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ */
+void init_textures_pacman_mort (Pacman *pacman, SDL_Renderer* ren);
 
 /**
  * Vérifie si le pacman est bien placé et initialise ses position en pixel

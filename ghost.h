@@ -8,7 +8,7 @@
 #define VITESSE_GHOST 2
 #define VITESSE_GHOST_FRIGHTENED 1
 #define VITESSE_GHOST_EATEN 4
-#define FREQUENCE_CLIGNOTEMMENT 20
+#define FREQUENCE_CLIGNOTEMMENT 5
 // Les différents états possibles des fantômes
 #define ETAT_CHASE 1
 #define ETAT_SCATTER 2
@@ -37,9 +37,10 @@ typedef struct
     int etat; // L'état du ghost : chase, scatter, frightened ou eaten
     int etat_prioritaire; // Les deux états de début de partie : inside_home et go_outside_home
     int temps_avant_sortie_maison; // en secondes
-    SDL_Texture* skin_normal[4];
-    SDL_Texture* skin_frightened[2];
+    SDL_Texture* skin_normal[8];
+    SDL_Texture* skin_frightened[4];
     SDL_Texture* skin_eaten[4];
+    unsigned int frame_delay;
 } Ghost ;
 
 /**
@@ -49,6 +50,18 @@ typedef struct
  * @param num_ghost Un numéro pour identifier les différents fantômes
  */
 void init_ghost (Ghost *ghost, SDL_Renderer* ren, int num_ghost);
+
+/** Charge les textures du fantome lorsqu'il est effrayé dans le tableau "skin" de Ghost
+ * @param ghost Une instance de structure du fantome
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ */
+void init_textures_frightened (Ghost *ghost, SDL_Renderer* ren);
+
+/** Charge les textures du fantome lorsqu'il est mangé dans le tableau "skin" de Ghost
+ * @param ghost Une instance de structure du fantome
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ */
+void init_textures_eaten (Ghost *ghost, SDL_Renderer* ren);
 
 /** Charge les textures de Blinky (le fantôme rouge) dans le tableau "skin" de Ghost
  * @param ghost Une instance de structure du fantome

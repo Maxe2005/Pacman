@@ -1,11 +1,30 @@
 #include "pacman.h"
 
 
-void init_textures_pacman (Pacman *pacman, SDL_Renderer* ren){
-    pacman->skin[0] = loadTexture("ressources/pacman/pakuman_0.bmp", ren);
-    pacman->skin[1] = loadTexture("ressources/pacman/pakuman_1.bmp", ren);
-    pacman->skin[2] = loadTexture("ressources/pacman/pakuman_2.bmp", ren);
-    pacman->skin[3] = loadTexture("ressources/pacman/pakuman_3.bmp", ren);
+void init_textures_pacman(Pacman *pacman, SDL_Renderer* ren) {
+    pacman->skin[0] = loadTexture("ressources/pacman/pakumanD2.bmp", ren);  
+    pacman->skin[1] = loadTexture("ressources/pacman/pakumanD1.bmp", ren);  
+    pacman->skin[2] = loadTexture("ressources/pacman/pakumanH2.bmp", ren);  
+    pacman->skin[3] = loadTexture("ressources/pacman/pakumanH1.bmp", ren);  
+    pacman->skin[4] = loadTexture("ressources/pacman/pakumanG2.bmp", ren);  
+    pacman->skin[5] = loadTexture("ressources/pacman/pakumanG1.bmp", ren);  
+    pacman->skin[6] = loadTexture("ressources/pacman/pakumanB2.bmp", ren);  
+    pacman->skin[7] = loadTexture("ressources/pacman/pakumanB1.bmp", ren);  
+    pacman->skin[8] = loadTexture("ressources/pacman/pakumanGlobal.bmp", ren);
+}
+
+void init_textures_pacman_mort(Pacman *pacman, SDL_Renderer* ren) {
+    pacman->skin_mort[0] = loadTexture("ressources/pacman/Game_Over/pacman_G_O1.bmp", ren);  
+    pacman->skin_mort[1] = loadTexture("ressources/pacman/Game_Over/pacman_G_O2.bmp", ren);  
+    pacman->skin_mort[2] = loadTexture("ressources/pacman/Game_Over/pacman_G_O3.bmp", ren);  
+    pacman->skin_mort[3] = loadTexture("ressources/pacman/Game_Over/pacman_G_O4.bmp", ren);  
+    pacman->skin_mort[4] = loadTexture("ressources/pacman/Game_Over/pacman_G_O5.bmp", ren);  
+    pacman->skin_mort[5] = loadTexture("ressources/pacman/Game_Over/pacman_G_O6.bmp", ren);  
+    pacman->skin_mort[6] = loadTexture("ressources/pacman/Game_Over/pacman_G_O7.bmp", ren);  
+    pacman->skin_mort[7] = loadTexture("ressources/pacman/Game_Over/pacman_G_O8.bmp", ren);  
+    pacman->skin_mort[8] = loadTexture("ressources/pacman/Game_Over/pacman_G_O9.bmp", ren);  
+    pacman->skin_mort[9] = loadTexture("ressources/pacman/Game_Over/pacman_G_O10.bmp", ren);  
+    pacman->skin_mort[10] = loadTexture("ressources/pacman/Game_Over/pacman_G_O11.bmp", ren); 
 }
 
 int conversion_case_pixel_en_x (Pacman *pacman, Map *map, int difference){
@@ -30,24 +49,54 @@ void premier_placement_pacman (Pacman *pacman, Map *map){
     pacman->next_direction = ' ';
 }
 
-void affiche_pacman (Pacman *pacman, SDL_Renderer* ren) {
+
+void affiche_pacman(Pacman *pacman, SDL_Renderer* ren) {
+    // Incrémentation du compteur de frames
+    pacman->pacman_frame_delay++;
+
+    // Si un certain nombre de cycles est passé, on passe à la frame suivante
+    if (pacman->pacman_frame_delay >= 10) { // 🔥 Ajuste cette valeur pour ralentir/accélérer
+        pacman->pacman_frame++;
+        pacman->pacman_frame_delay = 0;
+    }
+
     SDL_Texture* tex;
-    if (pacman->direction == 'd'){
-        tex = pacman->skin[0];
+
+    // Vérifier si Pacman est mort
+    if (pacman->is_dead) {
+        // Limiter l'animation de mort à 10 frames max
+        if (pacman->pacman_frame > 10) {
+            pacman->pacman_frame = 10; 
+        }
+        tex = pacman->skin_mort[pacman->pacman_frame];  
     } else {
-    if (pacman->direction == 'g'){
-        tex = pacman->skin[2];
-    } else {
-    if (pacman->direction == 'h'){
-        tex = pacman->skin[1];
-    } else {
-    if (pacman->direction == 'b'){
-        tex = pacman->skin[3];
-    } else {
-        tex = pacman->skin[0]; //Par défaut le pacman regarde à droite
-    }}}}
+        // Vérifier si c'est le moment d'afficher Pacman avec la bouche fermée
+        if (pacman->pacman_frame % 3 == 2) {
+            tex = pacman->skin[8];  // Bouche fermée (cercle jaune)
+        } else {
+            // Sélection de la texture en fonction de la direction
+            if (pacman->direction == 'd') {
+                tex = pacman->skin[0 + (pacman->pacman_frame % 2)];
+            } else if (pacman->direction == 'h') {
+                tex = pacman->skin[2 + (pacman->pacman_frame % 2)];
+            } else if (pacman->direction == 'g') {
+                tex = pacman->skin[4 + (pacman->pacman_frame % 2)];
+            } else if (pacman->direction == 'b') {
+                tex = pacman->skin[6 + (pacman->pacman_frame % 2)];
+            } else {
+                tex = pacman->skin[0]; // Par défaut, Pacman regarde à droite
+            }
+        }
+    }
+
+    // Affichage de Pacman ou de l'animation de mort
     renderTexture(tex, ren, pacman->position_px_x, pacman->position_px_y, pacman->taille_px, pacman->taille_px);
 }
+
+
+
+
+
 
 void aller_a_droite (Pacman *pacman, Map *map){
     pacman->direction = 'd';

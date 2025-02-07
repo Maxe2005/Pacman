@@ -1,28 +1,25 @@
 #include "ghost.h"
 
-void init_ghost (Ghost *ghost, SDL_Renderer* ren, int num_ghost){
-    if (num_ghost == 0){
+void init_ghost(Ghost* ghost, SDL_Renderer* ren, int num_ghost) {
+    if (num_ghost == 0) {
         init_textures_Blinky(ghost, ren);
         strcpy(ghost->nom, "Blinky");
-    } else {
-    if (num_ghost == 1){
+    } else if (num_ghost == 1) {
         init_textures_Pinky(ghost, ren);
         strcpy(ghost->nom, "Pinky");
-    } else {
-    if (num_ghost == 2){
+    } else if (num_ghost == 2) {
         init_textures_Inky(ghost, ren);
         strcpy(ghost->nom, "Inky");
-    } else {
-    if (num_ghost == 3){
+    } else if (num_ghost == 3) {
         init_textures_Clyde(ghost, ren);
         strcpy(ghost->nom, "Clyde");
-    }}}}
-    ghost->skin_eaten[0] = loadTexture("ressources/pacman/pakuman_0.bmp", ren);
-    ghost->skin_eaten[1] = loadTexture("ressources/pacman/pakuman_1.bmp", ren);
-    ghost->skin_eaten[2] = loadTexture("ressources/pacman/pakuman_2.bmp", ren);
-    ghost->skin_eaten[3] = loadTexture("ressources/pacman/pakuman_3.bmp", ren);
-    ghost->skin_frightened[0] = loadTexture("ressources/cherry.bmp", ren);
-    ghost->skin_frightened[1] = loadTexture("ressources/wall.bmp", ren);
+    }
+
+    // Initialiser les textures spécifiques aux états
+    init_textures_frightened(ghost, ren);
+    init_textures_eaten(ghost, ren);
+
+    // Initialisation des autres membres
     ghost->is_affiche = 0;
     ghost->is_clignotement = 0;
     ghost->frame = 0;
@@ -33,34 +30,65 @@ void init_ghost (Ghost *ghost, SDL_Renderer* ren, int num_ghost){
     ghost->etat_prioritaire = 0;
 }
 
+
+void init_textures_frightened(Ghost* ghost, SDL_Renderer* ren) {
+    ghost->skin_frightened[0] = loadTexture("ressources/ghost/ghost_effraye1.bmp", ren);
+    ghost->skin_frightened[1] = loadTexture("ressources/ghost/ghost_effraye2.bmp", ren);
+    ghost->skin_frightened[2] = loadTexture("ressources/ghost/ghost_effraye3.bmp", ren);
+    ghost->skin_frightened[3] = loadTexture("ressources/ghost/ghost_effraye4.bmp", ren);
+}
+
+void init_textures_eaten(Ghost* ghost, SDL_Renderer* ren) {
+    ghost->skin_eaten[0] = loadTexture("ressources/ghost/ghost_yeux0.bmp", ren);
+    ghost->skin_eaten[1] = loadTexture("ressources/ghost/ghost_yeux1.bmp", ren);
+    ghost->skin_eaten[2] = loadTexture("ressources/ghost/ghost_yeux2.bmp", ren);
+    ghost->skin_eaten[3] = loadTexture("ressources/ghost/ghost_yeux3.bmp", ren);
+}
+
 void init_textures_Blinky (Ghost *ghost, SDL_Renderer* ren){
-    ghost->skin_normal[0] = loadTexture("ressources/ghost/ghost1_0.bmp", ren);
-    ghost->skin_normal[1] = loadTexture("ressources/ghost/ghost1_1.bmp", ren);
-    ghost->skin_normal[2] = loadTexture("ressources/ghost/ghost1_2.bmp", ren);
-    ghost->skin_normal[3] = loadTexture("ressources/ghost/ghost1_3.bmp", ren);
+    ghost->skin_normal[0] = loadTexture("ressources/ghost/ghost_red7.bmp", ren);
+    ghost->skin_normal[1] = loadTexture("ressources/ghost/ghost_red1.bmp", ren);
+    ghost->skin_normal[2] = loadTexture("ressources/ghost/ghost_red5.bmp", ren);
+    ghost->skin_normal[3] = loadTexture("ressources/ghost/ghost_red3.bmp", ren);
+    ghost->skin_normal[4] = loadTexture("ressources/ghost/ghost_red8.bmp", ren);
+    ghost->skin_normal[5] = loadTexture("ressources/ghost/ghost_red2.bmp", ren);
+    ghost->skin_normal[6] = loadTexture("ressources/ghost/ghost_red6.bmp", ren);
+    ghost->skin_normal[7] = loadTexture("ressources/ghost/ghost_red4.bmp", ren);
 }
 
 void init_textures_Pinky (Ghost *ghost, SDL_Renderer* ren){
-    ghost->skin_normal[0] = loadTexture("ressources/ghost/ghost2_0.bmp", ren);
-    ghost->skin_normal[1] = loadTexture("ressources/ghost/ghost2_1.bmp", ren);
-    ghost->skin_normal[2] = loadTexture("ressources/ghost/ghost2_2.bmp", ren);
-    ghost->skin_normal[3] = loadTexture("ressources/ghost/ghost2_3.bmp", ren);
+    ghost->skin_normal[0] = loadTexture("ressources/ghost/ghost_pink7.bmp", ren);
+    ghost->skin_normal[1] = loadTexture("ressources/ghost/ghost_pink1.bmp", ren);
+    ghost->skin_normal[2] = loadTexture("ressources/ghost/ghost_pink5.bmp", ren);
+    ghost->skin_normal[3] = loadTexture("ressources/ghost/ghost_pink3.bmp", ren);
+    ghost->skin_normal[4] = loadTexture("ressources/ghost/ghost_pink8.bmp", ren);
+    ghost->skin_normal[5] = loadTexture("ressources/ghost/ghost_pink2.bmp", ren);
+    ghost->skin_normal[6] = loadTexture("ressources/ghost/ghost_pink6.bmp", ren);
+    ghost->skin_normal[7] = loadTexture("ressources/ghost/ghost_pink4.bmp", ren);
     ghost->temps_avant_sortie_maison = 1;
 }
 
 void init_textures_Inky (Ghost *ghost, SDL_Renderer* ren){
-    ghost->skin_normal[0] = loadTexture("ressources/ghost/ghost3_0.bmp", ren);
-    ghost->skin_normal[1] = loadTexture("ressources/ghost/ghost3_1.bmp", ren);
-    ghost->skin_normal[2] = loadTexture("ressources/ghost/ghost3_2.bmp", ren);
-    ghost->skin_normal[3] = loadTexture("ressources/ghost/ghost3_3.bmp", ren);
+    ghost->skin_normal[0] = loadTexture("ressources/ghost/ghost_lb7.bmp", ren);
+    ghost->skin_normal[1] = loadTexture("ressources/ghost/ghost_lb1.bmp", ren);
+    ghost->skin_normal[2] = loadTexture("ressources/ghost/ghost_lb5.bmp", ren);
+    ghost->skin_normal[3] = loadTexture("ressources/ghost/ghost_lb3.bmp", ren);
+    ghost->skin_normal[4] = loadTexture("ressources/ghost/ghost_lb8.bmp", ren);
+    ghost->skin_normal[5] = loadTexture("ressources/ghost/ghost_lb2.bmp", ren);
+    ghost->skin_normal[6] = loadTexture("ressources/ghost/ghost_lb6.bmp", ren);
+    ghost->skin_normal[7] = loadTexture("ressources/ghost/ghost_lb4.bmp", ren);
     ghost->temps_avant_sortie_maison = 4;
 }
 
 void init_textures_Clyde (Ghost *ghost, SDL_Renderer* ren){
-    ghost->skin_normal[0] = loadTexture("ressources/ghost/ghost4_0.bmp", ren);
-    ghost->skin_normal[1] = loadTexture("ressources/ghost/ghost4_1.bmp", ren);
-    ghost->skin_normal[2] = loadTexture("ressources/ghost/ghost4_2.bmp", ren);
-    ghost->skin_normal[3] = loadTexture("ressources/ghost/ghost4_3.bmp", ren);
+    ghost->skin_normal[0] = loadTexture("ressources/ghost/ghost_yellow7.bmp", ren);
+    ghost->skin_normal[1] = loadTexture("ressources/ghost/ghost_yellow1.bmp", ren);
+    ghost->skin_normal[2] = loadTexture("ressources/ghost/ghost_yellow5.bmp", ren);
+    ghost->skin_normal[3] = loadTexture("ressources/ghost/ghost_yellow3.bmp", ren);
+    ghost->skin_normal[4] = loadTexture("ressources/ghost/ghost_yellow8.bmp", ren);
+    ghost->skin_normal[5] = loadTexture("ressources/ghost/ghost_yellow2.bmp", ren);
+    ghost->skin_normal[6] = loadTexture("ressources/ghost/ghost_yellow6.bmp", ren);
+    ghost->skin_normal[7] = loadTexture("ressources/ghost/ghost_yellow4.bmp", ren);
     ghost->temps_avant_sortie_maison = 8;
 }
 
@@ -95,41 +123,70 @@ void premier_placement_ghost (Ghost *ghost, Map *map, const int x, const int y){
     ghost->is_affiche = 1;
 }
 
-void affiche_ghost (Ghost *ghost, SDL_Renderer* ren) {
+
+void affiche_ghost(Ghost* ghost, SDL_Renderer* ren) {
     if (ghost->is_affiche == 1) {
-        SDL_Texture* tex;
-        SDL_Texture** skin;
-        if (ghost->etat == ETAT_FRIGHTENED){
-            if (ghost->is_clignotement == 1 && (int)(ghost->frame/FREQUENCE_CLIGNOTEMMENT) % 2 == 1) {
-                tex = ghost->skin_frightened[1];
-            } else {
-                tex = ghost->skin_frightened[0];
-            }
-        } else {
-            if (ghost->etat == ETAT_EATEN){
-                skin = ghost->skin_eaten;
-            } else {
-                skin = ghost->skin_normal;
-            }
-            if (ghost->direction == 'd'){
-                tex = skin[0];
-            } else {
-            if (ghost->direction == 'g'){
-                tex = skin[2];
-            } else {
-            if (ghost->direction == 'h'){
-                tex = skin[1];
-            } else {
-            if (ghost->direction == 'b'){
-                tex = skin[3];
-            } else {
-                tex = skin[0]; //Par défaut le ghost regarde a droite
-            }}}}
+        // Incrémenter le compteur de temps
+        ghost->frame_delay++;
+
+        // Si un certain nombre de cycles est passé, on passe à la frame suivante
+        if (ghost->frame_delay >= 10) { // Ajuster cette valeur selon la vitesse désirée
+            ghost->frame++; // Incrémenter la frame
+            ghost->frame_delay = 0; // Réinitialiser le compteur de temps
         }
-        ghost->frame++;
+
+        SDL_Texture* tex;
+
+        // Si le fantôme est effrayé
+        if (ghost->etat == ETAT_FRIGHTENED) {
+            if (ghost->is_clignotement) {
+                // Clignotement : alterne entre les 2 skins bleus et les 2 skins blancs
+                if (ghost->frame % (FREQUENCE_CLIGNOTEMMENT * 2) < FREQUENCE_CLIGNOTEMMENT) {
+                    tex = (ghost->frame % 2 == 0) ? ghost->skin_frightened[0] : ghost->skin_frightened[1]; // Bleu
+                } else {
+                    tex = (ghost->frame % 2 == 0) ? ghost->skin_frightened[2] : ghost->skin_frightened[3]; // Blanc
+                }
+            } else {
+                // Mode frightened normal (bleu uniquement)
+                tex = (ghost->frame % 2 == 0) ? ghost->skin_frightened[0] : ghost->skin_frightened[1]; 
+            }
+        }
+        // Si le fantôme est mangé
+        else if (ghost->etat == ETAT_EATEN) {
+            if (ghost->direction == 'd') {
+                tex = ghost->skin_eaten[0]; // Droite
+            } else if (ghost->direction == 'h') {
+                tex = ghost->skin_eaten[1]; // Haut
+            } else if (ghost->direction == 'g') {
+                tex = ghost->skin_eaten[2]; // Gauche
+            } else if (ghost->direction == 'b') {
+                tex = ghost->skin_eaten[3]; // Bas
+            } else {
+                tex = ghost->skin_eaten[0]; // Par défaut droite
+            }
+        }
+        // Si le fantôme est en état normal
+        else {
+            if (ghost->direction == 'd') {
+                tex = (ghost->frame % 2 == 0) ? ghost->skin_normal[0] : ghost->skin_normal[4]; // Droite
+            } else if (ghost->direction == 'g') {
+                tex = (ghost->frame % 2 == 0) ? ghost->skin_normal[2] : ghost->skin_normal[6]; // Gauche
+            } else if (ghost->direction == 'h') {
+                tex = (ghost->frame % 2 == 0) ? ghost->skin_normal[1] : ghost->skin_normal[5]; // Haut
+            } else if (ghost->direction == 'b') {
+                tex = (ghost->frame % 2 == 0) ? ghost->skin_normal[3] : ghost->skin_normal[7]; // Bas
+            } else {
+                tex = ghost->skin_normal[0]; // Par défaut droite
+            }
+        }
+
         renderTexture(tex, ren, ghost->position_px_x, ghost->position_px_y, ghost->taille_px, ghost->taille_px);
     }
 }
+
+
+
+
 
 void aller_a_droite_g (Ghost *ghost, Map *map){
     ghost->direction = 'd';

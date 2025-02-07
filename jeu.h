@@ -55,8 +55,9 @@ int is_collision_pacman_ghost (SDL_Renderer* ren, Ghost* ghost, Pacman *pacman, 
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
  * @param musique La structure contenant toutes les infos pour les musiques
+ * @param pacman Une instance de structure de joueur
  */
-void annimation_mort_pacman (SDL_Renderer* ren, Partie* partie, Musique* musique);
+void annimation_mort_pacman(SDL_Renderer* ren, Partie* partie, Musique* musique, Pacman* pacman);
 
 /**
  * Efface et affiche sur le renderer l'écran de jeu

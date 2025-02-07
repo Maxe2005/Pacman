@@ -25,7 +25,7 @@ int is_collision_pacman_ghost (SDL_Renderer* ren, Ghost* ghost, Pacman *pacman, 
             if (partie->nb_vies == 0) {
                 ecran_game_over(ren, partie, musique);
             } else {
-                annimation_mort_pacman(ren, partie, musique);
+                annimation_mort_pacman(ren, partie, musique, pacman);
                 placament_pacman_et_ghost(partie);
                 debut_jeu(ren, partie, musique);
             }
@@ -62,7 +62,28 @@ void affiche_ecran_game_over (SDL_Renderer* ren, Partie* partie) {
     printText(score_x, score_y, text_score, taille_score_x, taille_score_y, partie->font[0], white, ren);
     updateDisplay(ren);
 }
+void annimation_mort_pacman(SDL_Renderer* ren, Partie* partie, Musique* musique, Pacman* pacman) {
+    playSoundEffect(musique->pacman_death); // Son de mort
 
+    for (int i = 0; i < 11; i++) { // 11 frames d'animation
+        affiche_ecran_jeu(ren, partie); // Rafraîchir l'écran de jeu
+        SDL_Texture* tex = pacman->skin_mort[i]; // Choix de la texture
+        renderTexture(tex, ren, pacman->position_px_x, pacman->position_px_y, pacman->taille_px, pacman->taille_px);
+        updateDisplay(ren); // Mettre à jour l'affichage
+        SDL_Delay(100); // Délai entre les frames
+    }
+
+    // Fin de l'animation, gestion du jeu
+    pacman->is_dead = 0;
+    if (partie->nb_vies == 0) {
+        ecran_game_over(ren, partie, musique);
+    } else {
+        placament_pacman_et_ghost(partie);
+        debut_jeu(ren, partie, musique);
+    }
+}
+
+/*
 void annimation_mort_pacman (SDL_Renderer* ren, Partie* partie, Musique* musique) {
     playSoundEffect(musique->pacman_death);
     char directions[4] = {'d', 'b', 'g', 'h'};
@@ -76,7 +97,11 @@ void annimation_mort_pacman (SDL_Renderer* ren, Partie* partie, Musique* musique
         SDL_Delay(100);
         i++;
     }
-}
+}*/
+
+
+
+
 
 void affiche_ecran_jeu (SDL_Renderer* ren, Partie* partie) {
     // Effacer
@@ -127,8 +152,9 @@ void nouvelle_partie (SDL_Renderer* ren, Musique* musique, int niveau) {
     // Initialisation Pacman
     partie->pacman = malloc(sizeof(Pacman));
     init_textures_pacman(partie->pacman, ren);
+    init_textures_pacman_mort(partie->pacman, ren);
     // Initialisation des vies
-    partie->skin_vies = loadTexture("ressources/pacman/pakuman_0.bmp", ren);
+    partie->skin_vies = loadTexture("ressources/pacman/pakumanD1.bmp", ren);
     partie->nb_vies = 3;
 
     // Initialisation ghosts
