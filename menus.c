@@ -54,6 +54,11 @@ void ecran_acceuil (SDL_Renderer* ren, Musique* musique){
             ecran_niveaux(ren, musique);
             running = 0;
         }
+        if (lancement == 'r'){
+            playSoundEffect(musique->select);
+            ecran_remerciements(ren, musique);
+            running = 0;
+        }
     }
 }
 
@@ -207,6 +212,106 @@ void ecran_niveaux (SDL_Renderer* ren, Musique* musique){
     }
 }
 
+void ecran_remerciements (SDL_Renderer* ren, Musique* musique){
+    // Texte des remerciements
+    int space_entre_lignes = 20;
+    int taille_ligne_y = 30;
+    int margin_x = 10;
+    const char* creditsText[] = {"Merci à tous ceux qui ont contribué ...",
+                                " ",
+                                " ",
+                                "Développeurs :",
+                                " ",
+                                "Maxence CHOISEL",
+                                "Arthur COPIN",
+                                "Mohammed DAIB",
+                                " ",
+                                " ",
+                                "Chef de projet : Maxence CHOISEL",
+                                " ",
+                                "Game Design : d'après le jeu original Pac-Man",
+                                " ",
+                                "Développeur moteur du jeu : Maxence CHOISEL",
+                                " ",
+                                "Développeur IA des fantômes : Maxence CHOISEL",
+                                " ",
+                                "Développeur interface utilisateur  : Arthur COPIN",
+                                " ",
+                                "Développeur gestion du son  : Arthur COPIN",
+                                " ",
+                                "Développeur système d’animation  : Mohammed DAIB",
+                                " ",
+                                "Développeur physique du jeu : Maxence CHOISEL",
+                                " ",
+                                "Développeur des cartes (level design) : Maxence CHOISEL",
+                                " ",
+                                " ",
+                                "Designer graphique  : Mohammed DAIB",
+                                " ",
+                                "Animateur 2D  : Mohammed DAIB",
+                                " ",
+                                "Créateur d’effets visuels (VFX)  : Mohammed DAIB",
+                                " ",
+                                " ",
+                                "Testeur Quality Assurance : Maxence CHOISEL",
+                                " ",
+                                "Développeur optimisation des performances : Maxence CHOISEL",
+                                " ",
+                                "..."};
+
+    int nb_lignes = sizeof(creditsText)/sizeof(const char*);
+    Ligne_texte lignes[nb_lignes];
+    for (int i = 0; i < nb_lignes; i++) {
+        lignes[i].rect.x = margin_x;
+        lignes[i].rect.y = HEADER_HEIGHT + 40 + space_entre_lignes + i * (taille_ligne_y + space_entre_lignes);
+        lignes[i].rect.w = FEN_X - 2*margin_x;
+        lignes[i].rect.h = taille_ligne_y;
+        lignes[i].texte = creditsText[i];
+    }
+
+    int scroll_offset = 0; // Décalage vertical du scrolling
+    int running = 1;
+    SDL_Event event;
+
+    while (running) {
+        SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
+        SDL_RenderClear(ren);
+        renderHeader(ren, "Remerciements");
+        // Affichage du texte en tenant compte du scrolling
+        for (int i = 0; i < nb_lignes; i++) {
+            SDL_Rect original_rect = lignes[i].rect;
+            lignes[i].rect.y -= scroll_offset; // Appliquer le scroll
+            renderTexte(ren, &(lignes[i]));
+            lignes[i].rect = original_rect; // Rétablir la position originale
+        }
+        updateDisplay(ren);
+
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) running = 0;
+
+            if (event.type == SDL_MOUSEWHEEL) {
+                scroll_offset -= event.wheel.y * SCROLL_SPEED;
+            }
+
+            if (event.type == SDL_KEYDOWN) {
+                if (event.key.keysym.sym == SDLK_DOWN) scroll_offset += SCROLL_SPEED;
+                if (event.key.keysym.sym == SDLK_UP) scroll_offset -= SCROLL_SPEED;
+            }
+
+            if (event.type == SDL_KEYUP) {
+                if (event.key.keysym.sym == SDLK_BACKSPACE){
+                    playSoundEffect(musique->select);
+                    ecran_acceuil(ren,musique);
+                    running = 0;
+                }
+            }
+        if (scroll_offset < 0) scroll_offset = 0;
+        if (scroll_offset > (nb_lignes * (taille_ligne_y + space_entre_lignes)) - (FEN_Y/2 - HEADER_HEIGHT))
+            scroll_offset = (nb_lignes * (taille_ligne_y + space_entre_lignes)) - (FEN_Y/2 - HEADER_HEIGHT);
+        }
+    }
+}
+
 void affiche_bouton_start(SDL_Renderer* ren, TTF_Font * font){
     int division_x_titre = 4; // doit être >= 3
     int division_y_titre = 6; // doit être >= 3
@@ -247,6 +352,25 @@ void renderButton(SDL_Renderer *renderer, Button *button, const char* texte, SDL
         SDL_Surface *surface = TTF_RenderText_Solid(font, texte, color_text);
         SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
         SDL_Rect textRect = {tmp_x + tmp_width/2 - surface->w/2, tmp_y + tmp_height/2 - surface->h/2, surface->w, surface->h};
+
+        SDL_RenderCopy(renderer, texture, NULL, &textRect);
+
+        SDL_FreeSurface(surface);
+        SDL_DestroyTexture(texture);
+    }
+}
+
+void renderTexte(SDL_Renderer *renderer, Ligne_texte *ligne) {
+    if (ligne->rect.y > HEADER_HEIGHT + 10 && ligne->rect.y + ligne->rect.h/2 < FEN_Y) {
+        //TTF_Font * font = createFont("ressources/DejaVuSans-Bold.ttf", 25);
+        SDL_Color white = {255, 255, 255, 255};
+        TTF_Font * font = createFont("ressources/Chewy-Regular.ttf", 30);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderFillRect(renderer, &ligne->rect);
+
+        SDL_Surface *surface = TTF_RenderUTF8_Solid(font, ligne->texte, white);
+        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_Rect textRect = {ligne->rect.x + ligne->rect.w/2 - surface->w/2, ligne->rect.y + ligne->rect.h/2 - surface->h/2, surface->w, surface->h};
 
         SDL_RenderCopy(renderer, texture, NULL, &textRect);
 

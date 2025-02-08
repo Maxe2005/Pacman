@@ -118,6 +118,9 @@ char processKeyboard(int *running){
 					case SDLK_n:
 						pdirection='n'; // aller au menu des niveaux
 						break;
+					case SDLK_r:
+						pdirection='r'; // aller à l'écran des remerciements
+						break;
 					case SDLK_LEFT:
 						pdirection='g';
 						break;

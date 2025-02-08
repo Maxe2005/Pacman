@@ -46,6 +46,11 @@ typedef struct {
     const char* label;
 } SelectionButton;
 
+typedef struct {
+    SDL_Rect rect;
+    const char* texte;
+} Ligne_texte;
+
 /**
  * Début du lancement du jeu
  * @param ren Un pointeur sur une structure contenant l'état du rendu
@@ -75,6 +80,11 @@ void ecran_musique (SDL_Renderer* ren, Musique* musique);
 void ecran_niveaux (SDL_Renderer* ren, Musique* musique);
 
 /**
+ * Tout est dans le titre !
+ */
+void ecran_remerciements (SDL_Renderer* ren, Musique* musique);
+
+/**
  * Affiche un bouton
  * @param renderer Un pointeur sur une structure contenant l'état du rendu
  * @param button Une instance de bouton
@@ -102,5 +112,12 @@ void handle_events(SDL_Event* e, MusicButton musics[], SelectionButton selection
  * 
  */
 void draw_buttons(SDL_Renderer* renderer, MusicButton musics[], SelectionButton selections[]);
+
+/**
+ * Affiche une ligne de texte
+ * @param renderer Un pointeur sur une structure contenant l'état du rendu
+ * @param ligne La ligne à afficher
+ */
+void renderTexte(SDL_Renderer *renderer, Ligne_texte *ligne);
 
 #endif
