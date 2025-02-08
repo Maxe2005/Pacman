@@ -20,7 +20,6 @@ typedef struct
     int nb_vies;
     int pacman_frame; // pour la gestion des frames
     int pacman_frame_delay; // pour le délai entre les frames
-    int is_dead; // Nouvelle variable pour savoir si Pacman est mort
 } Pacman ;
 
 

@@ -22,10 +22,10 @@ int is_collision_pacman_ghost (SDL_Renderer* ren, Ghost* ghost, Pacman *pacman, 
         } else { if (ghost->etat != ETAT_EATEN){
             partie->nb_vies--;
             *running = 0;
+            annimation_mort_pacman(ren, partie, musique, pacman);
             if (partie->nb_vies == 0) {
                 ecran_game_over(ren, partie, musique);
             } else {
-                annimation_mort_pacman(ren, partie, musique, pacman);
                 placament_pacman_et_ghost(partie);
                 debut_jeu(ren, partie, musique);
             }
@@ -34,6 +34,7 @@ int is_collision_pacman_ghost (SDL_Renderer* ren, Ghost* ghost, Pacman *pacman, 
     }
     return 0;
 }
+
 void annimation_mort_pacman(SDL_Renderer* ren, Partie* partie, Musique* musique, Pacman* pacman) {
     playSoundEffect(musique->pacman_death); // Son de mort
 
@@ -44,36 +45,7 @@ void annimation_mort_pacman(SDL_Renderer* ren, Partie* partie, Musique* musique,
         updateDisplay(ren); // Mettre à jour l'affichage
         SDL_Delay(100); // Délai entre les frames
     }
-
-    // Fin de l'animation, gestion du jeu
-    pacman->is_dead = 0;
-    if (partie->nb_vies == 0) {
-        ecran_game_over(ren, partie, musique);
-    } else {
-        placament_pacman_et_ghost(partie);
-        debut_jeu(ren, partie, musique);
-    }
 }
-
-/*
-void annimation_mort_pacman (SDL_Renderer* ren, Partie* partie, Musique* musique) {
-    playSoundEffect(musique->pacman_death);
-    char directions[4] = {'d', 'b', 'g', 'h'};
-    unsigned int i = 0; 
-
-    while ( i < 10 ){
-        affiche_ecran_jeu(ren, partie);
-        partie->pacman->direction = directions[i%4] ;
-        affiche_pacman(partie->pacman, ren);
-        updateDisplay(ren);
-        SDL_Delay(100);
-        i++;
-    }
-}*/
-
-
-
-
 
 void affiche_ecran_jeu (SDL_Renderer* ren, Partie* partie) {
     // Effacer
