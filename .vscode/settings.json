@@ -1,6 +1,7 @@
 {
   "files.associations": {
     "plateau.h": "c",
-    "stdio.h": "c"
+    "stdio.h": "c",
+    "createur_map.h": "c"
   }
 }

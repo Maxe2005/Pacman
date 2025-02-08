@@ -121,6 +121,9 @@ char processKeyboard(int *running){
 					case SDLK_r:
 						pdirection='r'; // aller à l'écran des remerciements
 						break;
+					case SDLK_c:
+						pdirection='c'; // aller au créateur de map
+						break;
 					case SDLK_LEFT:
 						pdirection='g';
 						break;
