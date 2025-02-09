@@ -117,7 +117,7 @@ void ecran_musique (SDL_Renderer* ren, Musique* musique){
                 running = 0;
             }
             if (e.type == SDL_MOUSEBUTTONDOWN) {
-                handle_events(&e, musicButtons, selectionButtons, musique);
+                handle_events(musicButtons, selectionButtons, musique);
             }
             if (e.type == SDL_KEYUP) {
                 if (e.key.keysym.sym == SDLK_BACKSPACE){
@@ -334,32 +334,31 @@ void affiche_bouton_start(SDL_Renderer* ren, TTF_Font * font){
 
 void renderButton(SDL_Renderer *renderer, Button *button, SDL_Color color_text, SDL_Color colorh0, SDL_Color colorh1) {
     if (button->rect.y > HEADER_HEIGHT + BUTTON_MARGIN/2 && button->rect.y + button->rect.h/2 < FEN_Y) {
-        TTF_Font * font = createFont("ressources/DejaVuSans-Bold.ttf", 25);
+        TTF_Font * font;
         SDL_Color color = button->hovered ? colorh1 : colorh0;
-        int tmp_width;
-        int tmp_height;
-        int tmp_x;
-        int tmp_y;
+        SDL_Rect tmp_rect;
         if (button->hovered) {
-            int taille_bonus_x = 10;
-            int taille_bonus_y = 10;
-            tmp_width = button->rect.w + taille_bonus_x;
-            tmp_height = button->rect.h + taille_bonus_y;
-            tmp_x = button->rect.x - taille_bonus_x/2;
-            tmp_y = button->rect.y - taille_bonus_y/2;
+            int taille_bonus_x = 20;
+            int taille_bonus_y = 20;
+            tmp_rect.w = button->rect.w + taille_bonus_x;
+            tmp_rect.h = button->rect.h + taille_bonus_y;
+            tmp_rect.x = button->rect.x - taille_bonus_x/2;
+            tmp_rect.y = button->rect.y - taille_bonus_y/2;
+            font = createFont("ressources/DejaVuSans-Bold.ttf", 30);
         } else {
-            tmp_width = button->rect.w;
-            tmp_height = button->rect.h;
-            tmp_x = button->rect.x;
-            tmp_y = button->rect.y;
+            tmp_rect.w = button->rect.w;
+            tmp_rect.h = button->rect.h;
+            tmp_rect.x = button->rect.x;
+            tmp_rect.y = button->rect.y;
+            font = createFont("ressources/DejaVuSans-Bold.ttf", 25);
         }
 
         SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
-        SDL_RenderFillRect(renderer, &button->rect);
+        SDL_RenderFillRect(renderer, &tmp_rect);
 
         SDL_Surface *surface =  TTF_RenderUTF8_Solid(font, button->label, color_text);
         SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_Rect textRect = {tmp_x + tmp_width/2 - surface->w/2, tmp_y + tmp_height/2 - surface->h/2, surface->w, surface->h};
+        SDL_Rect textRect = {tmp_rect.x + tmp_rect.w/2 - surface->w/2, tmp_rect.y + tmp_rect.h/2 - surface->h/2, surface->w, surface->h};
 
         SDL_RenderCopy(renderer, texture, NULL, &textRect);
 
@@ -386,7 +385,7 @@ void renderHeader(SDL_Renderer *renderer, char *titre) {
     SDL_DestroyTexture(texture);
 }
 
-void handle_events(SDL_Event* e, MusicButton musics[], SelectionButton selections[], Musique* musique) {
+void handle_events(MusicButton musics[], SelectionButton selections[], Musique* musique) {
     int x, y;
     SDL_GetMouseState(&x, &y);
 

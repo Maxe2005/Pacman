@@ -1,5 +1,8 @@
 #include "plateau.h"
 
+int ORIGINE_X = 10;
+int ORIGINE_Y = TAILLE_BANDEAU_HAUT;
+
 void save_map_text(const char *filename, Map *map) {
     char path[100] = "ressources/maps/";
     strcat(path, filename);

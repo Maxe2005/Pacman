@@ -79,13 +79,14 @@ void nouvelle_partie (SDL_Renderer* ren, Musique* musique, int niveau) {
     partie->niveau = niveau;
 
     // Initialisation map, textures pour map et font pour titres
-    Map mape = init_map_dessin();
+    //Map mape = init_map_dessin();
     //Map mape = init_map_tils();
-    partie->map = &mape;
+    //partie->map = &mape;
     const char *nom_map = "Map_originale.bin";
     //save_map_text(nom_map, partie->map);
-    save_map_binary(nom_map, partie->map);
+    //save_map_binary(nom_map, partie->map);
     //partie->map = load_map_text(nom_map);
+    partie->map = load_map_binary(nom_map);
 
     partie->tils = malloc(sizeof(SDL_Texture*) * 4);
     init_tils(partie->tils, ren);

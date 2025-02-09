@@ -45,4 +45,19 @@ void init_buttons_createur_map (SelectionButton_createur_map selectionButtons[NB
  */
 void affiche_boutons_createur_map (SDL_Renderer* ren, SelectionButton_createur_map boutons[NB_BUTTONS_CREATEUR_MAP]);
 
+/**
+ * Affiche un quadrillage par dessus la map pour se repérer dessus
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ * @param map La map en cours d'édition
+ */
+void affiche_quadrillage (SDL_Renderer* ren, Map* map);
+
+/**
+ * Modifie la map avec la séléction actuelle
+ * @param map La map en cours d'édition
+ * @param x_souris_cases La position de la souris en cases sur la map
+ * @param y_souris_cases La position de la souris en cases sur la map
+ */
+void modif_case (Map* map, int x_souris_cases, int y_souris_cases);
+
 #endif

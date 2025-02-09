@@ -65,6 +65,8 @@ void ecran_niveaux (SDL_Renderer* ren, Musique* musique);
 
 /**
  * Tout est dans le titre !
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ * @param musique La structure contenant toutes les infos pour les musiques
  */
 void ecran_remerciements (SDL_Renderer* ren, Musique* musique);
 
@@ -73,13 +75,16 @@ void ecran_remerciements (SDL_Renderer* ren, Musique* musique);
 
 /**
  * Gère les évènements sur les boutons dans le menu musique
- * @param e L'évènement à gérer
- * @param buttons L'ensemble des boutons de la page
+ * @param musics L'ensemble des boutons de musiques de la page
+ * @param selections L'ensemble des boutons de selection de la page
+ * @param musique La structure contenant toutes les infos pour les musiques
  */
-void handle_events(SDL_Event* e, MusicButton musics[], SelectionButton selections[], Musique* musique);
+void handle_events(MusicButton musics[], SelectionButton selections[], Musique* musique);
 
 /**
- * 
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ * @param musics L'ensemble des boutons de musiques de la page
+ * @param selections L'ensemble des boutons de selection de la page
  */
 void draw_buttons(SDL_Renderer* renderer, MusicButton musics[], SelectionButton selections[]);
 

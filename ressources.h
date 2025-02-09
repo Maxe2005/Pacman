@@ -9,12 +9,14 @@
 #include "gestionGraphique.h"
 #include "audio.h"
 
-#define FEN_X 800
-#define FEN_Y 800
+#define FEN_X 1200
+#define FEN_Y 1000
 #define TAILLE_BANDEAU_HAUT 80
 #define MARGE_BANDEAU_HAUT 10
 #define PI 3.14159265358979323846
 #define HEADER_HEIGHT 100
+
+// les éléments ci-dessous sont définis dans le fichier menus.c mais aussi utilisés dans d'autres fichiers comme createur_map.c . Les mettre ici permet à tous les fichiers d'y acceder sans problème
 
 typedef struct {
     SDL_Rect rect;
