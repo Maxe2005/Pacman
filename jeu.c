@@ -28,6 +28,7 @@ int is_collision_pacman_ghost (SDL_Renderer* ren, Ghost* ghost, Pacman *pacman, 
             if (partie->nb_vies == 0) {
                 ecran_game_over(ren, partie, musique);
             } else {
+                placament_pacman_et_ghost(partie);
                 debut_jeu(ren, partie, musique);
             }
             return 2;
@@ -110,7 +111,7 @@ void nouvelle_partie (SDL_Renderer* ren, Musique* musique, int niveau) {
         }
         init_ghost(partie->ghosts[i], ren, i);
     }
-    
+    placament_pacman_et_ghost(partie);
     partie->nb_gums = compte_nb_gum(partie->map);
     debut_jeu (ren, partie, musique);
 }
@@ -135,7 +136,6 @@ void placament_pacman_et_ghost (Partie* partie){
 void debut_jeu (SDL_Renderer* ren, Partie* partie, Musique* musique){
     stopMusic();
     playSoundEffect(musique->pacman_song);
-    placament_pacman_et_ghost(partie);
     SDL_Color yellow = {255, 255, 0, 255};
     time_t start_time_song = time(NULL);
     int is_musique_commencee = 0;
