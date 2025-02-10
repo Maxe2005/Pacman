@@ -104,7 +104,6 @@ void ecran_musique (SDL_Renderer* ren, Musique* musique){
 
     int running = 1;
     SDL_Event e;
-    char touche_pressee;
     while (running) {
         SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
         SDL_RenderClear(ren);

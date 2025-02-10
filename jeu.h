@@ -44,11 +44,10 @@ void affiche_les_vies (SDL_Renderer* ren, SDL_Texture * skin_vies, const int nb_
  * @param ghost L'instance de structure de fantôme à tester
  * @param pacman Une instance de structure de joueur
  * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
- * @param running Le booleen qui peut arrêter la boucle principale
  * @param musique La structure contenant toutes les infos pour les musiques
  * @return 1 si collision avec un fantôme, 0 sinom
  */
-int is_collision_pacman_ghost (SDL_Renderer* ren, Ghost* ghost, Pacman *pacman, Partie* partie, int* running,Musique* musique);
+int is_collision_pacman_ghost (SDL_Renderer* ren, Ghost* ghost, Pacman *pacman, Partie* partie,Musique* musique);
 
 /**
  * Tout est dans le titre !

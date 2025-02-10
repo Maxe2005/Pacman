@@ -15,7 +15,7 @@ void affiche_les_vies (SDL_Renderer* ren, SDL_Texture * skin_vies, const int nb_
     }
 }
 
-int is_collision_pacman_ghost (SDL_Renderer* ren, Ghost* ghost, Pacman *pacman, Partie* partie, int* running, Musique* musique) {
+int is_collision_pacman_ghost (SDL_Renderer* ren, Ghost* ghost, Pacman *pacman, Partie* partie, Musique* musique) {
     if (abs(ghost->position_px_x - pacman->position_px_x) < ghost->taille_px/2 && abs(ghost->position_px_x - pacman->position_px_x) < pacman->taille_px/2
             && abs(ghost->position_px_y - pacman->position_px_y) < ghost->taille_px/2 && abs(ghost->position_px_y - pacman->position_px_y) < pacman->taille_px/2) {
         if (ghost->etat == ETAT_FRIGHTENED){
@@ -24,14 +24,13 @@ int is_collision_pacman_ghost (SDL_Renderer* ren, Ghost* ghost, Pacman *pacman, 
             partie->score += 200;
         } else { if (ghost->etat != ETAT_EATEN){
             partie->nb_vies--;
-            *running = 0;
             annimation_mort_pacman(ren, partie, musique, pacman);
             if (partie->nb_vies == 0) {
                 ecran_game_over(ren, partie, musique);
             } else {
-                placament_pacman_et_ghost(partie);
                 debut_jeu(ren, partie, musique);
             }
+            return 2;
         }}
         return 1;
     }
@@ -102,13 +101,16 @@ void nouvelle_partie (SDL_Renderer* ren, Musique* musique, int niveau) {
     partie->nb_vies = 3;
 
     // Initialisation ghosts
-    partie->ghosts = malloc(sizeof(Ghost) * 4);
+    partie->ghosts = malloc(sizeof(Ghost*) * 4);
     for (int i = 0; i < 4; i++) {
         partie->ghosts[i] = malloc(sizeof(Ghost));
+        if (partie->ghosts[i] == NULL) {
+            printf("Erreur : allocation échouée pour partie->ghosts[%d]\n", i);
+            exit(EXIT_FAILURE);
+        }
         init_ghost(partie->ghosts[i], ren, i);
     }
     
-    placament_pacman_et_ghost(partie);
     partie->nb_gums = compte_nb_gum(partie->map);
     debut_jeu (ren, partie, musique);
 }
@@ -133,6 +135,7 @@ void placament_pacman_et_ghost (Partie* partie){
 void debut_jeu (SDL_Renderer* ren, Partie* partie, Musique* musique){
     stopMusic();
     playSoundEffect(musique->pacman_song);
+    placament_pacman_et_ghost(partie);
     SDL_Color yellow = {255, 255, 0, 255};
     time_t start_time_song = time(NULL);
     int is_musique_commencee = 0;
@@ -268,10 +271,12 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie, Musique* musique){
             } else {
             if (partie->ghosts[i]->etat == ETAT_EATEN && partie->ghosts[i]->position_x == partie->ghosts[i]->target_x && partie->ghosts[i]->position_y == partie->ghosts[i]->target_y){
                 partie->ghosts[i]->etat_prioritaire = ETAT_GO_INSIDE_HOME;
-                //partie->ghosts[i]->etat = mode;
             } else {
                 avance_ghost(partie->ghosts[i], partie->map, partie->pacman, partie->ghosts[0]);
-                is_collision_pacman_ghost(ren, partie->ghosts[i], partie->pacman, partie, &running, musique);
+                if (is_collision_pacman_ghost(ren, partie->ghosts[i], partie->pacman, partie, musique) == 2){
+                    running = 0;
+                    return;
+                }
             }}}}
         }
 
