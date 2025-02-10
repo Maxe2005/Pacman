@@ -219,6 +219,9 @@ void ecran_remerciements (SDL_Renderer* ren, Musique* musique){
     const char* creditsText[] = {"Merci à tous ceux qui ont contribué ...",
                                 " ",
                                 " ",
+                                "Initiative du projet: José Mennesson"
+                                " ",
+                                " ",
                                 "Développeurs :",
                                 " ",
                                 "Maxence CHOISEL",
