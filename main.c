@@ -20,6 +20,8 @@ int main (int argc, char *argv[]){
     init_musiques_et_sons (musique);
     musiques_et_sons_default(musique);
 
+    init_font(fonts);
+
     ecran_acceuil(ren, musique);
 
     clear_musique(musique);

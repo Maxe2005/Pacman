@@ -16,6 +16,9 @@
 #define PI 3.14159265358979323846
 #define HEADER_HEIGHT 100
 
+#define NB_FONTS 3
+extern TTF_Font* fonts[NB_FONTS];
+
 // les éléments ci-dessous sont définis dans le fichier menus.c mais aussi utilisés dans d'autres fichiers comme createur_map.c . Les mettre ici permet à tous les fichiers d'y acceder sans problème
 
 typedef struct {

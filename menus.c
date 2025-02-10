@@ -344,13 +344,13 @@ void renderButton(SDL_Renderer *renderer, Button *button, SDL_Color color_text, 
             tmp_rect.h = button->rect.h + taille_bonus_y;
             tmp_rect.x = button->rect.x - taille_bonus_x/2;
             tmp_rect.y = button->rect.y - taille_bonus_y/2;
-            font = createFont("ressources/DejaVuSans-Bold.ttf", 30);
+            font = fonts[2];
         } else {
             tmp_rect.w = button->rect.w;
             tmp_rect.h = button->rect.h;
             tmp_rect.x = button->rect.x;
             tmp_rect.y = button->rect.y;
-            font = createFont("ressources/DejaVuSans-Bold.ttf", 25);
+            font = fonts[1];
         }
 
         SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);

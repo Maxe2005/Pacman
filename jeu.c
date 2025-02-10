@@ -1,8 +1,11 @@
 #include "jeu.h"
 
+TTF_Font* fonts[NB_FONTS] = {NULL};
 
-void init_font (TTF_Font* font[1]) {
+void init_font (TTF_Font* font[NB_FONTS]) {
     font[0] = createFont("ressources/DejaVuSans-Bold.ttf", 20); //Font de titres
+    font[1] = createFont("ressources/DejaVuSans-Bold.ttf", 25); //Font de bouton normal
+    font[2] = createFont("ressources/DejaVuSans-Bold.ttf", 30); //Font de bouton avec souris dessus
 }
 
 void affiche_les_vies (SDL_Renderer* ren, SDL_Texture * skin_vies, const int nb_vies) {
@@ -56,7 +59,7 @@ void affiche_ecran_jeu (SDL_Renderer* ren, Partie* partie) {
     char text_score[100];
     SDL_Color white = {255, 255, 255, 255};
     sprintf(text_score, "Score : %d - Niveau : %d",partie->score, partie->niveau);
-    printText(MARGE_BANDEAU_HAUT, MARGE_BANDEAU_HAUT, text_score, MARGE_BANDEAU_HAUT + 500, TAILLE_BANDEAU_HAUT - 2*MARGE_BANDEAU_HAUT, partie->font[0], white, ren);
+    printText(MARGE_BANDEAU_HAUT, MARGE_BANDEAU_HAUT, text_score, MARGE_BANDEAU_HAUT + 500, TAILLE_BANDEAU_HAUT - 2*MARGE_BANDEAU_HAUT, fonts[0], white, ren);
     
     affiche_les_vies(ren, partie->skin_vies, partie->nb_vies);
     affiche_map(partie->map, partie->tils, ren);
@@ -64,7 +67,6 @@ void affiche_ecran_jeu (SDL_Renderer* ren, Partie* partie) {
 
 void free_partie (Partie* partie) {
     free(partie->tils);
-    free(partie->font);
     free(partie->pacman);
     for (int i = 0; i < 4; i++) {free(partie->ghosts[i]);}
     free(partie->ghosts);
@@ -90,9 +92,6 @@ void nouvelle_partie (SDL_Renderer* ren, Musique* musique, int niveau) {
 
     partie->tils = malloc(sizeof(SDL_Texture*) * 4);
     init_tils(partie->tils, ren);
-
-    partie->font = malloc(sizeof(TTF_Font*) * 1);
-    init_font(partie->font);
 
     // Initialisation Pacman
     partie->pacman = malloc(sizeof(Pacman));
@@ -162,7 +161,7 @@ void debut_jeu (SDL_Renderer* ren, Partie* partie, Musique* musique){
         for (int i = 0; i < 4; i++) {
             affiche_ghost(partie->ghosts[i], ren);
         }
-        printText(ready_x, ready_y, "READY!", taille_ready_x, taille_ready_y, partie->font[0], yellow, ren);
+        printText(ready_x, ready_y, "READY!", taille_ready_x, taille_ready_y, fonts[0], yellow, ren);
         updateDisplay(ren);
 
         if (is_musique_commencee == 0 && current_time - start_time_song >= temps_avant_debut_musique) {
@@ -400,7 +399,7 @@ void ecran_game_over (SDL_Renderer* ren, Partie* partie, Musique* musique){
                 affiche_titre_et_score(ren, partie, "Game Over", "red");
                 is_bouton_start_visible = 0;
             } else {
-                affiche_bouton_start(ren, partie->font[0]);
+                affiche_bouton_start(ren, fonts[0]);
                 is_bouton_start_visible = 1;
             }
             start_time = current_time;
@@ -446,7 +445,7 @@ void ecran_victoire (SDL_Renderer* ren, Partie* partie, Musique* musique){
                 affiche_titre_et_score(ren, partie, "You Win", "green");
                 is_bouton_start_visible = 0;
             } else {
-                affiche_bouton_start(ren, partie->font[0]);
+                affiche_bouton_start(ren, fonts[0]);
                 is_bouton_start_visible = 1;
             }
             start_time = current_time;
@@ -499,9 +498,9 @@ void affiche_titre_et_score (SDL_Renderer* ren, Partie* partie, char *titre, cha
     }
     }
 
-    printText(titre_x, titre_y, titre, taille_titre_x, taille_titre_y, partie->font[0], couleur, ren);
+    printText(titre_x, titre_y, titre, taille_titre_x, taille_titre_y, fonts[0], couleur, ren);
     sprintf(text_score, "Score : %d",partie->score);
-    printText(score_x, score_y, text_score, taille_score_x, taille_score_y, partie->font[0], white, ren);
+    printText(score_x, score_y, text_score, taille_score_x, taille_score_y, fonts[0], white, ren);
 }
 
 void init_temps_modes_chase_scatter (int duree_mode_scatter[4], int duree_mode_chase[3], int *num_mode_max, int niveau){
