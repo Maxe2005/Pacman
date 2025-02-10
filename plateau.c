@@ -259,15 +259,22 @@ void freeMap (Map *map) {
 }
 
 
-void init_tils (SDL_Texture* tils[4], SDL_Renderer* ren){
+void init_tils (SDL_Texture* tils[11], SDL_Renderer* ren){
     tils[0] = loadTexture("ressources/wall.bmp", ren);
     tils[1] = loadTexture("ressources/gum.bmp", ren);
     tils[2] = loadTexture("ressources/bigGum.bmp", ren);
-    tils[3] = loadTexture("ressources/cherry.bmp", ren);
+    tils[3] = loadTexture("ressources/fruit/cherry.bmp", ren);
+    tils[4] = loadTexture("ressources/fruit/strawberry.bmp", ren);
+    tils[5] = loadTexture("ressources/fruit/orange.bmp", ren);
+    tils[6] = loadTexture("ressources/fruit/apple.bmp", ren);
+    tils[7] = loadTexture("ressources/fruit/melon.bmp", ren);
+    tils[8] = loadTexture("ressources/fruit/galaxian.bmp", ren);
+    tils[9] = loadTexture("ressources/fruit/Bell.bmp", ren);
+    tils[10] = loadTexture("ressources/fruit/key.bmp", ren);
 }
 
 
-void affiche_map (Map *map, SDL_Texture* tils[4], SDL_Renderer* ren){
+void affiche_map (Map *map, SDL_Texture* tils[11], SDL_Renderer* ren){
     if (map->type == MAP_TYPE_TILS) {
         affiche_map_tils(map, tils, ren);
     } else {
@@ -277,7 +284,7 @@ void affiche_map (Map *map, SDL_Texture* tils[4], SDL_Renderer* ren){
     }
 }
 
-void affiche_map_tils (Map *map, SDL_Texture* tils[4], SDL_Renderer* ren){
+void affiche_map_tils (Map *map, SDL_Texture* tils[11], SDL_Renderer* ren){
     for (int j = 0; j<map->y; j++){
         for (int i = 0; i<map->x; i++){
             if (map->contenu[j][i] == 1){
@@ -318,7 +325,7 @@ void drawArc(SDL_Renderer* renderer, const int centerX, const int centerY, const
     }
 }
 
-void affiche_map_draw (Map *map, SDL_Texture* tils[4], SDL_Renderer* ren){
+void affiche_map_draw (Map *map, SDL_Texture* tils[11], SDL_Renderer* ren){
     const int nb_pts = 12;
     const int thickness = 2;
     SDL_SetRenderDrawColor(ren, 0, 0, 255, 255);
@@ -529,7 +536,7 @@ void affiche_map_draw (Map *map, SDL_Texture* tils[4], SDL_Renderer* ren){
     }
 }
 
-void ajout_gum_dessin (int i, int j, Map *map, SDL_Texture* tils[4], SDL_Renderer* ren) {
+void ajout_gum_dessin (int i, int j, Map *map, SDL_Texture* tils[11], SDL_Renderer* ren) {
     renderTexture(tils[map->contenu[j][i] - 3], ren, ORIGINE_X + i*map->taille_case, ORIGINE_Y + j*map->taille_case, map->taille_case, map->taille_case);
 }
 
@@ -549,3 +556,5 @@ int compte_nb_gum (Map* map) {
     }
     return nb_gum;
 }
+
+

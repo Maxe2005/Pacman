@@ -11,6 +11,7 @@
 #define TEMPS_MODE_FRIGHTENED 11 // en secondes
 #define POURCENTAGE_FIN_FRIGHTENED 20
 
+
 typedef struct {
     Map* map;
     SDL_Texture** tils;
@@ -22,7 +23,9 @@ typedef struct {
     int nb_vies; // Le nombre de vies restantes au pacman/joueur
     int nb_ghosts; // Le nombre de ghost en circulation sur la map 
     int nb_gums; // Le nombre de gums restants sur la map
+    int nb_gum_consommee; // Le nombre de gums consommée
     int niveau; // Le niveau de la partie en cours
+    int fruit; // Numero du fruit qui affichera dans la map
 } Partie ;
 
 /**
@@ -118,7 +121,7 @@ void debut_jeu (SDL_Renderer* ren, Partie* partie, Musique* musique);
 void free_partie (Partie* partie);
 
 /**
- * Met à niveau le score si le pacman est sur <gum> ou <cherry>. Déclanche le mode <frightened> si <Big Gum> rencontré
+ * Met à niveau le score si le pacman est sur <gum> ou sur un fruit. Déclanche le mode <frightened> si <Big Gum> rencontré
  * @param partie La partie en cours
  * @return 1 Si le mode frightened vient d'être activé, 0 sinon
  */
@@ -149,5 +152,14 @@ void ecran_victoire (SDL_Renderer* ren, Partie* partie, Musique* musique);
  * @param niveau Le niveau actuel de la partie
  */
 void init_temps_modes_chase_scatter (int duree_mode_scatter[4], int duree_mode_chase[3], int *num_mode_max, int niveau);
+
+/**
+ * Initialise le fruit à afficher en fonction du niveau.
+ * Plus le niveau est élevé, plus il y a de fruits disponibles et la sélection se fait aléatoirement.
+ * @param niveau Le niveau actuel de la partie
+ * @param fruit Pointeur vers la variable qui recevra l'index du fruit sélectionné dans la map
+ */
+void init_fruit_map(int niveau, int *fruit);
+
 
 #endif

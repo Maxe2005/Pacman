@@ -61,7 +61,7 @@ Map init_map_tils ();
  * @param tils Le tableau vide à remplire
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  */
-void init_tils (SDL_Texture* tils[4], SDL_Renderer* ren);
+void init_tils (SDL_Texture* tils[11], SDL_Renderer* ren);
 
 
 /**
@@ -70,7 +70,7 @@ void init_tils (SDL_Texture* tils[4], SDL_Renderer* ren);
  * @param tils Le tableau contenant les textures des différents tils
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  */ 
-void affiche_map_tils (Map *map, SDL_Texture* tils[4], SDL_Renderer* ren);
+void affiche_map_tils (Map *map, SDL_Texture* tils[11], SDL_Renderer* ren);
 
 /**
  * Dessine sur le renderer un arc de cercle composé de points
@@ -109,7 +109,7 @@ void drawLineVertical (SDL_Renderer* renderer, const int x, const int y, const i
  * @param tils Le tableau contenant les textures des différents tils
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  */
-void affiche_map_draw (Map *map, SDL_Texture* tils[4], SDL_Renderer* ren);
+void affiche_map_draw (Map *map, SDL_Texture* tils[11], SDL_Renderer* ren);
 
 /**
  * Séléctionne le bon afficheur de map en fonction du type de map
@@ -117,7 +117,7 @@ void affiche_map_draw (Map *map, SDL_Texture* tils[4], SDL_Renderer* ren);
  * @param tils Le tableau contenant les textures des différents tils
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  */
-void affiche_map (Map *map, SDL_Texture* tils[4], SDL_Renderer* ren);
+void affiche_map (Map *map, SDL_Texture* tils[11], SDL_Renderer* ren);
 
 /**
  * Libère la mémoire disposée pour la map
@@ -133,7 +133,7 @@ void freeMap (Map *map);
  * @param tils Le tableau contenant les textures des différents tils
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  */
-void ajout_gum_dessin (int i, int j, Map *map, SDL_Texture* tils[4], SDL_Renderer* ren);
+void ajout_gum_dessin (int i, int j, Map *map, SDL_Texture* tils[11], SDL_Renderer* ren);
 
 /**
  * Un vrai opérateur modulo. Pas juste le remainder de '%'

@@ -25,6 +25,7 @@ int is_collision_pacman_ghost (SDL_Renderer* ren, Ghost* ghost, Pacman *pacman, 
             if (partie->nb_vies == 0) {
                 ecran_game_over(ren, partie, musique);
             } else {
+                placament_pacman_et_ghost(partie);
                 debut_jeu(ren, partie, musique);
             }
             return 2;
@@ -110,8 +111,10 @@ void nouvelle_partie (SDL_Renderer* ren, Musique* musique, int niveau) {
         }
         init_ghost(partie->ghosts[i], ren, i);
     }
-    
+    placament_pacman_et_ghost(partie);
     partie->nb_gums = compte_nb_gum(partie->map);
+    partie->nb_gum_consommee = 0;
+    partie->fruit = 6;
     debut_jeu (ren, partie, musique);
 }
 
@@ -135,7 +138,7 @@ void placament_pacman_et_ghost (Partie* partie){
 void debut_jeu (SDL_Renderer* ren, Partie* partie, Musique* musique){
     stopMusic();
     playSoundEffect(musique->pacman_song);
-    placament_pacman_et_ghost(partie);
+    
     SDL_Color yellow = {255, 255, 0, 255};
     time_t start_time_song = time(NULL);
     int is_musique_commencee = 0;
@@ -193,9 +196,10 @@ void debut_jeu (SDL_Renderer* ren, Partie* partie, Musique* musique){
 void boucle_de_jeu(SDL_Renderer* ren, Partie* partie, Musique* musique){
     char dir;
     int running = 1;
+    
     int is_mode_frightened = 0; // Booleen pour savoir si le mode frightened est actif
     time_t start_time_frightened = time(NULL);
-
+    
     int duree_mode_scatter[4] = {0}; // Initialisation avec 0
     int duree_mode_chase[3] = {0};   // Initialisation avec 0
     int num_mode_max;
@@ -203,7 +207,7 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie, Musique* musique){
     int num_mode = 0; // Le n ème duo de modes scatter et chase
     int mode = ETAT_SCATTER;
     int temps_mode = duree_mode_scatter[num_mode];
-
+    
     // Blinky est déjà en dehors de la base des fantômes au début contrairement aux autres
     partie->ghosts[0]->etat = mode;
     partie->ghosts[0]->etat_prioritaire = mode;
@@ -223,7 +227,11 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie, Musique* musique){
             affiche_ghost(partie->ghosts[i], ren);
         }
         updateDisplay(ren);
-
+        if (partie->nb_gum_consommee == 50 || partie->nb_gum_consommee == 100){
+            int fruit_a_afficher;
+            init_fruit_map(partie->niveau, &fruit_a_afficher);
+            partie->map->contenu[partie->map->position_maison_ghosts_y + 6][partie->map->position_maison_ghosts_x] = fruit_a_afficher;
+        }
         // Gestion des personnages (pacman et ghosts)
         avance_pacman(partie->pacman, partie->map);
         if (update_score(partie) == 1){
@@ -349,21 +357,51 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie, Musique* musique){
     }
 }
 
+
 int update_score (Partie* partie){
     if (partie->map->contenu[partie->pacman->position_y][partie->pacman->position_x] == 4){
         partie->score += 10;
         partie->nb_gums--;
+        partie->nb_gum_consommee++;
         partie->map->contenu[partie->pacman->position_y][partie->pacman->position_x] = 0; //Vider la case car le <Gum> à été consommé
     } else {
     if (partie->map->contenu[partie->pacman->position_y][partie->pacman->position_x] == 6){
         partie->score += 100;
         partie->map->contenu[partie->pacman->position_y][partie->pacman->position_x] = 0; //Vider la case car le <Cherry> à été consommé
     } else {
+    if (partie->map->contenu[partie->pacman->position_y][partie->pacman->position_x] == 7){
+        partie->score += 300;
+        partie->map->contenu[partie->pacman->position_y][partie->pacman->position_x] = 0; //Vider la case car le <Strawberry> à été consommé
+    } else {
+    if (partie->map->contenu[partie->pacman->position_y][partie->pacman->position_x] == 8){
+        partie->score += 500;
+        partie->map->contenu[partie->pacman->position_y][partie->pacman->position_x] = 0; //Vider la case car le <Orange> à été consommé
+    } else {
+    if (partie->map->contenu[partie->pacman->position_y][partie->pacman->position_x] == 9){
+        partie->score += 700;
+        partie->map->contenu[partie->pacman->position_y][partie->pacman->position_x] = 0; //Vider la case car le <Apple> à été consommé
+    } else {
+    if (partie->map->contenu[partie->pacman->position_y][partie->pacman->position_x] == 10){
+        partie->score += 1000;
+        partie->map->contenu[partie->pacman->position_y][partie->pacman->position_x] = 0; //Vider la case car le <melon> à été consommé
+    } else {
+    if (partie->map->contenu[partie->pacman->position_y][partie->pacman->position_x] ==11){
+        partie->score += 2000;
+        partie->map->contenu[partie->pacman->position_y][partie->pacman->position_x] = 0; //Vider la case car le <galaxian> à été consommé
+    } else {
+    if (partie->map->contenu[partie->pacman->position_y][partie->pacman->position_x] == 12){
+        partie->score += 3000;
+        partie->map->contenu[partie->pacman->position_y][partie->pacman->position_x] = 0; //Vider la case car le <Bell> à été consommé
+    } else {
+    if (partie->map->contenu[partie->pacman->position_y][partie->pacman->position_x] == 13){
+        partie->score += 5000;
+        partie->map->contenu[partie->pacman->position_y][partie->pacman->position_x] = 0; //Vider la case car le <key> à été consommé
+    } else {
     if (partie->map->contenu[partie->pacman->position_y][partie->pacman->position_x] == 5){ // <Big_Gum> consommé
         partie->map->contenu[partie->pacman->position_y][partie->pacman->position_x] = 0;
         // Ici démare le mode <frightened>
         return 1;
-    }}}
+    }}}}}}}}}}
     return 0;
 }
 
@@ -535,3 +573,14 @@ void init_temps_modes_chase_scatter (int duree_mode_scatter[4], int duree_mode_c
     *num_mode_max = taille_scatter;
 }
 
+
+void init_fruit_map(int niveau, int *fruit) {
+    int fruits_dispo[8]; 
+    int nb_fruits = (niveau > 8) ? 8 : niveau; // Max 8 fruits
+    
+    for (int i = 0; i < nb_fruits; i++) {
+        fruits_dispo[i] = 6 + i;  // Décalage : cherry commence à 6 au lieu de 3
+    }
+
+    *fruit = fruits_dispo[rand() % nb_fruits]; // Sélection aléatoire
+}
