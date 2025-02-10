@@ -217,6 +217,7 @@ void boucle_de_jeu(SDL_Renderer* ren, Partie* partie, Audio* audio){
     while (running){
         current_time = time(NULL);
         // Affichage
+        SDL_Delay(30);
         affiche_ecran_jeu(ren, partie);
         affiche_pacman(partie->pacman, ren);
         for (int i = 0; i < 4; i++) {

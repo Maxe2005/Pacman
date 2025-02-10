@@ -5,7 +5,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 
-#define NB_MUSIQUES 6
+#define NB_MUSIQUES 7
 #define NB_SONS 6
 
 typedef struct {

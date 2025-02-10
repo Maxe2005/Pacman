@@ -117,7 +117,8 @@ void draw_buttons(SDL_Renderer* renderer, MusicButton musics[], SelectionButton 
  * Affiche une ligne de texte
  * @param renderer Un pointeur sur une structure contenant l'état du rendu
  * @param ligne La ligne à afficher
+ * @param font la police
  */
-void renderTexte(SDL_Renderer *renderer, Ligne_texte *ligne);
+void renderTexte(SDL_Renderer *renderer, Ligne_texte *ligne,TTF_Font *font);
 
 #endif

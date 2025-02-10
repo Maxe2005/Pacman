@@ -274,6 +274,7 @@ void ecran_remerciements (SDL_Renderer* ren, Audio* audio){
     int scroll_offset = 0; // Décalage vertical du scrolling
     int running = 1;
     SDL_Event event;
+    TTF_Font * font = createFont("ressources/Chewy-Regular.ttf", 30);
 
     while (running) {
         SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
@@ -283,7 +284,7 @@ void ecran_remerciements (SDL_Renderer* ren, Audio* audio){
         for (int i = 0; i < nb_lignes; i++) {
             SDL_Rect original_rect = lignes[i].rect;
             lignes[i].rect.y -= scroll_offset; // Appliquer le scroll
-            renderTexte(ren, &(lignes[i]));
+            renderTexte(ren, &(lignes[i]),font);
             lignes[i].rect = original_rect; // Rétablir la position originale
         }
         updateDisplay(ren);
@@ -362,11 +363,10 @@ void renderButton(SDL_Renderer *renderer, Button *button, const char* texte, SDL
     }
 }
 
-void renderTexte(SDL_Renderer *renderer, Ligne_texte *ligne) {
+void renderTexte(SDL_Renderer *renderer, Ligne_texte *ligne,TTF_Font *font) {
     if (ligne->rect.y > HEADER_HEIGHT + 10 && ligne->rect.y + ligne->rect.h/2 < FEN_Y) {
         //TTF_Font * font = createFont("ressources/DejaVuSans-Bold.ttf", 25);
         SDL_Color white = {255, 255, 255, 255};
-        TTF_Font * font = createFont("ressources/Chewy-Regular.ttf", 30);
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderFillRect(renderer, &ligne->rect);
 

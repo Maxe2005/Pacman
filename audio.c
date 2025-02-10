@@ -38,6 +38,10 @@ void init_audios_et_sons(Audio* audio) {
     audio->musiques_src[5]->musique = loadMusic("ressources/musiques/Sans_musique.mp3");
     audio->musiques_src[5]->nom="Sans_musique";
 
+    audio->musiques_src[6] = malloc(sizeof(Musique));
+    audio->musiques_src[6]->musique = loadMusic("ressources/musiques/DAMSO.mp3");
+    audio->musiques_src[6]->nom="DAMSO";
+
     audio->sons_src[0] = malloc(sizeof(Son));
     audio->sons_src[0]->son = loadSoundEffect("ressources/sons/rattle.wav");
     audio->sons_src[0]->nom="rattle";
