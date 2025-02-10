@@ -1,5 +1,8 @@
 #include "plateau.h"
 
+int ORIGINE_X = 10;
+int ORIGINE_Y = TAILLE_BANDEAU_HAUT;
+
 void save_map_text(const char *filename, Map *map) {
     char path[100] = "ressources/maps/";
     strcat(path, filename);
@@ -258,14 +261,12 @@ void freeMap (Map *map) {
     free(map->contenu);
 }
 
-
 void init_tils (SDL_Texture* tils[4], SDL_Renderer* ren){
     tils[0] = loadTexture("ressources/wall.bmp", ren);
     tils[1] = loadTexture("ressources/gum.bmp", ren);
     tils[2] = loadTexture("ressources/bigGum.bmp", ren);
     tils[3] = loadTexture("ressources/cherry.bmp", ren);
 }
-
 
 void affiche_map (Map *map, SDL_Texture* tils[4], SDL_Renderer* ren){
     if (map->type == MAP_TYPE_TILS) {

@@ -59,6 +59,11 @@ void ecran_acceuil (SDL_Renderer* ren, Musique* musique){
             ecran_remerciements(ren, musique);
             running = 0;
         }
+        if (lancement == 'c'){
+            playSoundEffect(musique->select);
+            main_loop_createur_map(ren, musique);
+            running = 0;
+        }
     }
 }
 
@@ -70,6 +75,7 @@ void ecran_musique (SDL_Renderer* ren, Musique* musique){
     int button_select_width = 300; 
 
     // Boutons de musique
+    char text[NB_MUSIQUES][20];
     MusicButton musicButtons[NB_MUSIQUES];
     for (int i = 0; i < NB_MUSIQUES; i++) {
         musicButtons[i].button_base.rect.x = (int)(FEN_X*3/4 - BUTTON_WIDTH/2);
@@ -78,9 +84,8 @@ void ecran_musique (SDL_Renderer* ren, Musique* musique){
         musicButtons[i].button_base.rect.h = button_height;
         musicButtons[i].button_base.hovered = 0;
         musicButtons[i].music = musique->musiques_src[i];
-        musicButtons[i].label = malloc(20 * sizeof(char));  // Allouer de la mémoire
-        if (musicButtons[i].label == NULL) {printf("Erreur d'allocation mémoire\n"); exit(1);}
-        sprintf(musicButtons[i].label, "Musique %d", i + 1);
+        snprintf(text[i], sizeof(text), "Musique %d", i + 1);
+        musicButtons[i].button_base.label = text[i];
     }
 
     // Boutons de sélection de catégorie
@@ -93,9 +98,9 @@ void ecran_musique (SDL_Renderer* ren, Musique* musique){
         selectionButtons[i].button_base.hovered = 0;
     }
     selectionButtons[0].type = SELECTION_ACCUEIL;
-    selectionButtons[0].label = "Musique Accueil";
+    selectionButtons[0].button_base.label = "Musique Accueil";
     selectionButtons[1].type = SELECTION_JEU;
-    selectionButtons[1].label = "Musique Jeu";
+    selectionButtons[1].button_base.label = "Musique Jeu";
 
     int running = 1;
     SDL_Event e;
@@ -111,7 +116,7 @@ void ecran_musique (SDL_Renderer* ren, Musique* musique){
                 running = 0;
             }
             if (e.type == SDL_MOUSEBUTTONDOWN) {
-                handle_events(&e, musicButtons, selectionButtons, musique);
+                handle_events(musicButtons, selectionButtons, musique);
             }
             if (e.type == SDL_KEYUP) {
                 if (e.key.keysym.sym == SDLK_BACKSPACE){
@@ -125,6 +130,7 @@ void ecran_musique (SDL_Renderer* ren, Musique* musique){
 }
 
 void ecran_niveaux (SDL_Renderer* ren, Musique* musique){
+    char text[LEVEL_COUNT][10];
     Button_niveau buttons[LEVEL_COUNT];
     for (int i = 0; i < LEVEL_COUNT; i++) {
         buttons[i].button_base.rect.x = (FEN_X - BUTTON_WIDTH) / 2;
@@ -133,6 +139,8 @@ void ecran_niveaux (SDL_Renderer* ren, Musique* musique){
         buttons[i].button_base.rect.h = BUTTON_HEIGHT;
         buttons[i].level = i + 1;
         buttons[i].button_base.hovered = 0;
+        snprintf(text[i], sizeof(text), "Level %d", buttons[i].level);
+        buttons[i].button_base.label = text[i];
     }
 
     int scroll_offset = 0; // Décalage vertical du scrolling
@@ -143,12 +151,10 @@ void ecran_niveaux (SDL_Renderer* ren, Musique* musique){
         SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
         SDL_RenderClear(ren);
         renderHeader(ren, "Niveaux");
-        char text[10];
         for (int i = 0; i < LEVEL_COUNT; i++) {
             SDL_Rect original_rect = buttons[i].button_base.rect;
             buttons[i].button_base.rect.y -= scroll_offset; // Appliquer le scroll
-            sprintf(text, "Level %d", buttons[i].level); // Affichage du numéro du niveau
-            renderButton(ren, &(buttons[i].button_base), text, (SDL_Color){255, 255, 255, 255}, (SDL_Color){255, 0, 0, 255}, (SDL_Color){0, 0, 255, 255});
+            renderButton(ren, &(buttons[i].button_base), (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 255, 255}, (SDL_Color){255, 0, 0, 255});
             buttons[i].button_base.rect = original_rect; // Rétablir la position originale
         }
         updateDisplay(ren);
@@ -242,7 +248,7 @@ void ecran_remerciements (SDL_Renderer* ren, Musique* musique){
                                 " ",
                                 "Développeur physique du jeu : Maxence CHOISEL",
                                 " ",
-                                "Développeur des cartes (level design) : Maxence CHOISEL",
+                                "Développeur des cartes (level design) : ","Maxence CHOISEL",
                                 " ",
                                 " ",
                                 "Designer graphique  : Mohammed DAIB",
@@ -254,19 +260,21 @@ void ecran_remerciements (SDL_Renderer* ren, Musique* musique){
                                 " ",
                                 "Testeur Quality Assurance : Maxence CHOISEL",
                                 " ",
-                                "Développeur optimisation des performances : Maxence CHOISEL",
+                                "Développeur optimisation des performances :","Maxence CHOISEL",
                                 " ",
                                 "..."};
 
     int nb_lignes = sizeof(creditsText)/sizeof(const char*);
-    Ligne_texte lignes[nb_lignes];
+    Button lignes[nb_lignes];
     for (int i = 0; i < nb_lignes; i++) {
         lignes[i].rect.x = margin_x;
         lignes[i].rect.y = HEADER_HEIGHT + 40 + space_entre_lignes + i * (taille_ligne_y + space_entre_lignes);
         lignes[i].rect.w = FEN_X - 2*margin_x;
         lignes[i].rect.h = taille_ligne_y;
-        lignes[i].texte = creditsText[i];
+        lignes[i].label = creditsText[i];
+        lignes[i].hovered = 0;
     }
+    // TTF_Font * font = createFont("ressources/Chewy-Regular.ttf", 30);
 
     int scroll_offset = 0; // Décalage vertical du scrolling
     int running = 1;
@@ -280,7 +288,7 @@ void ecran_remerciements (SDL_Renderer* ren, Musique* musique){
         for (int i = 0; i < nb_lignes; i++) {
             SDL_Rect original_rect = lignes[i].rect;
             lignes[i].rect.y -= scroll_offset; // Appliquer le scroll
-            renderTexte(ren, &(lignes[i]));
+            renderButton(ren, &(lignes[i]), (SDL_Color){255, 255, 255, 255}, (SDL_Color){0, 0, 0, 255}, (SDL_Color){0, 0, 0, 255});
             lignes[i].rect = original_rect; // Rétablir la position originale
         }
         updateDisplay(ren);
@@ -323,53 +331,33 @@ void affiche_bouton_start(SDL_Renderer* ren, TTF_Font * font){
     printText(titre_x, titre_y, "PRESS SPACE", taille_titre_x, taille_titre_y, font, red, ren);
 }
 
-void renderButton(SDL_Renderer *renderer, Button *button, const char* texte, SDL_Color color_text, SDL_Color color1, SDL_Color color2) {
+void renderButton(SDL_Renderer *renderer, Button *button, SDL_Color color_text, SDL_Color colorh0, SDL_Color colorh1) {
     if (button->rect.y > HEADER_HEIGHT + BUTTON_MARGIN/2 && button->rect.y + button->rect.h/2 < FEN_Y) {
-        TTF_Font * font = createFont("ressources/DejaVuSans-Bold.ttf", 25);
-        SDL_Color color = button->hovered ? color1 : color2;
-        int tmp_width;
-        int tmp_height;
-        int tmp_x;
-        int tmp_y;
+        TTF_Font * font;
+        SDL_Color color = button->hovered ? colorh1 : colorh0;
+        SDL_Rect tmp_rect;
         if (button->hovered) {
-            int taille_bonus_x = 10;
-            int taille_bonus_y = 10;
-            tmp_width = button->rect.w + taille_bonus_x;
-            tmp_height = button->rect.h + taille_bonus_y;
-            tmp_x = button->rect.x - taille_bonus_x/2;
-            tmp_y = button->rect.y - taille_bonus_y/2;
+            int taille_bonus_x = 20;
+            int taille_bonus_y = 20;
+            tmp_rect.w = button->rect.w + taille_bonus_x;
+            tmp_rect.h = button->rect.h + taille_bonus_y;
+            tmp_rect.x = button->rect.x - taille_bonus_x/2;
+            tmp_rect.y = button->rect.y - taille_bonus_y/2;
+            font = fonts[2];
         } else {
-            tmp_width = button->rect.w;
-            tmp_height = button->rect.h;
-            tmp_x = button->rect.x;
-            tmp_y = button->rect.y;
+            tmp_rect.w = button->rect.w;
+            tmp_rect.h = button->rect.h;
+            tmp_rect.x = button->rect.x;
+            tmp_rect.y = button->rect.y;
+            font = fonts[1];
         }
 
         SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
-        SDL_RenderFillRect(renderer, &button->rect);
+        SDL_RenderFillRect(renderer, &tmp_rect);
 
-        SDL_Surface *surface = TTF_RenderText_Solid(font, texte, color_text);
+        SDL_Surface *surface =  TTF_RenderUTF8_Solid(font, button->label, color_text);
         SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_Rect textRect = {tmp_x + tmp_width/2 - surface->w/2, tmp_y + tmp_height/2 - surface->h/2, surface->w, surface->h};
-
-        SDL_RenderCopy(renderer, texture, NULL, &textRect);
-
-        SDL_FreeSurface(surface);
-        SDL_DestroyTexture(texture);
-    }
-}
-
-void renderTexte(SDL_Renderer *renderer, Ligne_texte *ligne) {
-    if (ligne->rect.y > HEADER_HEIGHT + 10 && ligne->rect.y + ligne->rect.h/2 < FEN_Y) {
-        //TTF_Font * font = createFont("ressources/DejaVuSans-Bold.ttf", 25);
-        SDL_Color white = {255, 255, 255, 255};
-        TTF_Font * font = createFont("ressources/Chewy-Regular.ttf", 30);
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderFillRect(renderer, &ligne->rect);
-
-        SDL_Surface *surface = TTF_RenderUTF8_Solid(font, ligne->texte, white);
-        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_Rect textRect = {ligne->rect.x + ligne->rect.w/2 - surface->w/2, ligne->rect.y + ligne->rect.h/2 - surface->h/2, surface->w, surface->h};
+        SDL_Rect textRect = {tmp_rect.x + tmp_rect.w/2 - surface->w/2, tmp_rect.y + tmp_rect.h/2 - surface->h/2, surface->w, surface->h};
 
         SDL_RenderCopy(renderer, texture, NULL, &textRect);
 
@@ -386,7 +374,7 @@ void renderHeader(SDL_Renderer *renderer, char *titre) {
     SDL_RenderFillRect(renderer, &header);
 
     // Texte "Sélection du niveau"
-    SDL_Surface *surface = TTF_RenderText_Solid(font, titre, (SDL_Color){255, 255, 255, 255});
+    SDL_Surface *surface = TTF_RenderUTF8_Solid(font, titre, (SDL_Color){255, 255, 255, 255});
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_Rect textRect = {FEN_X / 2 - surface->w / 2, HEADER_HEIGHT / 2 - surface->h / 2, surface->w, surface->h};
     
@@ -396,7 +384,7 @@ void renderHeader(SDL_Renderer *renderer, char *titre) {
     SDL_DestroyTexture(texture);
 }
 
-void handle_events(SDL_Event* e, MusicButton musics[], SelectionButton selections[], Musique* musique) {
+void handle_events(MusicButton musics[], SelectionButton selections[], Musique* musique) {
     int x, y;
     SDL_GetMouseState(&x, &y);
 
@@ -449,7 +437,7 @@ void draw_buttons(SDL_Renderer* renderer, MusicButton musics[], SelectionButton 
 
     // Dessiner les boutons de musique
     for (int i = 0; i < NB_MUSIQUES; i++) {
-        renderButton(renderer, &(musics[i].button_base), musics[i].label, color_texte, color_touch_musics, color_base_musics);
+        renderButton(renderer, &(musics[i].button_base), color_texte, color_base_musics, color_touch_musics);
     }
 
     // Dessiner les boutons de sélection de catégorie
@@ -459,7 +447,7 @@ void draw_buttons(SDL_Renderer* renderer, MusicButton musics[], SelectionButton 
         } else {
             selections[i].button_base.hovered = 0;
         }
-        renderButton(renderer, &(selections[i].button_base), selections[i].label, color_texte, color_touch_select, color_base_select);
+        renderButton(renderer, &(selections[i].button_base), color_texte, color_base_select, color_touch_select);
     }
 }
 

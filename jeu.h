@@ -16,7 +16,6 @@ typedef struct {
     SDL_Texture** tils;
     Pacman* pacman;
     Ghost** ghosts;
-    TTF_Font** font;
     SDL_Texture * skin_vies;
     unsigned int score;
     int nb_vies; // Le nombre de vies restantes au pacman/joueur

@@ -3,10 +3,14 @@
 
 #include "ressources.h"
 
-#define ORIGINE_X 10
-#define ORIGINE_Y TAILLE_BANDEAU_HAUT
+//#define ORIGINE_X 10
+//#define ORIGINE_Y TAILLE_BANDEAU_HAUT
+
 #define MAP_TYPE_DESSIN 1
 #define MAP_TYPE_TILS 2
+
+extern int ORIGINE_X;
+extern int ORIGINE_Y;
 
 typedef struct {
     int x; // Nombre de colones de la map
