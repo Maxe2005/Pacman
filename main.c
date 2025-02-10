@@ -15,14 +15,14 @@ int main (int argc, char *argv[]){
     SDL_Window* window = createWindow("Pacman C²HAMD", FEN_X, FEN_Y);
     SDL_Renderer* ren = createRenderer(window);
 
-    Musique* musique = malloc(sizeof(Musique));
+    Audio* audio = malloc(sizeof(Audio));
 
-    init_musiques_et_sons (musique);
-    musiques_et_sons_default(musique);
+    init_audios_et_sons (audio);
+    audios_et_sons_default(audio);
 
-    ecran_acceuil(ren, musique);
+    ecran_acceuil(ren, audio);
 
-    clear_musique(musique);
+    clear_audio(audio);
     QuitSDL(window,ren);
     return 0;
 }

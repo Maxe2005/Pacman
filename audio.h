@@ -5,21 +5,36 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 
-#define NB_MUSIQUES 4
+#define NB_MUSIQUES 6
 #define NB_SONS 6
 
 typedef struct {
-    Mix_Music* musiques_src[NB_MUSIQUES];
-    Mix_Chunk* sons_src[NB_SONS];
-    Mix_Music* musique_accueil;
-    Mix_Music* musique_jeu;
-    Mix_Music* musique_super_mode;
-    Mix_Chunk* eat_ghost;
-    Mix_Chunk* pacman_song;
-    Mix_Chunk* game_over;
-    Mix_Chunk* pacman_death;
-    Mix_Chunk* select;
+    Mix_Music* musique;
+    char* nom;
 } Musique ;
+
+typedef struct {
+    Mix_Chunk* son;
+    char* nom;
+} Son ;
+
+typedef struct {
+    Musique* musiques_src[NB_MUSIQUES];
+    Son* sons_src[NB_SONS];
+    Musique* musique_accueil;
+    Musique* musique_jeu;
+    Musique* musique_super_mode;
+    Son* eat_ghost;
+    Son* pacman_song;
+    Son* game_over;
+    Son* pacman_death;
+    Son* select;
+} Audio ;
+
+
+
+
+
 
 /**
  * Initialise le module SDL_mixer
@@ -28,47 +43,47 @@ int init_audio();
 
 
 /**
- * Initialise les différentes paths des musiques et sons disponibles
- * @param musique La structure contenant toutes les infos pour les musiques
+ * Initialise les différentes paths des audios et sons disponibles
+ * @param audio La structure contenant toutes les infos pour les audios
  */
-void init_musiques_et_sons (Musique* musique);
+void init_audios_et_sons (Audio* audio);
 
 /**
- * Libère la mémoire des paths des musiques et sons
- * @param musique La structure contenant toutes les infos pour les musiques
+ * Libère la mémoire des paths des audios et sons
+ * @param audio La structure contenant toutes les infos pour les audios
  */
-void liberer_musiques_et_sons(Musique* musique);
+void liberer_audios_et_sons(Audio* audio);
 
 /**
- * Initialise les musiques et les sons du jeu par défault
- * @param musique La structure contenant toutes les infos pour les musiques
+ * Initialise les audios et les sons du jeu par défault
+ * @param audio La structure contenant toutes les infos pour les audios
  */
-void musiques_et_sons_default (Musique* musique);
+void audios_et_sons_default (Audio* audio);
 
 /**
- * Fonction pour charger une musique
+ * Fonction pour charger une audio
  * @param filename Le path vers le fichier mp3 à jouer
  */
 Mix_Music* loadMusic(const char *filename);
 
 /**
- * Fonction pour jouer une musique
- * @param music La musique déjà chargée à jouer
+ * Fonction pour jouer une audio
+ * @param music La audio déjà chargée à jouer
  */
-void playMusic(Mix_Music *music);
+void playMusic(Musique *music);
 
 /**
- * Fonction pour mettre en pause la musique
+ * Fonction pour mettre en pause la audio
  */
 void pauseMusic();
 
 /**
- * Fonction pour reprendre une musique
+ * Fonction pour reprendre une audio
  */
 void reprendreMusic();
 
 /**
- * Fonction pour arrêter complètement une musique si elle est jouée
+ * Fonction pour arrêter complètement une audio si elle est jouée
  */
 void stopMusic();
 
@@ -82,7 +97,7 @@ Mix_Chunk * loadSoundEffect(const char *filename);
  * Fonction pour jouer un effet sonore
  * @param soundEffect L'effet sonore déjà chargé
  */
-void playSoundEffect(Mix_Chunk *soundEffect);
+void playSoundEffect(Son *soundEffect);
 
 /**
  * Fonction pour libérer l'espace mémoire de l'effet sonore
@@ -91,9 +106,9 @@ void playSoundEffect(Mix_Chunk *soundEffect);
 void freeSoundEffect(Mix_Chunk *soundEffect);
 
 /**
- * Nettoie tout l'espace de musique
- * @param musique La structure contenant toutes les infos pour les musiques
+ * Nettoie tout l'espace de audio
+ * @param audio La structure contenant toutes les infos pour les audios
  */
-void clear_musique (Musique* musique);
+void clear_audio (Audio* audio);
 
 #endif

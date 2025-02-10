@@ -45,19 +45,19 @@ void affiche_les_vies (SDL_Renderer* ren, SDL_Texture * skin_vies, const int nb_
  * @param ghost L'instance de structure de fantôme à tester
  * @param pacman Une instance de structure de joueur
  * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
- * @param musique La structure contenant toutes les infos pour les musiques
+ * @param audio La structure contenant toutes les infos pour les audios
  * @return 1 si collision avec un fantôme, 0 sinom
  */
-int is_collision_pacman_ghost (SDL_Renderer* ren, Ghost* ghost, Pacman *pacman, Partie* partie,Musique* musique);
+int is_collision_pacman_ghost (SDL_Renderer* ren, Ghost* ghost, Pacman *pacman, Partie* partie,Audio* audio);
 
 /**
  * Tout est dans le titre !
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
- * @param musique La structure contenant toutes les infos pour les musiques
+ * @param audio La structure contenant toutes les infos pour les audios
  * @param pacman Une instance de structure de joueur
  */
-void annimation_mort_pacman(SDL_Renderer* ren, Partie* partie, Musique* musique, Pacman* pacman);
+void annimation_mort_pacman(SDL_Renderer* ren, Partie* partie, Audio* audio, Pacman* pacman);
 
 /**
  * Efface et affiche sur le renderer l'écran de jeu
@@ -69,10 +69,10 @@ void affiche_ecran_jeu (SDL_Renderer* ren, Partie* partie);
 /**
  * Début du lancement du jeu
  * @param ren Un pointeur sur une structure contenant l'état du rendu
- * @param musique La structure contenant toutes les infos pour les musiques
+ * @param audio La structure contenant toutes les infos pour les audios
  * @param niveau Le niveau de la partie à créer
  */
-void nouvelle_partie (SDL_Renderer* ren,Musique* musique, int niveau);
+void nouvelle_partie (SDL_Renderer* ren,Audio* audio, int niveau);
 
 /**
  * Affiche sur le renderer le logo
@@ -85,9 +85,9 @@ void affiche_logo (SDL_Renderer* ren, SDL_Texture* logo);
  * Tout est dans le titre !
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
- * @param musique La structure contenant toutes les infos pour les musiques
+ * @param audio La structure contenant toutes les infos pour les audios
  */
-void ecran_game_over (SDL_Renderer* ren, Partie* partie, Musique* musique);
+void ecran_game_over (SDL_Renderer* ren, Partie* partie, Audio* audio);
 
 /**
  * Place les pacman et les fantômes à leur position de départ avant le début de la partie
@@ -99,17 +99,17 @@ void placament_pacman_et_ghost (Partie* partie);
  * La boucle qui tourne durant toute la partie
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
- * @param musique La structure contenant toutes les infos pour les musiques
+ * @param audio La structure contenant toutes les infos pour les audios
  */
-void boucle_de_jeu(SDL_Renderer* ren, Partie* partie,Musique* musique);
+void boucle_de_jeu(SDL_Renderer* ren, Partie* partie,Audio* audio);
 
 /**
  * Début du lancement du jeu
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
- * @param musique La structure contenant toutes les infos pour les musiques
+ * @param audio La structure contenant toutes les infos pour les audios
  */
-void debut_jeu (SDL_Renderer* ren, Partie* partie, Musique* musique);
+void debut_jeu (SDL_Renderer* ren, Partie* partie, Audio* audio);
 
 /**
  * Libère la mémoire réservé à la partie
@@ -137,9 +137,9 @@ void affiche_titre_et_score (SDL_Renderer* ren, Partie* partie, char *titre, cha
  * Tout est dans le titre !
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
- * @param musique La structure contenant toutes les infos pour les musiques
+ * @param audio La structure contenant toutes les infos pour les audios
  */
-void ecran_victoire (SDL_Renderer* ren, Partie* partie, Musique* musique);
+void ecran_victoire (SDL_Renderer* ren, Partie* partie, Audio* audio);
 
 /**
  * Initialise les durées des différents modes scatter et chase en fonction du niveau

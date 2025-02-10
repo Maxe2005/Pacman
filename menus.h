@@ -36,7 +36,7 @@ typedef enum {
 
 typedef struct {
     Button button_base;
-    Mix_Music* music;
+    Musique* music;
     char* label;
 } MusicButton;
 
@@ -54,9 +54,9 @@ typedef struct {
 /**
  * Début du lancement du jeu
  * @param ren Un pointeur sur une structure contenant l'état du rendu
- * @param musique La structure contenant toutes les infos pour les musiques
+ * @param audio La structure contenant toutes les infos pour les audios
  */
-void ecran_acceuil (SDL_Renderer* ren, Musique* musique);
+void ecran_acceuil (SDL_Renderer* ren, Audio* audio);
 
 /**
  * Affiche sur le renderer le bouton start
@@ -66,23 +66,23 @@ void ecran_acceuil (SDL_Renderer* ren, Musique* musique);
 void affiche_bouton_start(SDL_Renderer* ren, TTF_Font * font);
 
 /**
- * Permet de changer la musique en jeu
+ * Permet de changer la audio en jeu
  * @param ren Un pointeur sur une structure contenant l'état du rendu
- * @param musique La structure contenant toutes les infos pour les musiques
+ * @param audio La structure contenant toutes les infos pour les audios
  */
-void ecran_musique (SDL_Renderer* ren, Musique* musique);
+void ecran_audio (SDL_Renderer* ren, Audio* audio);
 
 /**
  * Permet de choisir le niveau de la partie à venir
  * @param ren Un pointeur sur une structure contenant l'état du rendu
- * @param musique La structure contenant toutes les infos pour les musiques
+ * @param audio La structure contenant toutes les infos pour les audios
  */
-void ecran_niveaux (SDL_Renderer* ren, Musique* musique);
+void ecran_niveaux (SDL_Renderer* ren, Audio* audio);
 
 /**
  * Tout est dans le titre !
  */
-void ecran_remerciements (SDL_Renderer* ren, Musique* musique);
+void ecran_remerciements (SDL_Renderer* ren, Audio* audio);
 
 /**
  * Affiche un bouton
@@ -102,11 +102,11 @@ void renderButton(SDL_Renderer *renderer, Button *button, const char* texte, SDL
 void renderHeader(SDL_Renderer *renderer, char *titre);
 
 /**
- * Gère les évènements sur les boutons dans le menu musique
+ * Gère les évènements sur les boutons dans le menu audio
  * @param e L'évènement à gérer
  * @param buttons L'ensemble des boutons de la page
  */
-void handle_events(SDL_Event* e, MusicButton musics[], SelectionButton selections[], Musique* musique);
+void handle_events(SDL_Event* e, MusicButton musics[], SelectionButton selections[], Audio* audio);
 
 /**
  * 

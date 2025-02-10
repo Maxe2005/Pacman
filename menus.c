@@ -2,10 +2,10 @@
 
 SelectionType selection_en_cours = SELECTION_AUCUNE;
 
-void ecran_acceuil (SDL_Renderer* ren, Musique* musique){
-    playMusic(musique->musique_accueil);
+void ecran_acceuil (SDL_Renderer* ren, Audio* audio){
+    playMusic(audio->musique_accueil);
 
-    SDL_Texture* logo = loadTexture("ressources/pac-man-logo.bmp", ren);
+    SDL_Texture* logo = loadTexture("ressources/Image/pac-man-logo.bmp", ren);
     TTF_Font * font = createFont("ressources/DejaVuSans-Bold.ttf", 20);
 
     clock_t current_time;
@@ -40,36 +40,36 @@ void ecran_acceuil (SDL_Renderer* ren, Musique* musique){
         
         lancement = processKeyboard(&running);
         if (lancement == 'L'){
-            playSoundEffect(musique->select);
-            nouvelle_partie(ren,musique,1);
+            playSoundEffect(audio->select);
+            nouvelle_partie(ren,audio,1);
             running = 0;
         }
         if (lancement == 'm'){
-            playSoundEffect(musique->select);
-            ecran_musique(ren, musique);
+            playSoundEffect(audio->select);
+            ecran_audio(ren, audio);
             running = 0;
         }
         if (lancement == 'n'){
-            playSoundEffect(musique->select);
-            ecran_niveaux(ren, musique);
+            playSoundEffect(audio->select);
+            ecran_niveaux(ren, audio);
             running = 0;
         }
         if (lancement == 'r'){
-            playSoundEffect(musique->select);
-            ecran_remerciements(ren, musique);
+            playSoundEffect(audio->select);
+            ecran_remerciements(ren, audio);
             running = 0;
         }
     }
 }
 
-void ecran_musique (SDL_Renderer* ren, Musique* musique){
+void ecran_audio (SDL_Renderer* ren, Audio* audio){
     Mix_HaltMusic();
     int button_height = 50;
     int button_margin_y = 20;
     int button_music_width = 200; 
     int button_select_width = 300; 
 
-    // Boutons de musique
+    // Boutons de audio
     MusicButton musicButtons[NB_MUSIQUES];
     for (int i = 0; i < NB_MUSIQUES; i++) {
         musicButtons[i].button_base.rect.x = (int)(FEN_X*3/4 - BUTTON_WIDTH/2);
@@ -77,32 +77,32 @@ void ecran_musique (SDL_Renderer* ren, Musique* musique){
         musicButtons[i].button_base.rect.w = button_music_width;
         musicButtons[i].button_base.rect.h = button_height;
         musicButtons[i].button_base.hovered = 0;
-        musicButtons[i].music = musique->musiques_src[i];
-        musicButtons[i].label = malloc(20 * sizeof(char));  // Allouer de la mémoire
-        if (musicButtons[i].label == NULL) {printf("Erreur d'allocation mémoire\n"); exit(1);}
-        sprintf(musicButtons[i].label, "Musique %d", i + 1);
+        musicButtons[i].music = audio->musiques_src[i];
+        musicButtons[i].label = audio->musiques_src[i]->nom; 
     }
 
     // Boutons de sélection de catégorie
     SelectionButton selectionButtons[NB_CATEGORIES];
     for (int i = 0; i < NB_CATEGORIES; i++) {
-        selectionButtons[i].button_base.rect.x = (int)(FEN_X/4 - BUTTON_WIDTH/2);;
+        selectionButtons[i].button_base.rect.x = (int)(FEN_X/4 - BUTTON_WIDTH/2);
         selectionButtons[i].button_base.rect.y = HEADER_HEIGHT + 100 + i * (button_height + button_margin_y);
         selectionButtons[i].button_base.rect.w = button_select_width;
         selectionButtons[i].button_base.rect.h = button_height;
         selectionButtons[i].button_base.hovered = 0;
     }
     selectionButtons[0].type = SELECTION_ACCUEIL;
-    selectionButtons[0].label = "Musique Accueil";
+    selectionButtons[0].label = "Audio Accueil";
     selectionButtons[1].type = SELECTION_JEU;
-    selectionButtons[1].label = "Musique Jeu";
+    selectionButtons[1].label = "Audio Jeu";
 
     int running = 1;
     SDL_Event e;
+    SDL_Texture* FOND = loadTexture("ressources/Image/FOND_MUSIQUE.bmp", ren);
     while (running) {
         SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
         SDL_RenderClear(ren);
-        renderHeader(ren, "Musiques et sons");
+        renderTexture(FOND,ren,0,0,(int)(FEN_X),(int)(FEN_Y));
+        //renderHeader(ren, "Audios et sons");
         draw_buttons(ren, musicButtons, selectionButtons);
         updateDisplay(ren);
 
@@ -111,12 +111,12 @@ void ecran_musique (SDL_Renderer* ren, Musique* musique){
                 running = 0;
             }
             if (e.type == SDL_MOUSEBUTTONDOWN) {
-                handle_events(&e, musicButtons, selectionButtons, musique);
+                handle_events(&e, musicButtons, selectionButtons, audio);
             }
             if (e.type == SDL_KEYUP) {
                 if (e.key.keysym.sym == SDLK_BACKSPACE){
-                    playSoundEffect(musique->select);
-                    ecran_acceuil(ren,musique);
+                    playSoundEffect(audio->select);
+                    ecran_acceuil(ren,audio);
                     running = 0;
                 }
             }
@@ -124,7 +124,7 @@ void ecran_musique (SDL_Renderer* ren, Musique* musique){
     }
 }
 
-void ecran_niveaux (SDL_Renderer* ren, Musique* musique){
+void ecran_niveaux (SDL_Renderer* ren, Audio* audio){
     Button_niveau buttons[LEVEL_COUNT];
     for (int i = 0; i < LEVEL_COUNT; i++) {
         buttons[i].button_base.rect.x = (FEN_X - BUTTON_WIDTH) / 2;
@@ -173,8 +173,8 @@ void ecran_niveaux (SDL_Renderer* ren, Musique* musique){
                 for (int i = 0; i < LEVEL_COUNT; i++) {
                     if (x >= buttons[i].button_base.rect.x && x <= buttons[i].button_base.rect.x + BUTTON_WIDTH &&
                         y >= buttons[i].button_base.rect.y - scroll_offset && y <= buttons[i].button_base.rect.y + BUTTON_HEIGHT - scroll_offset) {
-                        playSoundEffect(musique->select);
-                        nouvelle_partie(ren, musique, buttons[i].level);
+                        playSoundEffect(audio->select);
+                        nouvelle_partie(ren, audio, buttons[i].level);
                         running = 0;
                     }
                 }
@@ -202,8 +202,8 @@ void ecran_niveaux (SDL_Renderer* ren, Musique* musique){
 
             if (event.type == SDL_KEYUP) {
                 if (event.key.keysym.sym == SDLK_BACKSPACE){
-                    playSoundEffect(musique->select);
-                    ecran_acceuil(ren,musique);
+                    playSoundEffect(audio->select);
+                    ecran_acceuil(ren,audio);
                     running = 0;
                 }
             }
@@ -211,7 +211,7 @@ void ecran_niveaux (SDL_Renderer* ren, Musique* musique){
     }
 }
 
-void ecran_remerciements (SDL_Renderer* ren, Musique* musique){
+void ecran_remerciements (SDL_Renderer* ren, Audio* audio){
     // Texte des remerciements
     int space_entre_lignes = 20;
     int taille_ligne_y = 30;
@@ -302,8 +302,8 @@ void ecran_remerciements (SDL_Renderer* ren, Musique* musique){
 
             if (event.type == SDL_KEYUP) {
                 if (event.key.keysym.sym == SDLK_BACKSPACE){
-                    playSoundEffect(musique->select);
-                    ecran_acceuil(ren,musique);
+                    playSoundEffect(audio->select);
+                    ecran_acceuil(ren,audio);
                     running = 0;
                 }
             }
@@ -399,7 +399,7 @@ void renderHeader(SDL_Renderer *renderer, char *titre) {
     SDL_DestroyTexture(texture);
 }
 
-void handle_events(SDL_Event* e, MusicButton musics[], SelectionButton selections[], Musique* musique) {
+void handle_events(SDL_Event* e, MusicButton musics[], SelectionButton selections[], Audio* audio) {
     int x, y;
     SDL_GetMouseState(&x, &y);
 
@@ -413,25 +413,25 @@ void handle_events(SDL_Event* e, MusicButton musics[], SelectionButton selection
         }
     }
 
-    // Vérifier si un bouton de musique est cliqué après avoir sélectionné une catégorie
+    // Vérifier si un bouton de audio est cliqué après avoir sélectionné une catégorie
     if (selection_en_cours != SELECTION_AUCUNE) {
         for (int i = 0; i < NB_MUSIQUES; i++) {
             if (x >= musics[i].button_base.rect.x && x <= musics[i].button_base.rect.x + musics[i].button_base.rect.w &&
                 y >= musics[i].button_base.rect.y && y <= musics[i].button_base.rect.y + musics[i].button_base.rect.h) {
                 
                 Mix_HaltMusic();
-                Mix_PlayMusic(musics[i].music, -1);
+                Mix_PlayMusic(musics[i].music->musique, -1);
 
-                // Associer la musique à la catégorie choisie
+                // Associer la audio à la catégorie choisie
                 switch (selection_en_cours) {
                     case SELECTION_ACCUEIL:
-                        musique->musique_accueil = musics[i].music;
+                        audio->musique_accueil = musics[i].music;
                         break;
                     case SELECTION_JEU:
-                        musique->musique_jeu = musics[i].music;
+                        audio->musique_jeu = musics[i].music;
                         break;
                     case SELECTION_SUPER_MODE:
-                        musique->musique_super_mode = musics[i].music;
+                        audio->musique_super_mode = musics[i].music;
                         break;
                     default:
                         break;
@@ -450,7 +450,7 @@ void draw_buttons(SDL_Renderer* renderer, MusicButton musics[], SelectionButton 
     SDL_Color color_base_select = {100, 100, 255, 255};
     SDL_Color color_touch_select = {200, 100, 255, 255};
 
-    // Dessiner les boutons de musique
+    // Dessiner les boutons de audio
     for (int i = 0; i < NB_MUSIQUES; i++) {
         renderButton(renderer, &(musics[i].button_base), musics[i].label, color_texte, color_touch_musics, color_base_musics);
     }
