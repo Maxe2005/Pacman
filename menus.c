@@ -366,6 +366,7 @@ void renderButton(SDL_Renderer *renderer, Button *button, SDL_Color color_text, 
 
         SDL_FreeSurface(surface);
         SDL_DestroyTexture(texture);
+        
     }
 }
 

@@ -84,11 +84,19 @@ void nouvelle_partie (SDL_Renderer* ren, Musique* musique, int niveau) {
     //Map mape = init_map_dessin();
     //Map mape = init_map_tils();
     //partie->map = &mape;
-    const char *nom_map = "Map_originale.bin";
+    //const char *nom_map = "Map_originale";
+    const char *nom_map = "Test";
     //save_map_text(nom_map, partie->map);
     //save_map_binary(nom_map, partie->map);
-    //partie->map = load_map_text(nom_map);
-    partie->map = load_map_binary(nom_map);
+    partie->map = load_map_text(nom_map);
+    //partie->map = load_map_binary(nom_map);
+    if ((FEN_Y-TAILLE_BANDEAU_HAUT)/partie->map->y < FEN_X/partie->map->x){
+        partie-> map->taille_case = (FEN_Y-TAILLE_BANDEAU_HAUT)/(partie->map->y + 2);
+    } else {
+        partie->map->taille_case = FEN_X/(partie->map->x + 2);
+    }
+    ORIGINE_X = partie->map->taille_case;
+    ORIGINE_Y = TAILLE_BANDEAU_HAUT + partie->map->taille_case;
 
     partie->tils = malloc(sizeof(SDL_Texture*) * 4);
     init_tils(partie->tils, ren);

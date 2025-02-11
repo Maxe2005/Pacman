@@ -5,7 +5,9 @@ int ORIGINE_Y = TAILLE_BANDEAU_HAUT;
 
 void save_map_text(const char *filename, Map *map) {
     char path[100] = "ressources/maps/";
+    char ext[] = ".txt";
     strcat(path, filename);
+    strcat(path, ext);
 
     FILE *file = fopen(path, "w");
     if (!file) {
@@ -32,7 +34,9 @@ void save_map_text(const char *filename, Map *map) {
 
 Map *load_map_text(const char *filename) {
     char path[100] = "ressources/maps/";
+    char ext[] = ".txt";
     strcat(path, filename);
+    strcat(path, ext);
 
     FILE *file = fopen(path, "r");
     if (!file) {
@@ -79,7 +83,9 @@ Map *load_map_text(const char *filename) {
 
 void save_map_binary (const char *filename, Map *map) {
     char path[100] = "ressources/maps/";
-    strcat(path,filename);
+    char ext[] = ".bin";
+    strcat(path, filename);
+    strcat(path, ext);
 
     FILE *file = fopen(path, "wb");
     if (!file) {
@@ -106,7 +112,9 @@ void save_map_binary (const char *filename, Map *map) {
 
 Map *load_map_binary (const char *filename) {
     char path[100] = "ressources/maps/";
-    strcat(path,filename);
+    char ext[] = ".bin";
+    strcat(path, filename);
+    strcat(path, ext);
 
     FILE *file = fopen(path, "rb");
     if (!file) {
