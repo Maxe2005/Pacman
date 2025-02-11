@@ -95,8 +95,8 @@ void nouvelle_partie (SDL_Renderer* ren, Musique* musique, int niveau) {
     } else {
         partie->map->taille_case = FEN_X/(partie->map->x + 2);
     }
-    ORIGINE_X = partie->map->taille_case;
-    ORIGINE_Y = TAILLE_BANDEAU_HAUT + partie->map->taille_case;
+    ORIGINE_X = (FEN_X - partie->map->x * partie->map->taille_case)/2;
+    ORIGINE_Y = TAILLE_BANDEAU_HAUT + (FEN_Y - TAILLE_BANDEAU_HAUT - partie->map->y * partie->map->taille_case)/2;
 
     partie->tils = malloc(sizeof(SDL_Texture*) * 4);
     init_tils(partie->tils, ren);

@@ -9,7 +9,7 @@
 #include "gestionGraphique.h"
 #include "audio.h"
 
-#define FEN_X 1200
+#define FEN_X 1500
 #define FEN_Y 1000
 #define TAILLE_BANDEAU_HAUT 80
 #define MARGE_BANDEAU_HAUT 10

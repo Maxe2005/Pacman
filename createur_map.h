@@ -5,9 +5,9 @@
 #include "plateau.h"
 #include "audio.h"
 
-#define NB_BUTTONS 9
+#define NB_BUTTONS 11
 #define NB_BUTTONS_SELECTION_REMPLISSAGE 5
-#define TAILLE_BARRE_MENU_X 250
+#define TAILLE_BARRE_MENU_X 550
 #define ZOOM_MAX 5 // Le nombre de cases minimum avec le zoom au maximum*
 #define VITESSE_ZOOM 2
 #define VITESSE_MOVE_ZOOM 1
@@ -29,6 +29,14 @@ typedef struct {
     SelectionType_createur_map type;
 } SelectionButton_createur_map;
 
+typedef struct {
+    Button button_base;
+    int temps_affichage; // en secondes
+    SDL_Color couleur_message;
+    SDL_Color couleur_fond;
+    int is_visible;
+} Message;
+
 /**
  * La boucle de fonctionnement du créateur de map
  * @param ren Un pointeur sur une structure contenant l'état du rendu
@@ -46,17 +54,21 @@ void main_loop_createur_map (SDL_Renderer* ren, Musique* musique);
  * @param button_enregistrer Permet de sauvgarder la map créée
  * @param button_zoom_plus Augmente le zoom sur la map actuelle
  * @param button_zoom_moins Diminue le zoom sur la map actuelle
+ * @param button_symetrie_verticale Active et désactive la symétrie verticale
+ * @param button_symetrie_horizontale Active et désactive la symétrie horizontale
  */
 void init_buttons_createur_map (Button* buttons[NB_BUTTONS], int button_height, int button_width, SelectionButton_createur_map selectionButtons[NB_BUTTONS_SELECTION_REMPLISSAGE], 
-                                Button* button_grille, Button* button_enregistrer, Button* button_zoom_plus, Button* button_zoom_moins);
+                                Button* button_grille, Button* button_enregistrer, Button* button_zoom_plus, Button* button_zoom_moins, Button* button_symetrie_verticale, Button* button_symetrie_horizontale);
 
 /**
  * Affiche les boutons du créateur de map
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  * @param boutons_selection Le tableau contenant les boutons de selection
  * @param boutons Le tableau contenant tous les boutons
+ * @param is_symetrie_verticale Variable active et désactive de la symétrie verticale
+ * @param is_symetrie_horizontale Variable active et désactive de la symétrie horizontale
  */
-void affiche_boutons_createur_map (SDL_Renderer* ren, SelectionButton_createur_map boutons_selection[NB_BUTTONS_SELECTION_REMPLISSAGE], Button* boutons[NB_BUTTONS]);
+void affiche_boutons_createur_map (SDL_Renderer* ren, SelectionButton_createur_map boutons_selection[NB_BUTTONS_SELECTION_REMPLISSAGE], Button* boutons[NB_BUTTONS], int is_symetrie_horizontale, int is_symetrie_verticale);
 
 /**
  * Affiche un quadrillage par dessus la map pour se repérer dessus
@@ -71,10 +83,13 @@ void affiche_quadrillage (SDL_Renderer* ren, Map* map);
  * @param map_totale La map complète en cours d'édition, non affichée
  * @param x_souris_cases La position de la souris en cases sur la map
  * @param y_souris_cases La position de la souris en cases sur la map
+ * @param zoom la valeur du zoom
  * @param position_zoom_x Le départ du zoom en x sur la map complète (donc le bord de la map affichée)
  * @param position_zoom_y Le départ du zoom en y sur la map complète (donc le bord de la map affichée)
+ * @param is_symetrie_verticale Variable active et désactive de la symétrie verticale
+ * @param is_symetrie_horizontale Variable active et désactive de la symétrie horizontale
  */
-void modif_case (Map* map, Map* map_totale, int x_souris_cases, int y_souris_cases, int position_zoom_x, int position_zoom_y);
+void modif_case (Map* map, Map* map_totale, int x_souris_cases, int y_souris_cases, int zoom, int position_zoom_x, int position_zoom_y, int is_symetrie_horizontale, int is_symetrie_verticale);
 
 /**
  * Test si la souris est sur le bouton
@@ -99,5 +114,26 @@ Map copyMap(const Map *src);
  * @param position_zoom_y Le départ du zoom en y sur la map complète (donc le bord de la map affichée)
  */
 void nouveau_zoom (Map* map, Map* map_totale, int zoom, int position_zoom_x, int position_zoom_y);
+
+/**
+ * Vérifie si la map est conforme (pas de cul de sac)
+ * @param map La map complète non affichée
+ * @param x Un pointeur à remplir avec la position de la première case trouvée qui n'est pas conforme si elle existe
+ * @param y Un pointeur à remplir avec la position de la première case trouvée qui n'est pas conforme si elle existe
+ * @return 1 si la map est conforme, 0 (et affecte des valeurs à x et y) sinon
+ */
+int is_map_conforme (Map* map, int* x, int* y);
+
+/**
+ * Initialise tous les boutons (et messages) du sous-menu enregistrer
+ * @param button_height Dimention des boutons
+ * @param button_width Dimention des boutons
+ * @param entree_text Le bouton qui permet d'entrer le nom de la map
+ * @param consigne_enregistrement Un text indicant quoi faire dans le sous-menu enregistrer
+ * @param annuler_enregistrement Bouton clicable pour quiter le sous-menu enregistrer
+ * @param valider_enregistrement Bouton clicable pour finaliser l'enregistrement
+ * @param message Un message à afficher (soit une erreur, une alerte ou bien une confirmation que tout c'est bien passé)
+ */
+void init_boutons_enregistrer (int button_width, int button_height, Button* entree_text, Button* consigne_enregistrement, Button* annuler_enregistrement, Button* valider_enregistrement, Message* message);
 
 #endif

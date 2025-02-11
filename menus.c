@@ -355,7 +355,8 @@ void renderButton(SDL_Renderer *renderer, Button *button, SDL_Color color_text, 
             font = fonts[1];
         }
 
-        SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
         SDL_RenderFillRect(renderer, &tmp_rect);
 
         SDL_Surface *surface =  TTF_RenderUTF8_Solid(font, button->label, color_text);
