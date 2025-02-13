@@ -5,15 +5,18 @@
 #include "plateau.h"
 #include "audio.h"
 
-#define NB_BUTTONS 11
+#define NB_BUTTONS 12
 #define NB_BUTTONS_SELECTION_REMPLISSAGE 5
 #define TAILLE_BARRE_MENU_X 550
-#define ZOOM_MAX 5 // Le nombre de cases minimum avec le zoom au maximum*
+#define ZOOM_MAX 5 // Le nombre de cases minimum avec le zoom au maximum
+#define TAILLE_MAX_MAP 50
+#define TAILLE_MIN_MAP ZOOM_MAX + 5
 #define VITESSE_ZOOM 2
 #define VITESSE_MOVE_ZOOM 1
 #define FONT_SIZE 32
 #define MAX_TEXT_LENGTH 10
 #define CURSOR_BLINK_TIME 500
+#define MAX_NB_LENGTH 2 // Nombre de colones et de lignes de la map <= 99
 
 typedef enum {
     SELECTION_VIDE_INTERNE,
@@ -58,7 +61,7 @@ void main_loop_createur_map (SDL_Renderer* ren, Musique* musique);
  * @param button_symetrie_horizontale Active et désactive la symétrie horizontale
  */
 void init_buttons_createur_map (Button* buttons[NB_BUTTONS], int button_height, int button_width, SelectionButton_createur_map selectionButtons[NB_BUTTONS_SELECTION_REMPLISSAGE], 
-                                Button* button_grille, Button* button_enregistrer, Button* button_zoom_plus, Button* button_zoom_moins, Button* button_symetrie_verticale, Button* button_symetrie_horizontale);
+                                Button* button_modif_taille_map, Button* button_grille, Button* button_enregistrer, Button* button_zoom_plus, Button* button_zoom_moins, Button* button_symetrie_verticale, Button* button_symetrie_horizontale);
 
 /**
  * Affiche les boutons du créateur de map
@@ -67,8 +70,12 @@ void init_buttons_createur_map (Button* buttons[NB_BUTTONS], int button_height, 
  * @param boutons Le tableau contenant tous les boutons
  * @param is_symetrie_verticale Variable active et désactive de la symétrie verticale
  * @param is_symetrie_horizontale Variable active et désactive de la symétrie horizontale
+ * @param color_texte La couleur du texte des boutons
+ * @param color_base La couleur de base du fond du bouton
+ * @param color_touch La couleur du fond du bouton quand la souris est sur le bouton
+ * @param color_selected La couleur du fond du bouton quand le bouton est séléctionné
  */
-void affiche_boutons_createur_map (SDL_Renderer* ren, SelectionButton_createur_map boutons_selection[NB_BUTTONS_SELECTION_REMPLISSAGE], Button* boutons[NB_BUTTONS], int is_symetrie_horizontale, int is_symetrie_verticale);
+void affiche_boutons_createur_map (SDL_Renderer* ren, SelectionButton_createur_map boutons_selection[NB_BUTTONS_SELECTION_REMPLISSAGE], Button* boutons[NB_BUTTONS], int is_symetrie_horizontale, int is_symetrie_verticale, SDL_Color color_texte, SDL_Color color_touch, SDL_Color color_base, SDL_Color color_selected);
 
 /**
  * Affiche un quadrillage par dessus la map pour se repérer dessus
@@ -125,15 +132,34 @@ void nouveau_zoom (Map* map, Map* map_totale, int zoom, int position_zoom_x, int
 int is_map_conforme (Map* map, int* x, int* y);
 
 /**
- * Initialise tous les boutons (et messages) du sous-menu enregistrer
+ * Initialise tous les boutons du sous-menu enregistrer
  * @param button_height Dimention des boutons
  * @param button_width Dimention des boutons
  * @param entree_text Le bouton qui permet d'entrer le nom de la map
  * @param consigne_enregistrement Un text indicant quoi faire dans le sous-menu enregistrer
- * @param annuler_enregistrement Bouton clicable pour quiter le sous-menu enregistrer
+ * @param annuler_enregistrement Bouton clicable pour quitter le sous-menu enregistrer
  * @param valider_enregistrement Bouton clicable pour finaliser l'enregistrement
- * @param message Un message à afficher (soit une erreur, une alerte ou bien une confirmation que tout c'est bien passé)
  */
-void init_boutons_enregistrer (int button_width, int button_height, Button* entree_text, Button* consigne_enregistrement, Button* annuler_enregistrement, Button* valider_enregistrement, Message* message);
+void init_boutons_enregistrer (int button_width, int button_height, Button* entree_text, Button* consigne_enregistrement, Button* annuler_enregistrement, Button* valider_enregistrement);
+
+/**
+ * Initialise tous les boutons du sous-menu de modification de la taille de la map
+ * @param button_height Dimention des boutons
+ * @param button_width Dimention des boutons
+ * @param entree_width Le champs d'entrée de la nouvelle largeur
+ * @param entree_height Le champs d'entrée de la nouvelle hauteur
+ * @param annuler_taille_map Bouton clicable pour quitter le sous-menu de modification de la taille de la map
+ * @param valider_taille_map Bouton clicable pour finaliser la nouvelle taille de map
+ * @param consigne_modif_taille_map Le texte de consigne des remplissage des champs
+ * @param text_entree_width Le texte définissant le champs <button_width>
+ * @param text_entree_height Le texte définissant le champs <entree_height>
+ */
+void init_boutons_modif_taille_map (int button_width, int button_height, Button* entree_width, Button* entree_height, Button* valider_taille_map, Button* annuler_taille_map, Button* consigne_modif_taille_map, Button* text_entree_width, Button* text_entree_height);
+
+/**
+ * Initialise à partir des dimentions de la map sa taille case et les variables globales d'origines x et y
+ * @param map La map source
+ */
+void init_taille_case_et_origine (Map* map);
 
 #endif
