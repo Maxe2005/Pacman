@@ -36,6 +36,12 @@ void init_textures_pacman (Pacman *pacman, SDL_Renderer* ren);
 void init_textures_pacman_mort (Pacman *pacman, SDL_Renderer* ren);
 
 /**
+ * Libère les textures de Pacman
+ * @param pacman Une instance de structure de joueur
+ */
+void free_textures_pacman(Pacman *pacman);
+
+/**
  * Vérifie si le pacman est bien placé et initialise ses position en pixel
  * @param pacman Une instance de structure de joueur
  * @param map La map sur laquel va être affiché le pacman

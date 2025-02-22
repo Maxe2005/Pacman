@@ -27,6 +27,15 @@ void init_textures_pacman_mort(Pacman *pacman, SDL_Renderer* ren) {
     pacman->skin_mort[10] = loadTexture("ressources/pacman/Game_Over/pacman_G_O11.bmp", ren); 
 }
 
+void free_textures_pacman(Pacman *pacman) {
+    for (int i = 0; i < 9; i++) {
+        SDL_DestroyTexture(pacman->skin[i]); // Libérer les textures de Pacman
+    }
+    for (int i = 0; i < 11; i++) {
+        SDL_DestroyTexture(pacman->skin_mort[i]); // Libérer les textures de mort de Pacman
+    }
+}
+
 int conversion_case_pixel_en_x (Pacman *pacman, Map *map, int difference){
     return ORIGINE_X + (pacman->position_x + difference) * map->taille_case - (int)((pacman->taille_px - map->taille_case)/2);
 }

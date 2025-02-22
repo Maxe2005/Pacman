@@ -556,3 +556,13 @@ int go_inside_home (Ghost *ghost, Map *map){
         return 1;
     }
 }
+
+void free_textures_ghost(Ghost *ghost) {
+    for (int i = 0; i < 8; i++) {
+        SDL_DestroyTexture(ghost->skin_normal[i]); // Libérer les textures normales
+    }
+    for (int i = 0; i < 4; i++) {
+        SDL_DestroyTexture(ghost->skin_frightened[i]); // Libérer les textures effrayées
+        SDL_DestroyTexture(ghost->skin_eaten[i]); // Libérer les textures mangées
+    }
+}

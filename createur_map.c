@@ -35,7 +35,7 @@ void init_buttons_createur_map (Button* buttons[NB_BUTTONS], int button_height, 
     buttons[NB_BUTTONS_SELECTION_REMPLISSAGE] = button_enregistrer;
 
     // Les autres boutons :
-    button_margin_y = ((FEN_Y - HEADER_HEIGHT) - (NB_BUTTONS - NB_BUTTONS_SELECTION_REMPLISSAGE) * button_height)/(NB_BUTTONS - NB_BUTTONS_SELECTION_REMPLISSAGE);
+    button_margin_y = ((FEN_Y - HEADER_HEIGHT) - (NB_BUTTONS - NB_BUTTONS_SELECTION_REMPLISSAGE - 1) * button_height)/(NB_BUTTONS - NB_BUTTONS_SELECTION_REMPLISSAGE - 1);
     Button* but[] = {button_modif_taille_map, button_grille, button_zoom_plus, button_zoom_moins, button_symetrie_verticale, button_symetrie_horizontale};
     char* noms[] = {"Modif taille", "Grille", "Zoom +", "Zoom -", "Sym. verti.", "Sym. horiz."};
     for (int j = 0; j < NB_BUTTONS - NB_BUTTONS_SELECTION_REMPLISSAGE - 1; j++){
@@ -329,6 +329,13 @@ void init_taille_case_et_origine (Map* map){
     }
     ORIGINE_X = (FEN_X-TAILLE_BARRE_MENU_X - map->x * map->taille_case)/2;
     ORIGINE_Y = HEADER_HEIGHT + (FEN_Y-HEADER_HEIGHT - map->y * map->taille_case)/2;
+}
+
+void free_tils(SDL_Texture** tils, int nb_tils) {
+    for (int i = 0; i < nb_tils; i++) {
+        SDL_DestroyTexture(tils[i]); // Libérer les textures
+    }
+    free(tils);
 }
 
 void main_loop_createur_map (SDL_Renderer* ren, Musique* musique){
@@ -852,5 +859,6 @@ void main_loop_createur_map (SDL_Renderer* ren, Musique* musique){
     }
     freeMap(&map);
     freeMap(&map_totale);
+    free_tils(tils, 4);
     SDL_StopTextInput();
 }

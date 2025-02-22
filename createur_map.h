@@ -162,4 +162,11 @@ void init_boutons_modif_taille_map (int button_width, int button_height, Button*
  */
 void init_taille_case_et_origine (Map* map);
 
+/**
+ * Libère les textures des tiles
+ * @param tils Le tableau de pointeurs vers les textures
+ * @param nb_tils Le nombre de textures dans le tableau
+ */
+void free_tils(SDL_Texture** tils, int nb_tils);
+
 #endif

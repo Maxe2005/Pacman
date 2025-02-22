@@ -117,6 +117,11 @@ void debut_jeu (SDL_Renderer* ren, Partie* partie, Musique* musique);
 void free_partie (Partie* partie);
 
 /**
+ * Libère les polices de caractères
+ */
+void free_fonts();
+
+/**
  * Met à niveau le score si le pacman est sur <gum> ou <cherry>. Déclanche le mode <frightened> si <Big Gum> rencontré
  * @param partie La partie en cours
  * @return 1 Si le mode frightened vient d'être activé, 0 sinon

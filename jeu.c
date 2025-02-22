@@ -66,12 +66,29 @@ void affiche_ecran_jeu (SDL_Renderer* ren, Partie* partie) {
 }
 
 void free_partie (Partie* partie) {
+    for (int i = 0; i < 4; i++) {
+        SDL_DestroyTexture(partie->tils[i]); // Libérer les textures
+    }
     free(partie->tils);
+    SDL_DestroyTexture(partie->skin_vies); // Libérer la texture des vies
+    free_textures_pacman(partie->pacman); // Libérer les textures de Pacman
+    for (int i = 0; i < 4; i++) {
+        free_textures_ghost(partie->ghosts[i]); // Libérer les textures des fantômes
+    }
     free(partie->pacman);
     for (int i = 0; i < 4; i++) {free(partie->ghosts[i]);}
     free(partie->ghosts);
     freeMap(partie->map);
     free(partie);
+}
+
+void free_fonts() {
+    for (int i = 0; i < NB_FONTS; i++) {
+        if (fonts[i] != NULL) {
+            TTF_CloseFont(fonts[i]); // Libérer les polices
+            fonts[i] = NULL;
+        }
+    }
 }
 
 void nouvelle_partie (SDL_Renderer* ren, Musique* musique, int niveau) {
