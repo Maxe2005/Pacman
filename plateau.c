@@ -539,7 +539,12 @@ void affiche_map_draw (Map *map, SDL_Texture* tils[4], SDL_Renderer* ren){
 }
 
 void ajout_gum_dessin (int i, int j, Map *map, SDL_Texture* tils[4], SDL_Renderer* ren) {
-    renderTexture(tils[map->contenu[j][i] - 3], ren, ORIGINE_X + i*map->taille_case, ORIGINE_Y + j*map->taille_case, map->taille_case, map->taille_case);
+    int index = map->contenu[j][i] - 3;
+    if (index >= 0 && index < 4 && tils[index] != NULL) {
+        renderTexture(tils[index], ren, ORIGINE_X + i*map->taille_case, ORIGINE_Y + j*map->taille_case, map->taille_case, map->taille_case);
+    } else {
+        fprintf(stderr, "Erreur: Texture non chargée ou index invalide pour le gum à l'index %d\n", index);
+    }
 }
 
 int mod (int a, int b) {

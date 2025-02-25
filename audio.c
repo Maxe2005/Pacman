@@ -34,7 +34,6 @@ void liberer_musiques_et_sons(Musique* musique) {
     for (int i = 0; i < NB_SONS; i++) {
         freeSoundEffect(musique->sons_src[i]);
     }
-    free(musique); // Libérer la mémoire allouée pour musique
 }
 
 void musiques_et_sons_default (Musique* musique){
@@ -104,6 +103,7 @@ void freeSoundEffect(Mix_Chunk *soundEffect) {
 
 void clear_musique (Musique* musique){
     stopMusic();
-    liberer_musiques_et_sons(musique);
     Mix_CloseAudio();
+    liberer_musiques_et_sons(musique);
+    free(musique);
 }

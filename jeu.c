@@ -392,10 +392,6 @@ int update_score (Partie* partie){
     return 0;
 }
 
-void affiche_logo (SDL_Renderer* ren, SDL_Texture* logo) {
-    renderTexture(logo, ren,(int)(FEN_X /4),(int)(FEN_Y/8),(int)(FEN_X/2),(int)(FEN_Y/4));
-}
-
 void ecran_game_over (SDL_Renderer* ren, Partie* partie, Musique* musique){
     stopMusic();
     playSoundEffect(musique->game_over);

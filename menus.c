@@ -11,59 +11,51 @@ void ecran_acceuil (SDL_Renderer* ren, Musique* musique){
     clock_t current_time;
     clock_t start_time = clock();
     const double temps_clignotement_bouton_start = 125.0 / 1000.0 * CLOCKS_PER_SEC; //temps_clignotement_bouton_start convertion de milisecondes à clocks
-    
-    SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
-    SDL_RenderClear(ren);
-    affiche_logo(ren, logo);
-    affiche_bouton_start(ren, font);
 
-    char lancement;
+    // Initialisation des boutons
+    Button button_musique, button_niveaux, button_remerciements, button_createur_map;
+    Button* buttons[NB_BOUTONS_ACCUEIL];
+    init_buttons_accueil(buttons, &button_musique, &button_niveaux, &button_remerciements, &button_createur_map);
+
     int is_bouton_start_visible = 1; // Booleen qui permet de faire clignoter le bouton start
     int running = 1;
 
     while (running) {
         current_time = clock();
+        SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
+        SDL_RenderClear(ren);
+        affiche_logo(ren, logo);
+        affiche_boutons_accueil(ren, buttons, 4);
+        if (is_bouton_start_visible) {
+            affiche_bouton_start(ren, font);
+        }
         updateDisplay(ren);
 
         if ((double)(current_time - start_time) >= temps_clignotement_bouton_start) {
-            if (is_bouton_start_visible == 1){
-                SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
-                SDL_RenderClear(ren);
-                affiche_logo(ren, logo);
-                is_bouton_start_visible = 0;
-            } else {
-                affiche_bouton_start(ren, font);
-                is_bouton_start_visible = 1;
-            }
+            is_bouton_start_visible = !is_bouton_start_visible;
             start_time = current_time;
         }
-        
-        lancement = processKeyboard(&running);
-        if (lancement == 'L'){
-            playSoundEffect(musique->select);
-            nouvelle_partie(ren,musique,1);
-            running = 0;
-        }
-        if (lancement == 'm'){
-            playSoundEffect(musique->select);
-            ecran_musique(ren, musique);
-            running = 0;
-        }
-        if (lancement == 'n'){
-            playSoundEffect(musique->select);
-            ecran_niveaux(ren, musique);
-            running = 0;
-        }
-        if (lancement == 'r'){
-            playSoundEffect(musique->select);
-            ecran_remerciements(ren, musique);
-            running = 0;
-        }
-        if (lancement == 'c'){
-            playSoundEffect(musique->select);
-            main_loop_createur_map(ren, musique);
-            running = 0;
-        }
+
+        handle_events_accueil(buttons, musique, ren, &running);
+    }
+}
+
+void init_buttons_accueil(Button* buttons[], Button* button_musique, Button* button_niveaux, Button* button_remerciements, Button* button_createur_map) {
+    int button_height = 50;
+    int button_width = 300;
+    int button_margin_x = 20;
+    
+    Button* but[] = {button_musique, button_niveaux, button_remerciements, button_createur_map};
+    char* noms[] = {"Musique", "Niveaux", "Remerciements", "Createur de Map"};
+    int origine_x = FEN_X/2 - (NB_BOUTONS_ACCUEIL * button_width + (NB_BOUTONS_ACCUEIL - 1) * button_margin_x)/2;
+    for (int j = 0; j < NB_BOUTONS_ACCUEIL; j++){
+        but[j]->rect.x = origine_x + j * (button_width + button_margin_x);
+        but[j]->rect.y = (FEN_Y - button_height)/2;
+        but[j]->rect.w = button_width;
+        but[j]->rect.h = button_height;
+        but[j]->hovered = 0;
+        but[j]->label = noms[j];
+        buttons[j] = but[j];
     }
 }
 
@@ -322,6 +314,10 @@ void ecran_remerciements (SDL_Renderer* ren, Musique* musique){
     }
 }
 
+void affiche_logo (SDL_Renderer* ren, SDL_Texture* logo) {
+    renderTexture(logo, ren,(int)(FEN_X /4),(int)(FEN_Y/8),(int)(FEN_X/2),(int)(FEN_Y/4));
+}
+
 void affiche_bouton_start(SDL_Renderer* ren, TTF_Font * font){
     int division_x_titre = 4; // doit être >= 3
     int division_y_titre = 6; // doit être >= 3
@@ -453,6 +449,93 @@ void draw_buttons(SDL_Renderer* renderer, MusicButton musics[], SelectionButton 
             selections[i].button_base.hovered = 0;
         }
         renderButton(renderer, &(selections[i].button_base), color_texte, color_base_select, color_touch_select);
+    }
+}
+
+void affiche_boutons_accueil(SDL_Renderer* ren, Button* buttons[], int nb_buttons) {
+    SDL_Color color_texte = {255, 255, 255, 255};
+    SDL_Color color_base = {0, 0, 255, 255};
+    SDL_Color color_touch = {255, 0, 0, 255};
+
+    for (int i = 0; i < nb_buttons; i++) {
+        renderButton(ren, buttons[i], color_texte, color_base, color_touch);
+    }
+}
+
+void handle_events_accueil(Button* buttons[], Musique* musique, SDL_Renderer* ren, int *running) {
+    SDL_Event e;
+    while (SDL_PollEvent(&e)) {
+        if (e.type == SDL_QUIT) {
+            *running = 0;
+        }
+        if (e.type == SDL_MOUSEMOTION) {
+            int x = e.motion.x, y = e.motion.y;
+            for (int i = 0; i < 4; i++) {
+                if (x >= buttons[i]->rect.x && x <= buttons[i]->rect.x + buttons[i]->rect.w &&
+                    y >= buttons[i]->rect.y && y <= buttons[i]->rect.y + buttons[i]->rect.h) {
+                    buttons[i]->hovered = 1;
+                } else {
+                    buttons[i]->hovered = 0;
+                }
+            }
+        }
+        if (e.type == SDL_MOUSEBUTTONUP) {
+            int x = e.button.x, y = e.button.y;
+            for (int i = 0; i < 4; i++) {
+                if (x >= buttons[i]->rect.x && x <= buttons[i]->rect.x + buttons[i]->rect.w &&
+                    y >= buttons[i]->rect.y && y <= buttons[i]->rect.y + buttons[i]->rect.h) {
+                    playSoundEffect(musique->select);
+                    switch (i) {
+                        case 0:
+                            ecran_musique(ren, musique);
+                            break;
+                        case 1:
+                            ecran_niveaux(ren, musique);
+                            break;
+                        case 2:
+                            ecran_remerciements(ren, musique);
+                            break;
+                        case 3:
+                            main_loop_createur_map(ren, musique);
+                            break;
+                    }
+                    *running = 0;
+                    return;
+                }
+            }
+        }
+        if (e.type == SDL_KEYUP) {
+            char lancement = e.key.keysym.sym;
+            switch (lancement) {
+                case SDLK_SPACE:
+                    playSoundEffect(musique->select);
+                    nouvelle_partie(ren, musique, 1);
+                    *running = 0;
+                    break;
+                case SDLK_m:
+                    playSoundEffect(musique->select);
+                    ecran_musique(ren, musique);
+                    *running = 0;
+                    break;
+                case SDLK_n:
+                    playSoundEffect(musique->select);
+                    ecran_niveaux(ren, musique);
+                    *running = 0;
+                    break;
+                case SDLK_r:
+                    playSoundEffect(musique->select);
+                    ecran_remerciements(ren, musique);
+                    *running = 0;
+                    break;
+                case SDLK_c:
+                    playSoundEffect(musique->select);
+                    main_loop_createur_map(ren, musique);
+                    *running = 0;
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 }
 

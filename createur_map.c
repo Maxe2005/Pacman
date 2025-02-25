@@ -2,89 +2,105 @@
 
 SelectionType_createur_map selection_en_cours_createur_map = SELECTION_NULL;
 
-void init_buttons_createur_map (Button* buttons[NB_BUTTONS], int button_height, int button_width, SelectionButton_createur_map selectionButtons[NB_BUTTONS_SELECTION_REMPLISSAGE], 
-                                Button* button_modif_taille_map, Button* button_grille, Button* button_enregistrer, Button* button_zoom_plus, Button* button_zoom_moins, Button* button_symetrie_verticale, Button* button_symetrie_horizontale){
-    // Les boutons de selection de mode de remplissage :
-    int button_margin_y = (3*(FEN_Y - HEADER_HEIGHT)/4 - NB_BUTTONS_SELECTION_REMPLISSAGE * button_height)/NB_BUTTONS_SELECTION_REMPLISSAGE;
-    for (int i = 0; i < NB_BUTTONS_SELECTION_REMPLISSAGE; i++) {
-        selectionButtons[i].button_base.rect.x = FEN_X - TAILLE_BARRE_MENU_X + (TAILLE_BARRE_MENU_X/2 - button_width)/2;
-        selectionButtons[i].button_base.rect.y = HEADER_HEIGHT + button_margin_y/2 + i * (button_height + button_margin_y);
-        selectionButtons[i].button_base.rect.w = button_width;
-        selectionButtons[i].button_base.rect.h = button_height;
-        selectionButtons[i].button_base.hovered = 0;
-        buttons[i] = &(selectionButtons[i].button_base);
+
+void init_buttons_createur_map (Session_modif_map* session){
+    // Allouer de la mémoire pour les boutons de sélection de remplissage
+    
+    for (int k = 0; k < NB_BUTTONS; k++) {
+        session->buttons[k] = malloc(sizeof(Button));
     }
-    selectionButtons[0].type = SELECTION_VIDE_INTERNE;
-    selectionButtons[0].button_base.label = "Vide Interne";
-    selectionButtons[1].type = SELECTION_VIDE_EXTERNE;
-    selectionButtons[1].button_base.label = "Vide Externe";
-    selectionButtons[2].type = SELECTION_MUR;
-    selectionButtons[2].button_base.label = "Mur";
-    selectionButtons[3].type = SELECTION_GUM;
-    selectionButtons[3].button_base.label = "Gum";
-    selectionButtons[4].type = SELECTION_BIG_GUM;
-    selectionButtons[4].button_base.label = "Big Gum";
+
+    // Allouer de la mémoire pour les autres boutons
+    session->button_modif_taille_map = malloc(sizeof(Button));
+    session->button_grille = malloc(sizeof(Button));
+    session->button_enregistrer = malloc(sizeof(Button));
+    session->button_zoom_plus = malloc(sizeof(Button));
+    session->button_zoom_moins = malloc(sizeof(Button));
+    session->button_symetrie_verticale = malloc(sizeof(Button));
+    session->button_symetrie_horizontale = malloc(sizeof(Button));
+
+    // Les boutons de selection de mode de remplissage :
+    int button_margin_y = (3*(FEN_Y - HEADER_HEIGHT)/4 - NB_BUTTONS_SELECTION_REMPLISSAGE * session->button_height)/NB_BUTTONS_SELECTION_REMPLISSAGE;
+    for (int i = 0; i < NB_BUTTONS_SELECTION_REMPLISSAGE; i++) {
+        session->buttons_selection_remplissage[i] = malloc(sizeof(SelectionButton_createur_map));
+        session->buttons_selection_remplissage[i]->button_base.rect.x = FEN_X - TAILLE_BARRE_MENU_X + (TAILLE_BARRE_MENU_X/2 - session->button_width)/2;
+        session->buttons_selection_remplissage[i]->button_base.rect.y = HEADER_HEIGHT + button_margin_y/2 + i * (session->button_height + button_margin_y);
+        session->buttons_selection_remplissage[i]->button_base.rect.w = session->button_width;
+        session->buttons_selection_remplissage[i]->button_base.rect.h = session->button_height;
+        session->buttons_selection_remplissage[i]->button_base.hovered = 0;
+        session->buttons[i] = &(session->buttons_selection_remplissage[i]->button_base);
+    }
+    session->buttons_selection_remplissage[0]->type = SELECTION_VIDE_INTERNE;
+    session->buttons_selection_remplissage[0]->button_base.label = "Vide Interne";
+    session->buttons_selection_remplissage[1]->type = SELECTION_VIDE_EXTERNE;
+    session->buttons_selection_remplissage[1]->button_base.label = "Vide Externe";
+    session->buttons_selection_remplissage[2]->type = SELECTION_MUR;
+    session->buttons_selection_remplissage[2]->button_base.label = "Mur";
+    session->buttons_selection_remplissage[3]->type = SELECTION_GUM;
+    session->buttons_selection_remplissage[3]->button_base.label = "Gum";
+    session->buttons_selection_remplissage[4]->type = SELECTION_BIG_GUM;
+    session->buttons_selection_remplissage[4]->button_base.label = "Big Gum";
 
     // Le bouton enregistrer :
-    button_enregistrer->rect.x = FEN_X - TAILLE_BARRE_MENU_X + (TAILLE_BARRE_MENU_X/2 - button_width)/2;
-    button_enregistrer->rect.y = FEN_Y - 2*button_height;
-    button_enregistrer->rect.w = button_width;
-    button_enregistrer->rect.h = button_height;
-    button_enregistrer->hovered = 0;
-    button_enregistrer->label = "Enregistrer";
-    buttons[NB_BUTTONS_SELECTION_REMPLISSAGE] = button_enregistrer;
+    session->button_enregistrer->rect.x = FEN_X - TAILLE_BARRE_MENU_X + (TAILLE_BARRE_MENU_X/2 - session->button_width)/2;
+    session->button_enregistrer->rect.y = FEN_Y - 2*session->button_height;
+    session->button_enregistrer->rect.w = session->button_width;
+    session->button_enregistrer->rect.h = session->button_height;
+    session->button_enregistrer->hovered = 0;
+    session->button_enregistrer->label = "Enregistrer";
+    session->buttons[NB_BUTTONS_SELECTION_REMPLISSAGE] = session->button_enregistrer;
 
     // Les autres boutons :
-    button_margin_y = ((FEN_Y - HEADER_HEIGHT) - (NB_BUTTONS - NB_BUTTONS_SELECTION_REMPLISSAGE - 1) * button_height)/(NB_BUTTONS - NB_BUTTONS_SELECTION_REMPLISSAGE - 1);
-    Button* but[] = {button_modif_taille_map, button_grille, button_zoom_plus, button_zoom_moins, button_symetrie_verticale, button_symetrie_horizontale};
+    button_margin_y = ((FEN_Y - HEADER_HEIGHT) - (NB_BUTTONS - NB_BUTTONS_SELECTION_REMPLISSAGE - 1) * session->button_height)/(NB_BUTTONS - NB_BUTTONS_SELECTION_REMPLISSAGE - 1);
+    Button* but[] = {session->button_modif_taille_map, session->button_grille, session->button_zoom_plus, session->button_zoom_moins, session->button_symetrie_verticale, session->button_symetrie_horizontale};
     char* noms[] = {"Modif taille", "Grille", "Zoom +", "Zoom -", "Sym. verti.", "Sym. horiz."};
     for (int j = 0; j < NB_BUTTONS - NB_BUTTONS_SELECTION_REMPLISSAGE - 1; j++){
-        but[j]->rect.x = FEN_X - TAILLE_BARRE_MENU_X/2 + (TAILLE_BARRE_MENU_X/2 - button_width)/2;
-        but[j]->rect.y = HEADER_HEIGHT + button_margin_y/2 + j * (button_height + button_margin_y);
-        but[j]->rect.w = button_width;
-        but[j]->rect.h = button_height;
+        but[j]->rect.x = FEN_X - TAILLE_BARRE_MENU_X/2 + (TAILLE_BARRE_MENU_X/2 - session->button_width)/2;
+        but[j]->rect.y = HEADER_HEIGHT + button_margin_y/2 + j * (session->button_height + button_margin_y);
+        but[j]->rect.w = session->button_width;
+        but[j]->rect.h = session->button_height;
         but[j]->hovered = 0;
         but[j]->label = noms[j];
-        buttons[NB_BUTTONS_SELECTION_REMPLISSAGE + 1 + j] = but[j];
+        session->buttons[NB_BUTTONS_SELECTION_REMPLISSAGE + 1 + j] = but[j];
     }
 }
 
-void affiche_boutons_createur_map (SDL_Renderer* ren, SelectionButton_createur_map boutons_selection[NB_BUTTONS_SELECTION_REMPLISSAGE], Button* boutons[NB_BUTTONS], int is_symetrie_horizontale, int is_symetrie_verticale, SDL_Color color_texte, SDL_Color color_touch, SDL_Color color_base, SDL_Color color_selected){
+void affiche_boutons_createur_map (SDL_Renderer* ren, SelectionButton_createur_map* boutons_selection[NB_BUTTONS_SELECTION_REMPLISSAGE], Button* boutons[NB_BUTTONS], Session_modif_map* session){
     for (int i = 0; i < NB_BUTTONS_SELECTION_REMPLISSAGE; i++) {
-        if (selection_en_cours_createur_map == boutons_selection[i].type) {
-            renderButton(ren, &(boutons_selection[i].button_base), color_texte, color_selected, color_touch);
+        if (selection_en_cours_createur_map == boutons_selection[i]->type) {
+            renderButton(ren, &(boutons_selection[i]->button_base), session->color->bt_texte, session->color->bt_selected, session->color->bt_touch);
         } else {
-            renderButton(ren, &(boutons_selection[i].button_base), color_texte, color_base, color_touch);
+            renderButton(ren, &(boutons_selection[i]->button_base), session->color->bt_texte, session->color->bt_base, session->color->bt_touch);
         }
     }
     for (int j = NB_BUTTONS_SELECTION_REMPLISSAGE; j < NB_BUTTONS-2; j++){
-        renderButton(ren, boutons[j], color_texte, color_base, color_touch);
+        renderButton(ren, boutons[j], session->color->bt_texte, session->color->bt_base, session->color->bt_touch);
     }
     // Bouton symétrie verticale
-    if (is_symetrie_verticale) {
-        renderButton(ren, boutons[NB_BUTTONS-2], color_texte, color_selected, color_touch);
+    if (session->is_symetrie_verticale) {
+        renderButton(ren, boutons[NB_BUTTONS-2], session->color->bt_texte, session->color->bt_selected, session->color->bt_touch);
     } else {
-        renderButton(ren, boutons[NB_BUTTONS-2], color_texte, color_base, color_touch);
+        renderButton(ren, boutons[NB_BUTTONS-2], session->color->bt_texte, session->color->bt_base, session->color->bt_touch);
     }
     // Bouton symétrie horizontale
-    if (is_symetrie_horizontale) {
-        renderButton(ren, boutons[NB_BUTTONS-1], color_texte, color_selected, color_touch);
+    if (session->is_symetrie_horizontale) {
+        renderButton(ren, boutons[NB_BUTTONS-1], session->color->bt_texte, session->color->bt_selected, session->color->bt_touch);
     } else {
-        renderButton(ren, boutons[NB_BUTTONS-1], color_texte, color_base, color_touch);
+        renderButton(ren, boutons[NB_BUTTONS-1], session->color->bt_texte, session->color->bt_base, session->color->bt_touch);
     }
 }
 
-void clic_souris (int x, int y, SelectionButton_createur_map selections[NB_BUTTONS_SELECTION_REMPLISSAGE], Musique* musique){
+void clic_souris (int x, int y, SelectionButton_createur_map* selections[NB_BUTTONS_SELECTION_REMPLISSAGE], Musique* musique){
     // Vérifier si un bouton de sélection de catégorie est cliqué
     for (int i = 0; i < NB_BUTTONS_SELECTION_REMPLISSAGE; i++) {
-        if (x >= selections[i].button_base.rect.x && x <= selections[i].button_base.rect.x + selections[i].button_base.rect.w &&
-            y >= selections[i].button_base.rect.y && y <= selections[i].button_base.rect.y + selections[i].button_base.rect.h) {
+        if (x >= selections[i]->button_base.rect.x && x <= selections[i]->button_base.rect.x + selections[i]->button_base.rect.w &&
+            y >= selections[i]->button_base.rect.y && y <= selections[i]->button_base.rect.y + selections[i]->button_base.rect.h) {
                 
                 playSoundEffect(musique->select);
-                if (selection_en_cours_createur_map == selections[i].type) {
+                if (selection_en_cours_createur_map == selections[i]->type) {
                     selection_en_cours_createur_map = SELECTION_NULL;
                 } else {
-                    selection_en_cours_createur_map = selections[i].type;
+                    selection_en_cours_createur_map = selections[i]->type;
                 }
             return;
         }
@@ -203,36 +219,46 @@ int is_map_conforme (Map* map, int* x, int* y){
     return 1;
 }
 
-void init_boutons_enregistrer (int button_width, int button_height, Button* entree_text, Button* consigne_enregistrement, Button* annuler_enregistrement, Button* valider_enregistrement){
-    entree_text->rect.w = 400;
-    entree_text->rect.h = 200;
-    entree_text->rect.x = (FEN_X - entree_text->rect.w)/2;
-    entree_text->rect.y = (FEN_Y - entree_text->rect.h)/2;
-    entree_text->hovered = 1;
+void init_boutons_enregistrer (Sous_menu_enregistrement* sous_menu_enregistrement){
+    int button_height = 50;
+    int button_width = 210;
 
-    consigne_enregistrement->rect.w = 500;
-    consigne_enregistrement->rect.h = 75;
-    consigne_enregistrement->rect.x = (FEN_X - consigne_enregistrement->rect.w)/2;
-    consigne_enregistrement->rect.y = entree_text->rect.y - consigne_enregistrement->rect.h - 50;
-    consigne_enregistrement->hovered = 0;
-    consigne_enregistrement->label = "Entrez le nom de la map :";
+    sous_menu_enregistrement->entree_text = malloc(sizeof(Button));
+    sous_menu_enregistrement->consigne = malloc(sizeof(Button));
+    sous_menu_enregistrement->annuler = malloc(sizeof(Button));
+    sous_menu_enregistrement->valider = malloc(sizeof(Button));
 
-    annuler_enregistrement->rect.x = FEN_X/2 - 20 - button_width;
-    annuler_enregistrement->rect.y = entree_text->rect.y + entree_text->rect.h + 50;
-    annuler_enregistrement->rect.w = button_width;
-    annuler_enregistrement->rect.h = button_height;
-    annuler_enregistrement->hovered = 0;
-    annuler_enregistrement->label = "Annuler";
+    sous_menu_enregistrement->entree_text->rect.w = 400;
+    sous_menu_enregistrement->entree_text->rect.h = 200;
+    sous_menu_enregistrement->entree_text->rect.x = (FEN_X - sous_menu_enregistrement->entree_text->rect.w)/2;
+    sous_menu_enregistrement->entree_text->rect.y = (FEN_Y - sous_menu_enregistrement->entree_text->rect.h)/2;
+    sous_menu_enregistrement->entree_text->hovered = 1;
 
-    valider_enregistrement->rect.x = FEN_X/2 + 20;
-    valider_enregistrement->rect.y = entree_text->rect.y + entree_text->rect.h + 50;
-    valider_enregistrement->rect.w = button_width;
-    valider_enregistrement->rect.h = button_height;
-    valider_enregistrement->hovered = 0;
-    valider_enregistrement->label = "Valider";
+    sous_menu_enregistrement->consigne->rect.w = 500;
+    sous_menu_enregistrement->consigne->rect.h = 75;
+    sous_menu_enregistrement->consigne->rect.x = (FEN_X - sous_menu_enregistrement->consigne->rect.w)/2;
+    sous_menu_enregistrement->consigne->rect.y = sous_menu_enregistrement->entree_text->rect.y - sous_menu_enregistrement->consigne->rect.h - 50;
+    sous_menu_enregistrement->consigne->hovered = 0;
+    sous_menu_enregistrement->consigne->label = "Entrez le nom de la map :";
+
+    sous_menu_enregistrement->annuler->rect.x = FEN_X/2 - 20 - button_width;
+    sous_menu_enregistrement->annuler->rect.y = sous_menu_enregistrement->entree_text->rect.y + sous_menu_enregistrement->entree_text->rect.h + 50;
+    sous_menu_enregistrement->annuler->rect.w = button_width;
+    sous_menu_enregistrement->annuler->rect.h = button_height;
+    sous_menu_enregistrement->annuler->hovered = 0;
+    sous_menu_enregistrement->annuler->label = "Annuler";
+
+    sous_menu_enregistrement->valider->rect.x = FEN_X/2 + 20;
+    sous_menu_enregistrement->valider->rect.y = sous_menu_enregistrement-> entree_text->rect.y + sous_menu_enregistrement->entree_text->rect.h + 50;
+    sous_menu_enregistrement->valider->rect.w = button_width;
+    sous_menu_enregistrement->valider->rect.h = button_height;
+    sous_menu_enregistrement->valider->hovered = 0;
+    sous_menu_enregistrement->valider->label = "Valider";
 }
 
-void init_boutons_modif_taille_map (int button_width, int button_height, Button* entree_width, Button* entree_height, Button* valider_taille_map, Button* annuler_taille_map, Button* consigne_modif_taille_map, Button* text_entree_width, Button* text_entree_height){
+void init_boutons_modif_taille_map (Sous_menu_modif_taille_map* sous_menu_modif_taille_map){
+    int button_height = 50;
+    int button_width = 210;
     int taille_saisie_x = 200;
     int taille_saisie_y = 50;
     int taille_text_x = 350;
@@ -242,56 +268,64 @@ void init_boutons_modif_taille_map (int button_width, int button_height, Button*
     int ecart_entre_saisies_et_bts = 200;
     int ecart_entre_saisies_et_def = 80;
 
-    // Position des champs de saisie
-    entree_width->rect.w = taille_saisie_x;
-    entree_width->rect.h = taille_saisie_y;
-    entree_width->rect.x = (FEN_X + ecart_entre_saisies_et_def)/2;
-    entree_width->rect.y = (FEN_Y - entree_width->rect.h - ecart_entre_saisies)/2;
-    entree_width->hovered = 0;
+    sous_menu_modif_taille_map->entree_width = malloc(sizeof(Button));
+    sous_menu_modif_taille_map->entree_height = malloc(sizeof(Button));
+    sous_menu_modif_taille_map->text_entree_width = malloc(sizeof(Button));
+    sous_menu_modif_taille_map->text_entree_height = malloc(sizeof(Button));
+    sous_menu_modif_taille_map->consigne = malloc(sizeof(Button));
+    sous_menu_modif_taille_map->annuler = malloc(sizeof(Button));
+    sous_menu_modif_taille_map->valider = malloc(sizeof(Button));
 
-    entree_height->rect.w = taille_saisie_x;
-    entree_height->rect.h = taille_saisie_y;
-    entree_height->rect.x = (FEN_X + ecart_entre_saisies_et_def)/2;
-    entree_height->rect.y = (FEN_Y + ecart_entre_saisies - entree_width->rect.h)/2;
-    entree_height->hovered = 0;
+    // Position des champs de saisie
+    sous_menu_modif_taille_map->entree_width->rect.w = taille_saisie_x;
+    sous_menu_modif_taille_map->entree_width->rect.h = taille_saisie_y;
+    sous_menu_modif_taille_map->entree_width->rect.x = (FEN_X + ecart_entre_saisies_et_def)/2;
+    sous_menu_modif_taille_map->entree_width->rect.y = (FEN_Y - sous_menu_modif_taille_map->entree_width->rect.h - ecart_entre_saisies)/2;
+    sous_menu_modif_taille_map->entree_width->hovered = 0;
+
+    sous_menu_modif_taille_map->entree_height->rect.w = taille_saisie_x;
+    sous_menu_modif_taille_map->entree_height->rect.h = taille_saisie_y;
+    sous_menu_modif_taille_map->entree_height->rect.x = (FEN_X + ecart_entre_saisies_et_def)/2;
+    sous_menu_modif_taille_map->entree_height->rect.y = (FEN_Y + ecart_entre_saisies - sous_menu_modif_taille_map->entree_width->rect.h)/2;
+    sous_menu_modif_taille_map->entree_height->hovered = 0;
 
     // Position des textes de définition des champs de saisie
-    text_entree_width->rect.w = taille_text_x;
-    text_entree_width->rect.h = taille_text_y;
-    text_entree_width->rect.x = FEN_X/2 - text_entree_width->rect.w - ecart_entre_saisies_et_def/2;
-    text_entree_width->rect.y = (FEN_Y - text_entree_width->rect.h - ecart_entre_saisies)/2;
-    text_entree_width->hovered = 0;
-    text_entree_width->label = "Nombre de colones :";
+    sous_menu_modif_taille_map->text_entree_width->rect.w = taille_text_x;
+    sous_menu_modif_taille_map->text_entree_width->rect.h = taille_text_y;
+    sous_menu_modif_taille_map->text_entree_width->rect.x = FEN_X/2 - sous_menu_modif_taille_map->text_entree_width->rect.w - ecart_entre_saisies_et_def/2;
+    sous_menu_modif_taille_map->text_entree_width->rect.y = (FEN_Y - sous_menu_modif_taille_map->text_entree_width->rect.h - ecart_entre_saisies)/2;
+    sous_menu_modif_taille_map->text_entree_width->hovered = 0;
+    sous_menu_modif_taille_map->text_entree_width->label = "Nombre de colones :";
 
-    text_entree_height->rect.w = taille_text_x;
-    text_entree_height->rect.h = taille_text_y;
-    text_entree_height->rect.x = FEN_X/2 - text_entree_height->rect.w - ecart_entre_saisies_et_def/2;
-    text_entree_height->rect.y = (FEN_Y + ecart_entre_saisies - text_entree_height->rect.h)/2;
-    text_entree_height->hovered = 0;
-    text_entree_height->label = "Nombre de lignes :";
+    sous_menu_modif_taille_map->text_entree_height->rect.w = taille_text_x;
+    sous_menu_modif_taille_map->text_entree_height->rect.h = taille_text_y;
+    sous_menu_modif_taille_map->text_entree_height->rect.x = FEN_X/2 - sous_menu_modif_taille_map->text_entree_height->rect.w - ecart_entre_saisies_et_def/2;
+    sous_menu_modif_taille_map->text_entree_height->rect.y = (FEN_Y + ecart_entre_saisies - sous_menu_modif_taille_map->text_entree_height->rect.h)/2;
+    sous_menu_modif_taille_map->text_entree_height->hovered = 0;
+    sous_menu_modif_taille_map->text_entree_height->label = "Nombre de lignes :";
 
     // Texte de consigne
-    consigne_modif_taille_map->rect.w = 800;
-    consigne_modif_taille_map->rect.h = 75;
-    consigne_modif_taille_map->rect.x = (FEN_X - consigne_modif_taille_map->rect.w)/2;
-    consigne_modif_taille_map->rect.y = entree_width->rect.y - consigne_modif_taille_map->rect.h - 50;
-    consigne_modif_taille_map->hovered = 0;
-    consigne_modif_taille_map->label = "Entrez les nouvelles dimentions de la map :";
+    sous_menu_modif_taille_map->consigne->rect.w = 800;
+    sous_menu_modif_taille_map->consigne->rect.h = 75;
+    sous_menu_modif_taille_map->consigne->rect.x = (FEN_X - sous_menu_modif_taille_map->consigne->rect.w)/2;
+    sous_menu_modif_taille_map->consigne->rect.y = sous_menu_modif_taille_map->entree_width->rect.y - sous_menu_modif_taille_map->consigne->rect.h - 50;
+    sous_menu_modif_taille_map->consigne->hovered = 0;
+    sous_menu_modif_taille_map->consigne->label = "Entrez les nouvelles dimentions de la map :";
 
     // Boutons valider et annuler
-    valider_taille_map->rect.w = button_width;
-    valider_taille_map->rect.h = button_height;
-    valider_taille_map->rect.x = FEN_X/2 - button_width - ecart_entre_bt_valider_et_annuler/2;
-    valider_taille_map->rect.y = entree_height->rect.y + (entree_height->rect.h + ecart_entre_saisies_et_bts - valider_taille_map->rect.h)/2;
-    valider_taille_map->label = "Valider";
-    valider_taille_map->hovered = 0;
+    sous_menu_modif_taille_map->valider->rect.w = button_width;
+    sous_menu_modif_taille_map->valider->rect.h = button_height;
+    sous_menu_modif_taille_map->valider->rect.x = FEN_X/2 - button_width - ecart_entre_bt_valider_et_annuler/2;
+    sous_menu_modif_taille_map->valider->rect.y = sous_menu_modif_taille_map->entree_height->rect.y + (sous_menu_modif_taille_map->entree_height->rect.h + ecart_entre_saisies_et_bts - sous_menu_modif_taille_map->valider->rect.h)/2;
+    sous_menu_modif_taille_map->valider->label = "Valider";
+    sous_menu_modif_taille_map->valider->hovered = 0;
 
-    annuler_taille_map->rect.w = button_width;
-    annuler_taille_map->rect.h = button_height;
-    annuler_taille_map->rect.x = FEN_X/2 + ecart_entre_bt_valider_et_annuler/2;
-    annuler_taille_map->rect.y = entree_height->rect.y + (entree_height->rect.h + ecart_entre_saisies_et_bts - annuler_taille_map->rect.h)/2;
-    annuler_taille_map->label = "Annuler";
-    annuler_taille_map->hovered = 0;
+    sous_menu_modif_taille_map->annuler->rect.w = button_width;
+    sous_menu_modif_taille_map->annuler->rect.h = button_height;
+    sous_menu_modif_taille_map->annuler->rect.x = FEN_X/2 + ecart_entre_bt_valider_et_annuler/2;
+    sous_menu_modif_taille_map->annuler->rect.y = sous_menu_modif_taille_map->entree_height->rect.y + (sous_menu_modif_taille_map->entree_height->rect.h + ecart_entre_saisies_et_bts - sous_menu_modif_taille_map->annuler->rect.h)/2;
+    sous_menu_modif_taille_map->annuler->label = "Annuler";
+    sous_menu_modif_taille_map->annuler->hovered = 0;
 }
 
 Map modif_taille_map (Map* map, int x, int y){
@@ -338,527 +372,602 @@ void free_tils(SDL_Texture** tils, int nb_tils) {
     free(tils);
 }
 
-void main_loop_createur_map (SDL_Renderer* ren, Musique* musique){
-    int button_height = 50;
-    int button_width = 210; 
-
-    Button* buttons[NB_BUTTONS];
-    SelectionButton_createur_map buttons_selection_remplissage [NB_BUTTONS_SELECTION_REMPLISSAGE];
-    Button button_modif_taille_map, button_grille, button_enregistrer, button_zoom_plus, button_zoom_moins, button_symetrie_verticale, button_symetrie_horizontale;
-    init_buttons_createur_map(buttons, button_height, button_width, buttons_selection_remplissage, &button_modif_taille_map, &button_grille, &button_enregistrer, &button_zoom_plus, &button_zoom_moins, &button_symetrie_verticale, &button_symetrie_horizontale);
-
-    SDL_Texture** tils = malloc(sizeof(SDL_Texture*) * 4);
-    init_tils(tils, ren);
-
-    // Un message à afficher (soit une erreur, une alerte ou bien une confirmation que tout c'est bien passé)
-    Message message;
-    message.button_base.rect = (SDL_Rect){FEN_X/2-400, FEN_Y/2-50, 800, 200};
-    message.button_base.hovered = 0;
-    message.is_visible = 0;
-    time_t start_time_message = time(NULL);
-
-    // Init pour le sous-menu enregistrer
-    char text[MAX_TEXT_LENGTH + 1] = "";
-    char displayText[MAX_TEXT_LENGTH + 2];
-    Button entree_text, consigne_enregistrement, annuler_enregistrement, valider_enregistrement;
-    init_boutons_enregistrer(button_width, button_height, &entree_text, &consigne_enregistrement, &annuler_enregistrement, &valider_enregistrement);
-    
-
-    // Init pour le sous-menu de modification de la taille de la map
-    char width_text[MAX_NB_LENGTH + 1] = "";  // Stocke la largeur saisie
-    char height_text[MAX_NB_LENGTH + 1] = ""; // Stocke la hauteur saisie
-    char displayWidth[MAX_NB_LENGTH + 2];
-    char displayHeight[MAX_NB_LENGTH + 2];
-    int is_typing_width = 1; // 1 = saisie largeur en cours, 0 = saisie hauteur
-    Button entree_width, entree_height, valider_taille_map, annuler_taille_map, consigne_modif_taille_map, text_entree_width, text_entree_height;
-    init_boutons_modif_taille_map(button_width, button_height, &entree_width, &entree_height, &valider_taille_map, &annuler_taille_map, &consigne_modif_taille_map, &text_entree_width, &text_entree_height);
-
-    // Init des maps
-    Map map = init_map_dessin();
-    init_taille_case_et_origine(&map);
-    Map map_totale = copyMap(&map);
-
-    int position_maison_ghosts[] = {map.position_maison_ghosts_x - 4,
-                                    map.position_maison_ghosts_y,
-                                    map.position_maison_ghosts_x + 5,
-                                    map.position_maison_ghosts_y + 6};
-
-    SDL_Color color_text = {255, 255, 255, 255};
-    SDL_Color bgColor_text_descriptif = {50, 50, 50, 200};
+void init_couleurs_session (Session_modif_map* session){
+    SDL_Color text = {255, 255, 255, 255};
+    SDL_Color bg_text_descriptif = {50, 50, 50, 200};
     SDL_Color green = {0, 255, 0, 255};
+    SDL_Color light_green = {0, 255, 0, 100};
     SDL_Color red = {255, 0, 0, 255};
-    SDL_Color bt_color_texte = {255, 255, 255, 255};
-    SDL_Color bt_color_base = {100, 100, 255, 255};
-    SDL_Color bt_color_selected = {200, 100, 255, 255};
-    SDL_Color bt_color_touch = {100, 200, 255, 255};
-    SDL_Color color_bande_laterale_1 = {50, 100, 50, 255};
-    SDL_Color color_bande_laterale_2 = {50, 50, 50, 255};
+    SDL_Color light_red = {255, 0, 0, 100};
+    SDL_Color bt_texte = {255, 255, 255, 255};
+    SDL_Color bt_base = {100, 100, 255, 255};
+    SDL_Color bt_selected = {200, 100, 255, 255};
+    SDL_Color bt_touch = {100, 200, 255, 255};
+    SDL_Color bande_laterale_1 = {50, 100, 50, 255};
+    SDL_Color bande_laterale_2 = {50, 50, 50, 255};
+
+    session->color->text = text;
+    session->color->bg_text_descriptif = bg_text_descriptif;
+    session->color->green = green;
+    session->color->light_green = light_green;
+    session->color->red = red;
+    session->color->light_red = light_red;
+    session->color->bt_texte = bt_texte;
+    session->color->bt_base = bt_base;
+    session->color->bt_selected = bt_selected;
+    session->color->bt_touch = bt_touch;
+    session->color->bande_laterale_1 = bande_laterale_1;
+    session->color->bande_laterale_2 = bande_laterale_2;
+}
+
+void affiche_interface_createur_map(SDL_Renderer* ren, Session_modif_map* session, time_t current_time) {
+    int pos_x, pos_y; //variables de calcul intermédiaire non important
+    
     SDL_Rect bande_laterale_gauche_1 = {FEN_X - TAILLE_BARRE_MENU_X, HEADER_HEIGHT, FEN_X - TAILLE_BARRE_MENU_X/2, FEN_Y};
     SDL_Rect bande_laterale_gauche_2 = {FEN_X - TAILLE_BARRE_MENU_X/2, HEADER_HEIGHT, FEN_X, FEN_Y};
-    int cursorVisible = 1;
-    Uint32 lastCursorToggle = SDL_GetTicks();
-    int x_souris_px, y_souris_px, x_souris_cases, y_souris_cases;
-    int is_en_cours_de_modif = 0;
-    int is_souris_sur_map = 0;
-    int is_grille_on = 1;
-    int zoom = 0;
-    int position_zoom_x = 0;
-    int position_zoom_y = 0;
-    int cercle_pointe_erreur_x = -1;
-    int cercle_pointe_erreur_y = -1;
-    int is_symetrie_verticale = 0;
-    int is_symetrie_horizontale = 0;
-    int pos_x, pos_y; //variables de calcul intermédiaire non important
-    int is_enregistrement = 0;
-    int is_modif_taille_map = 0;
+
+    SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
+    SDL_RenderClear(ren);
+    renderHeader(ren, "Créateur de Map");
+    affiche_map(session->map, session->tils, ren);
+    if (session->is_enregistrement || session->is_modif_taille_map){
+        session->color->bande_laterale_1.a = 100;
+        session->color->bt_base.a = 100;
+        session->color->bt_selected.a = 200;
+    } else {
+        session->color->bande_laterale_1.a = 255;
+        session->color->bt_base.a = 255;
+        session->color->bt_selected.a = 255;
+    }
+    SDL_SetRenderDrawColor(ren, session->color->bande_laterale_1.r, session->color->bande_laterale_1.g, session->color->bande_laterale_1.b, session->color->bande_laterale_1.a);
+    SDL_RenderFillRect(ren, &bande_laterale_gauche_1);
+    SDL_SetRenderDrawColor(ren, session->color->bande_laterale_2.r, session->color->bande_laterale_2.g, session->color->bande_laterale_2.b, session->color->bande_laterale_2.a);
+    SDL_RenderFillRect(ren, &bande_laterale_gauche_2);
+    affiche_boutons_createur_map(ren, session->buttons_selection_remplissage, session->buttons, session);
+    if (session->is_enregistrement){
+        if (SDL_GetTicks() - session->sous_menu_enregistrement->lastCursorToggle >= CURSOR_BLINK_TIME) {
+            session->sous_menu_enregistrement->cursorVisible = !session->sous_menu_enregistrement->cursorVisible;
+            session->sous_menu_enregistrement->lastCursorToggle = SDL_GetTicks();
+        }
+        snprintf(session->sous_menu_enregistrement->displayText, sizeof(session->sous_menu_enregistrement->displayText), "%s%s", session->sous_menu_enregistrement->text, session->sous_menu_enregistrement->cursorVisible ? "|" : " ");
+        session->sous_menu_enregistrement->entree_text->label = session->sous_menu_enregistrement->displayText;
+        renderButton(ren, session->sous_menu_enregistrement->consigne, session->color->text, session->color->bg_text_descriptif, session->color->bg_text_descriptif);
+        renderButton(ren, session->sous_menu_enregistrement->entree_text, session->color->text, session->color->bg_text_descriptif, session->color->bg_text_descriptif);
+        renderButton(ren, session->sous_menu_enregistrement->valider, session->color->text, session->color->green, session->color->light_green);
+        renderButton(ren, session->sous_menu_enregistrement->annuler, session->color->text, session->color->red, session->color->light_red);
+    } else {
+    if (session->is_modif_taille_map){
+        if (SDL_GetTicks() - session->sous_menu_modif_taille_map->lastCursorToggle >= CURSOR_BLINK_TIME) {
+            session->sous_menu_modif_taille_map->cursorVisible = !session->sous_menu_modif_taille_map->cursorVisible;
+            session->sous_menu_modif_taille_map->lastCursorToggle = SDL_GetTicks();
+        }
+        // Texte affiché (ajoute un curseur clignotant)
+        snprintf(session->sous_menu_modif_taille_map->displayWidth, sizeof(session->sous_menu_modif_taille_map->displayWidth), "%s%s", session->sous_menu_modif_taille_map->width_text, (session->sous_menu_modif_taille_map->is_typing_width && session->sous_menu_modif_taille_map->cursorVisible) ? "|" : " ");
+        snprintf(session->sous_menu_modif_taille_map->displayHeight, sizeof(session->sous_menu_modif_taille_map->displayHeight), "%s%s", session->sous_menu_modif_taille_map->height_text, (!session->sous_menu_modif_taille_map->is_typing_width && session->sous_menu_modif_taille_map->cursorVisible) ? "|" : " ");
+        // Afficher les champs de texte
+        session->sous_menu_modif_taille_map->entree_width->label = session->sous_menu_modif_taille_map->displayWidth;
+        session->sous_menu_modif_taille_map->entree_height->label = session->sous_menu_modif_taille_map->displayHeight;
+        renderButton(ren, session->sous_menu_modif_taille_map->entree_width, session->color->text, session->color->bg_text_descriptif, session->color->bg_text_descriptif);
+        renderButton(ren, session->sous_menu_modif_taille_map->entree_height, session->color->text, session->color->bg_text_descriptif, session->color->bg_text_descriptif);
+        // Afficher les boutons
+        renderButton(ren, session->sous_menu_modif_taille_map->valider, session->color->text, session->color->green, session->color->light_green);
+        renderButton(ren, session->sous_menu_modif_taille_map->annuler, session->color->text, session->color->red, session->color->light_red);
+        // Afficher les textes
+        renderButton(ren, session->sous_menu_modif_taille_map->consigne, session->color->text, session->color->bg_text_descriptif, session->color->bg_text_descriptif);
+        renderButton(ren, session->sous_menu_modif_taille_map->text_entree_height, session->color->text, session->color->bg_text_descriptif, session->color->bg_text_descriptif);
+        renderButton(ren, session->sous_menu_modif_taille_map->text_entree_width, session->color->text, session->color->bg_text_descriptif, session->color->bg_text_descriptif);
+
+    } else {
+        if (session->is_grille_on) {
+            affiche_quadrillage(ren, session->map);
+        }
+        if (session->is_souris_sur_map && selection_en_cours_createur_map != SELECTION_NULL){
+            if (session->cercle_pointe_erreur_x == session->x_souris_cases && session->cercle_pointe_erreur_y == session->y_souris_cases){
+                session->cercle_pointe_erreur_x = -1;
+                session->cercle_pointe_erreur_y = -1;
+            }
+            // Affichage du (ou des) carrées rouge(s) de placement/sélection de la souris
+            SDL_SetRenderDrawColor(ren, 255, 0, 0, 255);
+            SDL_Rect rectangle_selection_map = {ORIGINE_X + session->x_souris_cases * session->map->taille_case, ORIGINE_Y + session->y_souris_cases * session->map->taille_case, session->map->taille_case, session->map->taille_case};
+            SDL_RenderDrawRect(ren, &rectangle_selection_map);
+            pos_x = session->map_totale->x - 1 - session->x_souris_cases - 2*session->position_zoom_x;
+            pos_y = session->map_totale->y - 1 - session->y_souris_cases - 2*session->position_zoom_y;
+            if (session->is_symetrie_verticale && pos_x < session->map->x && pos_x >= 0){
+                SDL_Rect rectangle_selection_map_2 = {ORIGINE_X + pos_x * session->map->taille_case, ORIGINE_Y + session->y_souris_cases * session->map->taille_case, session->map->taille_case, session->map->taille_case};
+                SDL_RenderDrawRect(ren, &rectangle_selection_map_2);
+            }
+            if (session->is_symetrie_horizontale && pos_y < session->map->y && pos_y >= 0){
+                SDL_Rect rectangle_selection_map_3 = {ORIGINE_X + session->x_souris_cases * session->map->taille_case, ORIGINE_Y + pos_y * session->map->taille_case, session->map->taille_case, session->map->taille_case};
+                SDL_RenderDrawRect(ren, &rectangle_selection_map_3);
+            }
+            if (session->is_symetrie_horizontale && pos_y < session->map->y && pos_y >= 0 && 
+                session->is_symetrie_verticale && pos_x < session->map->x && pos_x >= 0){
+                SDL_Rect rectangle_selection_map_4 = {ORIGINE_X + pos_x * session->map->taille_case, ORIGINE_Y + pos_y * session->map->taille_case, session->map->taille_case, session->map->taille_case};
+                SDL_RenderDrawRect(ren, &rectangle_selection_map_4);
+            }
+        }
+        if (session->cercle_pointe_erreur_x >= 0 && session->cercle_pointe_erreur_y >= 0){
+            SDL_SetRenderDrawColor(ren, 255, 0, 0, 255);
+            drawArc(ren, ORIGINE_X + session->cercle_pointe_erreur_x * session->map->taille_case + (int)(session->map->taille_case/2), ORIGINE_Y + session->cercle_pointe_erreur_y * session->map->taille_case + (int)(session->map->taille_case/2), session->map->taille_case, 0, 2*PI, 4, 100);
+    }}}
+    if (session->message->is_visible){
+        if (current_time - session->message->start_time > session->message->temps_affichage){
+            session->message->is_visible = 0;
+        } else {
+            renderButton(ren, &session->message->button_base, session->message->couleur_message, session->message->couleur_fond, session->message->couleur_fond);
+        }
+    }
+}
+
+void handle_events_createur_map(SDL_Event event, Session_modif_map* session, int* running, Musique* musique, SDL_Renderer* ren) {
+    if (event.type == SDL_MOUSEMOTION) {
+        session->x_souris_px = event.motion.x;
+        session->y_souris_px = event.motion.y;
+
+        // Souris sur un bouton ?
+        for (int i = 0; i < NB_BUTTONS; i++) {
+            if (is_souris_sur_button(*session->buttons[i], session->x_souris_px, session->y_souris_px)) {
+                session->buttons[i]->hovered = 1;
+            } else {
+                session->buttons[i]->hovered = 0;
+            }
+        }
+        
+        // Souris sur la map ?
+        if (session->x_souris_px >= ORIGINE_X && session->x_souris_px <= ORIGINE_X + session->map->x * session->map->taille_case &&
+            session->y_souris_px >= ORIGINE_Y && session->y_souris_px <= ORIGINE_Y + session->map->y * session->map->taille_case) {
+                session->x_souris_cases = (session->x_souris_px - ORIGINE_X)/session->map->taille_case;
+                session->y_souris_cases = (session->y_souris_px - ORIGINE_Y)/session->map->taille_case;
+                // Souris pas dans la maison des fantômes
+                if (session->x_souris_cases >= session->position_maison_ghosts[0] - session->position_zoom_x && session->x_souris_cases <= session->position_maison_ghosts[2] - session->position_zoom_x &&
+                    session->y_souris_cases >= session->position_maison_ghosts[1] - session->position_zoom_y && session->y_souris_cases <= session->position_maison_ghosts[3] - session->position_zoom_y){
+                        session->is_souris_sur_map = 0;
+                        session->is_en_cours_de_modif = 0; // Arrête la modification à la chaine
+                }
+                else {
+                    session->is_souris_sur_map = 1;
+                }
+        }
+        else {
+            session->is_souris_sur_map = 0;
+        }
+
+        // Map en cours de modif ? <=> souris pressée sur une case <=> modification à la chaine
+        if (session->is_en_cours_de_modif){
+            modif_case(session->map, session->map_totale, session->x_souris_cases, session->y_souris_cases, session->zoom, session->position_zoom_x, session->position_zoom_y, session->is_symetrie_horizontale, session->is_symetrie_verticale);
+        }
+    }
+
+    if (event.type == SDL_MOUSEBUTTONUP) {
+        clic_souris(session->x_souris_px, session->y_souris_px, session->buttons_selection_remplissage, musique);
+        session->is_en_cours_de_modif = 0; // Arrête la modification à la chaine
+
+        if (is_souris_sur_button(*session->button_grille, session->x_souris_px, session->y_souris_px)) {
+            playSoundEffect(musique->select);
+            if (session->is_grille_on) {
+                session->is_grille_on = 0;
+            } else {
+                session->is_grille_on = 1;
+            }
+        }
+
+        if (is_souris_sur_button(*session->button_zoom_plus, session->x_souris_px, session->y_souris_px)) {
+            playSoundEffect(musique->select);
+            session->zoom += VITESSE_ZOOM;
+            if (session->zoom > session->map_totale->x - ZOOM_MAX || session->zoom > session->map_totale->y - ZOOM_MAX){
+                session->zoom -= VITESSE_ZOOM;
+            } else {
+                nouveau_zoom(session->map, session->map_totale, session->zoom, session->position_zoom_x, session->position_zoom_y);
+            }
+        }
+        if (is_souris_sur_button(*session->button_zoom_moins, session->x_souris_px, session->y_souris_px)) {
+            playSoundEffect(musique->select);
+            session->zoom -= VITESSE_ZOOM;
+            if (session->zoom < 0){
+                session->zoom = 0;
+            } else {
+                if (session->position_zoom_x > session->zoom){
+                    session->position_zoom_x = session->zoom;
+                }
+                if (session->position_zoom_y > session->zoom){
+                    session->position_zoom_y = session->zoom;
+                }
+                nouveau_zoom(session->map, session->map_totale, session->zoom, session->position_zoom_x, session->position_zoom_y);
+            }
+        }
+
+        if (is_souris_sur_button(*session->button_enregistrer, session->x_souris_px, session->y_souris_px)) {
+            int is_ok = is_map_conforme(session->map_totale, &session->cercle_pointe_erreur_x, &session->cercle_pointe_erreur_y);
+            if (is_ok){
+                playSoundEffect(musique->select);
+                session->is_enregistrement = 1;
+                session->sous_menu_enregistrement->text[0] = '\0';
+                SDL_StartTextInput();
+            } else {
+                session->message->button_base.label = "La map ne doit pas contenir de 'cul de sac' !";
+                session->message->couleur_message = (SDL_Color){0, 0, 0, 255};
+                session->message->couleur_fond = (SDL_Color){255, 100, 0, 200};
+                session->message->temps_affichage = 3;
+                session->message->is_visible = 1;
+                session->message->start_time = time(NULL);
+            }
+        }
+
+        if (is_souris_sur_button(*session->button_modif_taille_map, session->x_souris_px, session->y_souris_px)){
+            playSoundEffect(musique->select);
+            session->is_modif_taille_map = 1;
+            SDL_StartTextInput();
+        }
+        
+        if (is_souris_sur_button(*session->button_symetrie_horizontale, session->x_souris_px, session->y_souris_px)){
+            session->is_symetrie_horizontale = !session->is_symetrie_horizontale;
+        }
+        if (is_souris_sur_button(*session->button_symetrie_verticale, session->x_souris_px, session->y_souris_px)){
+            session->is_symetrie_verticale = !session->is_symetrie_verticale;
+        }
+    }
+
+    if (event.type == SDL_MOUSEBUTTONDOWN) {
+        if (session->is_souris_sur_map && selection_en_cours_createur_map != SELECTION_NULL){
+            session->is_en_cours_de_modif = 1;
+            modif_case(session->map, session->map_totale, session->x_souris_cases, session->y_souris_cases, session->zoom, session->position_zoom_x, session->position_zoom_y, session->is_symetrie_horizontale, session->is_symetrie_verticale);
+        }
+    }
+
+    if (event.type == SDL_KEYDOWN) {
+        if (event.key.keysym.sym == SDLK_LEFT){
+            session->position_zoom_x -= VITESSE_MOVE_ZOOM;
+            if (session->position_zoom_x < 0){
+                session->position_zoom_x = 0;
+            } else {
+                nouveau_zoom(session->map, session->map_totale, session->zoom, session->position_zoom_x, session->position_zoom_y);
+            }
+        }
+        if (event.key.keysym.sym == SDLK_RIGHT){
+            session->position_zoom_x += VITESSE_MOVE_ZOOM;
+            if (session->position_zoom_x + session->map->x > session->map_totale->x){
+                session->position_zoom_x = session->map_totale->x - session->map->x;
+            } else {
+                nouveau_zoom(session->map, session->map_totale, session->zoom, session->position_zoom_x, session->position_zoom_y);
+            }
+        }
+        if (event.key.keysym.sym == SDLK_UP){
+            session->position_zoom_y -= VITESSE_MOVE_ZOOM;
+            if (session->position_zoom_y < 0){
+                session->position_zoom_y = 0;
+            } else {
+                nouveau_zoom(session->map, session->map_totale, session->zoom, session->position_zoom_x, session->position_zoom_y);
+            }
+        }
+        if (event.key.keysym.sym == SDLK_DOWN){
+            session->position_zoom_y += VITESSE_MOVE_ZOOM;
+            if (session->position_zoom_y + session->map->y > session->map_totale->y){
+                session->position_zoom_y = session->map_totale->y - session->map->y;
+            } else {
+                nouveau_zoom(session->map, session->map_totale, session->zoom, session->position_zoom_x, session->position_zoom_y);
+            }
+        }
+    }
+
+    if (event.type == SDL_KEYUP) {
+        if (event.key.keysym.sym == SDLK_BACKSPACE){
+            playSoundEffect(musique->select);
+            SDL_StopTextInput();
+            ecran_acceuil(ren, musique);
+            *running = 0;
+        }
+    }
+
+}
+
+void handle_events_enregistrement(SDL_Event event, Session_modif_map* session, Musique* musique) {
+    if (event.type == SDL_TEXTINPUT) {
+        if (strlen(session->sous_menu_enregistrement->text) < MAX_TEXT_LENGTH) {
+            strcat(session->sous_menu_enregistrement->text, event.text.text);
+        }
+    }
+
+    if (event.type == SDL_MOUSEMOTION) {
+        session->x_souris_px = event.motion.x;
+        session->y_souris_px = event.motion.y;
+
+        // Souris sur un bouton ?
+        if (is_souris_sur_button(*session->sous_menu_enregistrement->annuler, session->x_souris_px, session->y_souris_px)) {
+            session->sous_menu_enregistrement->annuler->hovered = 1;
+        } else {
+            session->sous_menu_enregistrement->annuler->hovered = 0;
+        }
+        if (is_souris_sur_button(*session->sous_menu_enregistrement->valider, session->x_souris_px, session->y_souris_px)) {
+            session->sous_menu_enregistrement->valider->hovered = 1;
+        } else {
+            session->sous_menu_enregistrement->valider->hovered = 0;
+        }
+
+    if (event.type == SDL_MOUSEBUTTONUP) {
+        if (is_souris_sur_button(*session->button_grille, session->x_souris_px, session->y_souris_px)) {
+            playSoundEffect(musique->select);
+            if (session->is_grille_on) {
+                session->is_grille_on = 0;
+            } else {
+                session->is_grille_on = 1;
+            }
+        }
+    }
+}
+
+    if (event.type == SDL_KEYDOWN) {
+        if (event.key.keysym.sym == SDLK_BACKSPACE && strlen(session->sous_menu_enregistrement->text) > 0) {
+            session->sous_menu_enregistrement->text[strlen(session->sous_menu_enregistrement->text) - 1] = '\0';
+        }
+    }
+
+    if (event.type == SDL_MOUSEBUTTONUP) {
+        if (is_souris_sur_button(*session->sous_menu_enregistrement->annuler, session->x_souris_px, session->y_souris_px)) {
+            playSoundEffect(musique->select);
+            session->is_enregistrement = 0;
+            SDL_StopTextInput();
+        }
+        if (is_souris_sur_button(*session->sous_menu_enregistrement->valider, session->x_souris_px, session->y_souris_px)) {
+            if (strlen(session->sous_menu_enregistrement->text) <= 2) {
+                session->message->button_base.label = "Le nom de la map doit contenir plus de 2 caractères";
+                session->message->couleur_message = (SDL_Color){0, 0, 0, 255};
+                session->message->couleur_fond = (SDL_Color){255, 50, 0, 200};
+            } else {
+                int is_espace = 0;
+                for (int i = 0; i < strlen(session->sous_menu_enregistrement->text); i++){
+                    if (session->sous_menu_enregistrement->text[i] == ' '){
+                        is_espace = 1;
+                    }
+                }
+                if (is_espace) {
+                    session->message->button_base.label = "Le nom de la map ne doit pas contenir d'espaces !";
+                    session->message->couleur_message = (SDL_Color){0, 0, 0, 255};
+                    session->message->couleur_fond = (SDL_Color){255, 50, 0, 200};
+                } else {
+                    playSoundEffect(musique->select);
+                    session->is_enregistrement = 0;
+                    SDL_StopTextInput();
+                    save_map_text(session->sous_menu_enregistrement->text, session->map_totale);
+                    //save_map_binary(text, &map_totale);
+                    char texte[50];
+                    snprintf(texte, sizeof(texte), "La map '%s' à bien été enregistrée", session->sous_menu_enregistrement->text);
+                    session->message->button_base.label = texte;
+                    session->message->couleur_message = (SDL_Color){255, 255, 255, 255};
+                    session->message->couleur_fond = (SDL_Color){0, 255, 0, 150};
+                }
+            }
+            session->message->temps_affichage = 3;
+            session->message->is_visible = 1;
+            session->message->start_time = time(NULL);
+        }
+    }
+}
+
+void handle_events_modif_taille_map(SDL_Event event, Session_modif_map* session, Musique* musique) {
+    if (event.type == SDL_MOUSEMOTION) {
+        session->x_souris_px = event.motion.x;
+        session->y_souris_px = event.motion.y;
+
+        // Souris sur un bouton ?
+        if (is_souris_sur_button(*session->sous_menu_modif_taille_map->annuler, session->x_souris_px, session->y_souris_px)) {
+            session->sous_menu_modif_taille_map->annuler->hovered = 1;
+        } else {
+            session->sous_menu_modif_taille_map->annuler->hovered = 0;
+        }
+        if (is_souris_sur_button(*session->sous_menu_modif_taille_map->valider, session->x_souris_px, session->y_souris_px)) {
+            session->sous_menu_modif_taille_map->valider->hovered = 1;
+        } else {
+            session->sous_menu_modif_taille_map->valider->hovered = 0;
+        }
+    }
+
+    if (event.type == SDL_MOUSEBUTTONUP) {
+        // Vérifier si on clique sur un champ
+        if (is_souris_sur_button(*session->sous_menu_modif_taille_map->entree_width, session->x_souris_px, session->y_souris_px)) {
+            session->sous_menu_modif_taille_map->is_typing_width = 1;
+        }
+        if (is_souris_sur_button(*session->sous_menu_modif_taille_map->entree_height, session->x_souris_px, session->y_souris_px)) {
+            session->sous_menu_modif_taille_map->is_typing_width = 0;
+        }
+
+        // Vérifier si on clique sur "Valider"
+        if (is_souris_sur_button(*session->sous_menu_modif_taille_map->valider, session->x_souris_px, session->y_souris_px)) {
+            int width = atoi(session->sous_menu_modif_taille_map->width_text);
+            int height = atoi(session->sous_menu_modif_taille_map->height_text);
+            if (width >= TAILLE_MIN_MAP && width <= TAILLE_MAX_MAP && height >= TAILLE_MIN_MAP && height <= TAILLE_MAX_MAP) {
+                playSoundEffect(musique->select);
+                *session->map_totale = modif_taille_map(session->map_totale, width, height);
+                if (session->zoom > session->map_totale->x - ZOOM_MAX) {
+                    session->zoom = session->map_totale->x - ZOOM_MAX;
+                }
+                if (session->zoom > session->map_totale->y - ZOOM_MAX) {
+                    session->zoom = session->map_totale->y - ZOOM_MAX;
+                }
+                if (session->position_zoom_x + session->map->x > session->map_totale->x){
+                    session->position_zoom_x = session->map_totale->x - session->map->x;
+                    if (session->position_zoom_x < 0){
+                        session->position_zoom_x = 0;
+                    }
+                }
+                if (session->position_zoom_y + session->map->y > session->map_totale->y){
+                    session->position_zoom_y = session->map_totale->y - session->map->y;
+                    if (session->position_zoom_y < 0){
+                        session->position_zoom_y = 0;
+                    }
+                }
+                nouveau_zoom(session->map, session->map_totale, session->zoom, session->position_zoom_x, session->position_zoom_y);
+                session->message->button_base.label = "La map à bien été redimentionnée";
+                session->message->couleur_message = (SDL_Color){255, 255, 255, 255};
+                session->message->couleur_fond = (SDL_Color){0, 255, 0, 150};
+                session->is_modif_taille_map = 0;
+                SDL_StopTextInput();
+            } else {
+                char texte[100];
+                snprintf(texte, sizeof(texte), "Les dimentions doivent être entre %d et %d !", TAILLE_MIN_MAP, TAILLE_MAX_MAP);
+                session->message->button_base.label = texte;
+                session->message->couleur_message = (SDL_Color){0, 0, 0, 255};
+                session->message->couleur_fond = (SDL_Color){255, 50, 0, 200};
+            }
+            session->message->temps_affichage = 3;
+            session->message->is_visible = 1;
+            session->message->start_time = time(NULL);
+        }
+
+        // Vérifier si on clique sur "Annuler"
+        if (is_souris_sur_button(*session->sous_menu_modif_taille_map->annuler, session->x_souris_px, session->y_souris_px)) {
+            playSoundEffect(musique->select);
+            session->is_modif_taille_map = 0;
+            SDL_StopTextInput();
+        }
+    }
+
+    if (event.type == SDL_TEXTINPUT) {
+        char *target = session->sous_menu_modif_taille_map->is_typing_width ? session->sous_menu_modif_taille_map->width_text : session->sous_menu_modif_taille_map->height_text;
+        if (strlen(target) < MAX_NB_LENGTH && isdigit(event.text.text[0])) {
+            strcat(target, event.text.text);
+        }
+    }
+
+    if (event.type == SDL_KEYDOWN) {
+        if (event.key.keysym.sym == SDLK_BACKSPACE) {
+            char *target = session->sous_menu_modif_taille_map->is_typing_width ? session->sous_menu_modif_taille_map->width_text : session->sous_menu_modif_taille_map->height_text;
+            if (strlen(target) > 0) {
+                target[strlen(target) - 1] = '\0';
+            }
+        }
+    }
+}
+
+void init_session (SDL_Renderer* ren, Session_modif_map* session){
+    session->button_height = 50;
+    session->button_width = 210; 
+
+    session->is_enregistrement = 0;
+    session->is_modif_taille_map = 0;
+    session->is_souris_sur_map = 0;
+    session->is_en_cours_de_modif = 0;
+    session->is_grille_on = 1;
+
+    session->zoom = 0;
+    session->position_zoom_x = 0;
+    session->position_zoom_y = 0;
+
+    session->cercle_pointe_erreur_x = -1;
+    session->cercle_pointe_erreur_y = -1;
+
+    session->is_symetrie_verticale = 0;
+    session->is_symetrie_horizontale = 0;
+
+    init_buttons_createur_map(session);
+
+    session->tils = malloc(sizeof(SDL_Texture*) * 4);
+    init_tils(session->tils, ren);
+
+    // Initialisation des messages
+    session->message = malloc(sizeof(Message));
+    session->message->button_base.rect = (SDL_Rect){FEN_X/2-400, FEN_Y/2-50, 800, 200};
+    session->message->button_base.hovered = 0;
+    session->message->is_visible = 0;
+    session->message->start_time = time(NULL);
+
+    // Init pour le sous-menu enregistrer
+    session->sous_menu_enregistrement = malloc(sizeof(Sous_menu_enregistrement));
+    session->sous_menu_enregistrement->text[0] ='\0';
+    session->sous_menu_enregistrement->cursorVisible = 1;
+    session->sous_menu_enregistrement->lastCursorToggle = SDL_GetTicks();
+    init_boutons_enregistrer(session->sous_menu_enregistrement);
+
+    // Init pour le sous-menu de modification de la taille de la map
+    session->sous_menu_modif_taille_map = malloc(sizeof(Sous_menu_modif_taille_map));
+    session->sous_menu_modif_taille_map->width_text[0] = '\0';
+    session->sous_menu_modif_taille_map->height_text[0] = '\0';
+    session->sous_menu_modif_taille_map->cursorVisible = 1;
+    session->sous_menu_modif_taille_map->lastCursorToggle = SDL_GetTicks();
+    session->sous_menu_modif_taille_map->is_typing_width = 1;
+    init_boutons_modif_taille_map(session->sous_menu_modif_taille_map);
+
+    // Init des maps
+    session->map = malloc(sizeof(Map));
+    session->map_totale = malloc(sizeof(Map));
+    *session->map = init_map_dessin();
+    init_taille_case_et_origine(session->map);
+    *session->map_totale = copyMap(session->map);
+
+    session->position_maison_ghosts[0] = session->map->position_maison_ghosts_x - 4;
+    session->position_maison_ghosts[1] = session->map->position_maison_ghosts_y;
+    session->position_maison_ghosts[2] = session->map->position_maison_ghosts_x + 5;
+    session->position_maison_ghosts[3] = session->map->position_maison_ghosts_y + 6;
+
+    session->color = malloc(sizeof(Colors));
+    init_couleurs_session(session);
+}
+
+void free_session(Session_modif_map* session) {
+    for (int i = 0; i < NB_BUTTONS; i++) {
+        free(session->buttons[i]);
+    }
+    /* TODO : comprendre pourquoi ça plante
+    for (int j = 0; j < NB_BUTTONS_SELECTION_REMPLISSAGE; j++) {
+        free(session->buttons_selection_remplissage[j]);
+    }
+    free(session->button_modif_taille_map);
+    free(session->button_grille);
+    free(session->button_enregistrer);
+    free(session->button_zoom_plus);
+    free(session->button_zoom_moins);
+    free(session->button_symetrie_verticale);
+    free(session->button_symetrie_horizontale);
+    */
+    free(session->message);
+    free(session->sous_menu_enregistrement->entree_text);
+    free(session->sous_menu_enregistrement->consigne);
+    free(session->sous_menu_enregistrement->annuler);
+    free(session->sous_menu_enregistrement->valider);
+    free(session->sous_menu_enregistrement);
+
+    free(session->sous_menu_modif_taille_map->entree_width);
+    free(session->sous_menu_modif_taille_map->entree_height);
+    free(session->sous_menu_modif_taille_map->text_entree_width);
+    free(session->sous_menu_modif_taille_map->text_entree_height);
+    free(session->sous_menu_modif_taille_map->consigne);
+    free(session->sous_menu_modif_taille_map->annuler);
+    free(session->sous_menu_modif_taille_map->valider);
+    free(session->sous_menu_modif_taille_map);
+
+    free(session->color);
+    freeMap(session->map);
+    free(session->map);
+    freeMap(session->map_totale);
+    free(session->map_totale);
+    free_tils(session->tils, 4);
+    free(session);
+}
+
+void main_loop_createur_map (SDL_Renderer* ren, Musique* musique){
+    Session_modif_map* session = malloc(sizeof(Session_modif_map));
+    init_session(ren, session);
+
     int running = 1;
     SDL_Event event;
     time_t current_time;
 
     while (running) {
         current_time = time(NULL);
-        SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
-        SDL_RenderClear(ren);
-        renderHeader(ren, "Créateur de Map");
-        affiche_map(&map, tils, ren);
-        if (is_enregistrement || is_modif_taille_map){
-            color_bande_laterale_1.a = 100;
-            bt_color_base.a = 100;
-            bt_color_selected.a = 200;
-        } else {
-            color_bande_laterale_1.a = 255;
-            bt_color_base.a = 255;
-            bt_color_selected.a = 255;
-        }
-        SDL_SetRenderDrawColor(ren, color_bande_laterale_1.r, color_bande_laterale_1.g, color_bande_laterale_1.b, color_bande_laterale_1.a);
-        SDL_RenderFillRect(ren, &bande_laterale_gauche_1);
-        SDL_SetRenderDrawColor(ren, color_bande_laterale_2.r, color_bande_laterale_2.g, color_bande_laterale_2.b, color_bande_laterale_2.a);
-        SDL_RenderFillRect(ren, &bande_laterale_gauche_2);
-        affiche_boutons_createur_map(ren, buttons_selection_remplissage, buttons, is_symetrie_horizontale, is_symetrie_verticale, bt_color_texte, bt_color_touch, bt_color_base, bt_color_selected);
-        if (is_enregistrement){
-            if (SDL_GetTicks() - lastCursorToggle >= CURSOR_BLINK_TIME) {
-                cursorVisible = !cursorVisible;
-                lastCursorToggle = SDL_GetTicks();
-            }
-            snprintf(displayText, sizeof(displayText), "%s%s", text, cursorVisible ? "|" : " ");
-            entree_text.label = displayText;
-            renderButton(ren, &consigne_enregistrement, color_text, bgColor_text_descriptif, bgColor_text_descriptif);
-            renderButton(ren, &entree_text, color_text, (SDL_Color){50, 50, 50, 200}, (SDL_Color){50, 50, 50, 200});
-            renderButton(ren, &valider_enregistrement, color_text, (SDL_Color){0, 255, 0, 255}, (SDL_Color){0, 255, 0, 100});
-            renderButton(ren, &annuler_enregistrement, color_text, (SDL_Color){255, 0, 0, 255}, (SDL_Color){255, 0, 0, 100});
-        } else {
-        if (is_modif_taille_map){
-            if (SDL_GetTicks() - lastCursorToggle >= CURSOR_BLINK_TIME) {
-                cursorVisible = !cursorVisible;
-                lastCursorToggle = SDL_GetTicks();
-            }
-            // Texte affiché (ajoute un curseur clignotant)
-            snprintf(displayWidth, sizeof(displayWidth), "%s%s", width_text, (is_typing_width && cursorVisible) ? "|" : " ");
-            snprintf(displayHeight, sizeof(displayHeight), "%s%s", height_text, (!is_typing_width && cursorVisible) ? "|" : " ");
-            // Afficher les champs de texte
-            entree_width.label = displayWidth;
-            entree_height.label = displayHeight;
-            renderButton(ren, &entree_width, color_text, bgColor_text_descriptif, bgColor_text_descriptif);
-            renderButton(ren, &entree_height, color_text, bgColor_text_descriptif, bgColor_text_descriptif);
-            // Afficher les boutons
-            renderButton(ren, &valider_taille_map, color_text, green, green);
-            renderButton(ren, &annuler_taille_map, color_text, red, red);
-            // Afficher les textes
-            renderButton(ren, &consigne_modif_taille_map, color_text, bgColor_text_descriptif, bgColor_text_descriptif);
-            renderButton(ren, &text_entree_height, color_text, bgColor_text_descriptif, bgColor_text_descriptif);
-            renderButton(ren, &text_entree_width, color_text, bgColor_text_descriptif, bgColor_text_descriptif);
-
-        } else {
-            if (is_grille_on) {
-                affiche_quadrillage(ren, &map);
-            }
-            if (is_souris_sur_map && selection_en_cours_createur_map != SELECTION_NULL){
-                if (cercle_pointe_erreur_x == x_souris_cases && cercle_pointe_erreur_y == y_souris_cases){
-                    cercle_pointe_erreur_x = -1;
-                    cercle_pointe_erreur_y = -1;
-                }
-                // Affichage du (ou des) carrées rouge(s) de placement/sélection de la souris
-                SDL_SetRenderDrawColor(ren, 255, 0, 0, 255);
-                SDL_Rect rectangle_selection_map = {ORIGINE_X + x_souris_cases * map.taille_case, ORIGINE_Y + y_souris_cases * map.taille_case, map.taille_case, map.taille_case};
-                SDL_RenderDrawRect(ren, &rectangle_selection_map);
-                pos_x = map_totale.x - 1 - x_souris_cases - 2*position_zoom_x;
-                pos_y = map_totale.y - 1 - y_souris_cases - 2*position_zoom_y;
-                if (is_symetrie_verticale && pos_x < map.x && pos_x >= 0){
-                    SDL_Rect rectangle_selection_map_2 = {ORIGINE_X + pos_x * map.taille_case, ORIGINE_Y + y_souris_cases * map.taille_case, map.taille_case, map.taille_case};
-                    SDL_RenderDrawRect(ren, &rectangle_selection_map_2);
-                }
-                if (is_symetrie_horizontale && pos_y < map.y && pos_y >= 0){
-                    SDL_Rect rectangle_selection_map_3 = {ORIGINE_X + x_souris_cases * map.taille_case, ORIGINE_Y + pos_y * map.taille_case, map.taille_case, map.taille_case};
-                    SDL_RenderDrawRect(ren, &rectangle_selection_map_3);
-                }
-                if (is_symetrie_horizontale && pos_y < map.y && pos_y >= 0 && 
-                    is_symetrie_verticale && pos_x < map.x && pos_x >= 0){
-                    SDL_Rect rectangle_selection_map_4 = {ORIGINE_X + pos_x * map.taille_case, ORIGINE_Y + pos_y * map.taille_case, map.taille_case, map.taille_case};
-                    SDL_RenderDrawRect(ren, &rectangle_selection_map_4);
-                }
-            }
-            if (cercle_pointe_erreur_x >= 0 && cercle_pointe_erreur_y >= 0){
-                SDL_SetRenderDrawColor(ren, 255, 0, 0, 255);
-                drawArc(ren, ORIGINE_X + cercle_pointe_erreur_x * map.taille_case + (int)(map.taille_case/2), ORIGINE_Y + cercle_pointe_erreur_y * map.taille_case + (int)(map.taille_case/2), map.taille_case, 0, 2*PI, 4, 100);
-        }}}
-        if (message.is_visible){
-            if (current_time - start_time_message > message.temps_affichage){
-                message.is_visible = 0;
-            } else {
-                renderButton(ren, &message.button_base, message.couleur_message, message.couleur_fond, message.couleur_fond);
-            }
-        }
-            
+        
+        affiche_interface_createur_map(ren, session, current_time);
+        
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) running = 0;
-            if (is_enregistrement) {
-                if (event.type == SDL_TEXTINPUT) {
-                    if (strlen(text) < MAX_TEXT_LENGTH) {
-                        strcat(text, event.text.text);
-                    }
-                }
-
-                if (event.type == SDL_MOUSEMOTION) {
-                    x_souris_px = event.motion.x;
-                    y_souris_px = event.motion.y;
-
-                    // Souris sur un bouton ?
-                    if (is_souris_sur_button(annuler_enregistrement, x_souris_px, y_souris_px)) {
-                        annuler_enregistrement.hovered = 1;
-                    } else {
-                        annuler_enregistrement.hovered = 0;
-                    }
-                    if (is_souris_sur_button(valider_enregistrement, x_souris_px, y_souris_px)) {
-                            valider_enregistrement.hovered = 1;
-                    } else {
-                        valider_enregistrement.hovered = 0;
-                    }
-
-                if (event.type == SDL_MOUSEBUTTONUP) {
-                    if (is_souris_sur_button(button_grille, x_souris_px, y_souris_px)) {
-                        playSoundEffect(musique->select);
-                        if (is_grille_on) {
-                            is_grille_on = 0;
-                        } else {
-                            is_grille_on = 1;
-                        }
-                    }
-                }
-            }
-            
-                if (event.type == SDL_KEYDOWN) {
-                    if (event.key.keysym.sym == SDLK_BACKSPACE && strlen(text) > 0) {
-                        text[strlen(text) - 1] = '\0';
-                    } else if (event.key.keysym.sym == SDLK_c && (event.key.keysym.mod & KMOD_CTRL)) {
-                        color_text.r = rand() % 256;
-                        color_text.g = rand() % 256;
-                        color_text.b = rand() % 256;
-                    }
-                }
-            
-                if (event.type == SDL_MOUSEBUTTONUP) {
-                    if (is_souris_sur_button(annuler_enregistrement, x_souris_px, y_souris_px)) {
-                        playSoundEffect(musique->select);
-                        is_enregistrement = 0;
-                        SDL_StopTextInput();
-                    }
-                    if (is_souris_sur_button(valider_enregistrement, x_souris_px, y_souris_px)) {
-                        if (strlen(text) <= 2) {
-                            message.button_base.label = "Le nom de la map doit contenir plus de 2 caractères";
-                            message.couleur_message = (SDL_Color){0, 0, 0, 255};
-                            message.couleur_fond = (SDL_Color){255, 50, 0, 200};
-                        } else {
-                            int is_espace = 0;
-                            for (int i = 0; i < strlen(text); i++){
-                                if (text[i] == ' '){
-                                    is_espace = 1;
-                                }
-                            }
-                            if (is_espace) {
-                                message.button_base.label = "Le nom de la map ne doit pas contenir d'espaces !";
-                                message.couleur_message = (SDL_Color){0, 0, 0, 255};
-                                message.couleur_fond = (SDL_Color){255, 50, 0, 200};
-                            } else {
-                                playSoundEffect(musique->select);
-                                is_enregistrement = 0;
-                                SDL_StopTextInput();
-                                save_map_text(text, &map_totale);
-                                //save_map_binary(text, &map_totale);
-                                char texte[50];
-                                snprintf(texte, sizeof(texte), "La map '%s' à bien été enregistrée", text);
-                                message.button_base.label = texte;
-                                message.couleur_message = (SDL_Color){255, 255, 255, 255};
-                                message.couleur_fond = (SDL_Color){0, 255, 0, 150};
-                            }
-                        }
-                        message.temps_affichage = 3;
-                        message.is_visible = 1;
-                        start_time_message = time(NULL);
-                    }
-                }
-            
+            if (session->is_enregistrement) {
+                handle_events_enregistrement(event, session, musique);
+            } else if (session->is_modif_taille_map) {
+                handle_events_modif_taille_map(event, session, musique);
             } else {
-            if (is_modif_taille_map){
-                if (event.type == SDL_MOUSEMOTION) {
-                    x_souris_px = event.motion.x;
-                    y_souris_px = event.motion.y;
-
-                    // Souris sur un bouton ?
-                    if (is_souris_sur_button(annuler_taille_map, x_souris_px, y_souris_px)) {
-                        annuler_taille_map.hovered = 1;
-                    } else {
-                        annuler_taille_map.hovered = 0;
-                    }
-                    if (is_souris_sur_button(valider_taille_map, x_souris_px, y_souris_px)) {
-                        valider_taille_map.hovered = 1;
-                    } else {
-                        valider_taille_map.hovered = 0;
-                    }
-                }
-
-                if (event.type == SDL_MOUSEBUTTONUP) {
-                    // Vérifier si on clique sur un champ
-                    if (is_souris_sur_button(entree_width, x_souris_px, y_souris_px)) {
-                        is_typing_width = 1;
-                    }
-                    if (is_souris_sur_button(entree_height, x_souris_px, y_souris_px)) {
-                        is_typing_width = 0;
-                    }
-            
-                    // Vérifier si on clique sur "Valider"
-                    if (is_souris_sur_button(valider_taille_map, x_souris_px, y_souris_px)) {
-                        int width = atoi(width_text);
-                        int height = atoi(height_text);
-                        if (width >= TAILLE_MIN_MAP && width <= TAILLE_MAX_MAP && height >= TAILLE_MIN_MAP && height <= TAILLE_MAX_MAP) {
-                            playSoundEffect(musique->select);
-                            map_totale = modif_taille_map(&map_totale, width, height);
-                            if (zoom > map_totale.x - ZOOM_MAX) {
-                                zoom = map_totale.x - ZOOM_MAX;
-                            }
-                            if (zoom > map_totale.y - ZOOM_MAX) {
-                                zoom = map_totale.y - ZOOM_MAX;
-                            }
-                            if (position_zoom_x + map.x > map_totale.x){
-                                position_zoom_x = map_totale.x - map.x;
-                                if (position_zoom_x < 0){
-                                    position_zoom_x = 0;
-                                }
-                            }
-                            if (position_zoom_y + map.y > map_totale.y){
-                                position_zoom_y = map_totale.y - map.y;
-                                if (position_zoom_y < 0){
-                                    position_zoom_y = 0;
-                                }
-                            }
-                            nouveau_zoom(&map, &map_totale, zoom, position_zoom_x, position_zoom_y);
-                            message.button_base.label = "La map à bien été redimentionnée";
-                            message.couleur_message = (SDL_Color){255, 255, 255, 255};
-                            message.couleur_fond = (SDL_Color){0, 255, 0, 150};
-                            is_modif_taille_map = 0;
-                            SDL_StopTextInput();
-                        } else {
-                            char texte[100];
-                            snprintf(texte, sizeof(texte), "Les dimentions doivent être entre %d et %d !", TAILLE_MIN_MAP, TAILLE_MAX_MAP);
-                            message.button_base.label = texte;
-                            message.couleur_message = (SDL_Color){0, 0, 0, 255};
-                            message.couleur_fond = (SDL_Color){255, 50, 0, 200};
-                        }
-                        message.temps_affichage = 3;
-                        message.is_visible = 1;
-                        start_time_message = time(NULL);
-                    }
-            
-                    // Vérifier si on clique sur "Annuler"
-                    if (is_souris_sur_button(annuler_taille_map, x_souris_px, y_souris_px)) {
-                        playSoundEffect(musique->select);
-                        is_modif_taille_map = 0;
-                        SDL_StopTextInput();
-                    }
-                }
-            
-                if (event.type == SDL_TEXTINPUT) {
-                    char *target = is_typing_width ? width_text : height_text;
-                    if (strlen(target) < MAX_NB_LENGTH && isdigit(event.text.text[0])) {
-                        strcat(target, event.text.text);
-                    }
-                }
-            
-                if (event.type == SDL_KEYDOWN) {
-                    if (event.key.keysym.sym == SDLK_BACKSPACE) {
-                        char *target = is_typing_width ? width_text : height_text;
-                        if (strlen(target) > 0) {
-                            target[strlen(target) - 1] = '\0';
-                        }
-                    }
-                }
-            
-            } else {
-                if (event.type == SDL_MOUSEMOTION) {
-                    x_souris_px = event.motion.x;
-                    y_souris_px = event.motion.y;
-
-                    // Souris sur un bouton ?
-                    for (int i = 0; i < NB_BUTTONS; i++) {
-                        if (x_souris_px >= buttons[i]->rect.x && x_souris_px <= buttons[i]->rect.x + button_width &&
-                            y_souris_px >= buttons[i]->rect.y && y_souris_px <= buttons[i]->rect.y + button_height) {
-                                buttons[i]->hovered = 1;
-                        } else {
-                            buttons[i]->hovered = 0;
-                        }
-                    }
-                    
-                    // Souris sur la map ?
-                    if (x_souris_px >= ORIGINE_X && x_souris_px <= ORIGINE_X + map.x * map.taille_case &&
-                        y_souris_px >= ORIGINE_Y && y_souris_px <= ORIGINE_Y + map.y * map.taille_case) {
-                            x_souris_cases = (x_souris_px - ORIGINE_X)/map.taille_case;
-                            y_souris_cases = (y_souris_px - ORIGINE_Y)/map.taille_case;
-                            // Souris pas dans la maison des fantômes
-                            if (x_souris_cases >= position_maison_ghosts[0] - position_zoom_x && x_souris_cases <= position_maison_ghosts[2] - position_zoom_x &&
-                                y_souris_cases >= position_maison_ghosts[1] - position_zoom_y && y_souris_cases <= position_maison_ghosts[3] - position_zoom_y){
-                                    is_souris_sur_map = 0;
-                                    is_en_cours_de_modif = 0; // Arrête la modification à la chaine
-                            }
-                            else {
-                                is_souris_sur_map = 1;
-                            }
-                    }
-                    else {
-                        is_souris_sur_map = 0;
-                    }
-
-                    // Map en cours de modif ? <=> souris pressée sur une case <=> modification à la chaine
-                    if (is_en_cours_de_modif){
-                        modif_case(&map, &map_totale, x_souris_cases, y_souris_cases, zoom, position_zoom_x, position_zoom_y, is_symetrie_horizontale, is_symetrie_verticale);
-                    }
-                }
-
-                if (event.type == SDL_MOUSEBUTTONUP) {
-                    clic_souris(x_souris_px, y_souris_px, buttons_selection_remplissage, musique);
-                    is_en_cours_de_modif = 0; // Arrête la modification à la chaine
-
-                    if (is_souris_sur_button(button_grille, x_souris_px, y_souris_px)) {
-                        playSoundEffect(musique->select);
-                        if (is_grille_on) {
-                            is_grille_on = 0;
-                        } else {
-                            is_grille_on = 1;
-                        }
-                    }
-
-                    if (is_souris_sur_button(button_zoom_plus, x_souris_px, y_souris_px)) {
-                        playSoundEffect(musique->select);
-                        zoom += VITESSE_ZOOM;
-                        //printf("zoom : %d, min_x : %d, min_y : %d\n", zoom, map.x - ZOOM_MAX, map.y - ZOOM_MAX);
-                        if (zoom > map_totale.x - ZOOM_MAX || zoom > map_totale.y - ZOOM_MAX){
-                            zoom -= VITESSE_ZOOM;
-                        } else {
-                            nouveau_zoom(&map, &map_totale, zoom, position_zoom_x, position_zoom_y);
-                        }
-                    }
-                    if (is_souris_sur_button(button_zoom_moins, x_souris_px, y_souris_px)) {
-                        playSoundEffect(musique->select);
-                        zoom -= VITESSE_ZOOM;
-                        if (zoom < 0){
-                            zoom = 0;
-                        } else {
-                            if (position_zoom_x > zoom){
-                                position_zoom_x = zoom;
-                            }
-                            if (position_zoom_y > zoom){
-                                position_zoom_y = zoom;
-                            }
-                            nouveau_zoom(&map, &map_totale, zoom, position_zoom_x, position_zoom_y);
-                        }
-                    }
-
-                    if (is_souris_sur_button(button_enregistrer, x_souris_px, y_souris_px)) {
-                        int is_ok = is_map_conforme(&map_totale, &cercle_pointe_erreur_x, &cercle_pointe_erreur_y);
-                        if (is_ok){
-                            playSoundEffect(musique->select);
-                            is_enregistrement = 1;
-                            text[0] = '\0';
-                            SDL_StartTextInput();
-                        } else {
-                            message.button_base.label = "La map ne doit pas contenir de 'cul de sac' !";
-                            message.couleur_message = (SDL_Color){0, 0, 0, 255};
-                            message.couleur_fond = (SDL_Color){255, 100, 0, 200};
-                            message.temps_affichage = 3;
-                            message.is_visible = 1;
-                            start_time_message = time(NULL);
-                        }
-                    }
-
-                    if (is_souris_sur_button(button_modif_taille_map, x_souris_px, y_souris_px)){
-                        playSoundEffect(musique->select);
-                        is_modif_taille_map = 1;
-                        SDL_StartTextInput();
-                    }
-                    
-                    if (is_souris_sur_button(button_symetrie_horizontale, x_souris_px, y_souris_px)){
-                        is_symetrie_horizontale = !is_symetrie_horizontale;
-                    }
-                    if (is_souris_sur_button(button_symetrie_verticale, x_souris_px, y_souris_px)){
-                        is_symetrie_verticale = !is_symetrie_verticale;
-                    }
-                }
-
-                if (event.type == SDL_MOUSEBUTTONDOWN) {
-                    if (is_souris_sur_map && selection_en_cours_createur_map != SELECTION_NULL){
-                        is_en_cours_de_modif = 1;
-                        modif_case(&map, &map_totale, x_souris_cases, y_souris_cases, zoom, position_zoom_x, position_zoom_y, is_symetrie_horizontale, is_symetrie_verticale);
-                    }
-                }
-
-                if (event.type == SDL_KEYDOWN) {
-                    if (event.key.keysym.sym == SDLK_LEFT){
-                        position_zoom_x -= VITESSE_MOVE_ZOOM;
-                        if (position_zoom_x < 0){
-                            position_zoom_x = 0;
-                        } else {
-                            nouveau_zoom(&map, &map_totale, zoom, position_zoom_x, position_zoom_y);
-                        }
-                    }
-                    if (event.key.keysym.sym == SDLK_RIGHT){
-                        position_zoom_x += VITESSE_MOVE_ZOOM;
-                        if (position_zoom_x + map.x > map_totale.x){
-                            position_zoom_x = map_totale.x - map.x;
-                        } else {
-                            nouveau_zoom(&map, &map_totale, zoom, position_zoom_x, position_zoom_y);
-                        }
-                    }
-                    if (event.key.keysym.sym == SDLK_UP){
-                        position_zoom_y -= VITESSE_MOVE_ZOOM;
-                        if (position_zoom_y < 0){
-                            position_zoom_y = 0;
-                        } else {
-                            nouveau_zoom(&map, &map_totale, zoom, position_zoom_x, position_zoom_y);
-                        }
-                    }
-                    if (event.key.keysym.sym == SDLK_DOWN){
-                        position_zoom_y += VITESSE_MOVE_ZOOM;
-                        if (position_zoom_y + map.y > map_totale.y){
-                            position_zoom_y = map_totale.y - map.y;
-                        } else {
-                            nouveau_zoom(&map, &map_totale, zoom, position_zoom_x, position_zoom_y);
-                        }
-                    }
-                }
-
-                if (event.type == SDL_KEYUP) {
-                    if (event.key.keysym.sym == SDLK_BACKSPACE){
-                        playSoundEffect(musique->select);
-                        SDL_StopTextInput();
-                        ecran_acceuil(ren,musique);
-                        running = 0;
-                    }
-                }
-
+                handle_events_createur_map(event, session, &running, musique, ren);
             }
-        }}
+        }
         updateDisplay(ren);
     }
-    freeMap(&map);
-    freeMap(&map_totale);
-    free_tils(tils, 4);
+    free_session(session);
     SDL_StopTextInput();
 }
