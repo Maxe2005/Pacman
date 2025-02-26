@@ -328,8 +328,9 @@ void drawArc(SDL_Renderer* renderer, const int centerX, const int centerY, const
 }
 
 void affiche_map_draw (Map *map, SDL_Texture* tils[4], SDL_Renderer* ren){
-    const int nb_pts = 12;
-    const int thickness = 2;
+    // Variables pour les arcs de cercle
+    const int nb_pts = map->taille_case/2 < 5 ? 5 : map->taille_case/2 ;
+    const int thickness = 2;//map->taille_case/30 < 2 ? 2 : map->taille_case/15 ;
     SDL_SetRenderDrawColor(ren, 0, 0, 255, 255);
     for (int j = 0; j<map->y; j++){
         for (int i = 0; i<map->x; i++){

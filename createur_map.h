@@ -10,12 +10,12 @@
 #define TAILLE_BARRE_MENU_X 550
 #define ZOOM_MAX 5 // Le nombre de cases minimum avec le zoom au maximum
 #define TAILLE_MAX_MAP 50
-#define TAILLE_MIN_MAP ZOOM_MAX + 5
+#define TAILLE_MIN_MAP ZOOM_MAX + 5 // Doit être supérieur à ZOOM_MAX
 #define VITESSE_ZOOM 2
 #define VITESSE_MOVE_ZOOM 1
 #define FONT_SIZE 32
 #define MAX_TEXT_LENGTH 10
-#define CURSOR_BLINK_TIME 500
+#define CURSOR_BLINK_TIME 300
 #define MAX_NB_LENGTH 2 // Nombre de colones et de lignes de la map <= 99
 
 typedef enum {
@@ -260,8 +260,9 @@ void affiche_interface_createur_map(SDL_Renderer* ren, Session_modif_map* sessio
  * @param running Variable indiquant si la boucle principale est en cours
  * @param musique La structure contenant toutes les infos pour les musiques
  * @param ren Un pointeur sur une structure contenant l'état du rendu
+ * @param z_pressed événement pour le zoom
  */
-void handle_events_createur_map(SDL_Event event, Session_modif_map* session, int* running, Musique* musique, SDL_Renderer* ren);
+void handle_events_createur_map(SDL_Event event, Session_modif_map* session, int* running, Musique* musique, SDL_Renderer* ren, int* z_pressed);
 
 /**
  * Gère les événements du sous-menu d'enregistrement
@@ -295,5 +296,26 @@ void init_session (SDL_Renderer* ren, Session_modif_map* session);
  */
 void clic_souris (int x, int y, SelectionButton_createur_map* selections[NB_BUTTONS_SELECTION_REMPLISSAGE], Musique* musique);
 
+/**
+ * Effectue les actions de vérification et de modification de la taille de la map
+ * @param session La session de modification de la map
+ * @param musique La structure contenant toutes les infos pour les musiques
+ */
+void valider_modif_taille_map(Session_modif_map* session, Musique* musique);
+
+/**
+ * Dessine un rectangle épais sur le renderer
+ * @param renderer Un pointeur sur une structure contenant l'état du rendu
+ * @param rect Le rectangle à dessiner
+ * @param thickness L'épaisseur du trait
+ */
+void DrawThickRect(SDL_Renderer *renderer, SDL_Rect rect, int thickness);
+
+/**
+ * Vérifie si la map est conforme à l'enregistrement, sinon affiche le message d'erreur
+ * @param session La session de modification de la map
+ * @param musique La structure contenant toutes les infos pour les musiques
+ */
+void aller_au_mode_enregistrer (Session_modif_map* session, Musique* musique);
 
 #endif

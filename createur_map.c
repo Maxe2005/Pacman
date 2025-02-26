@@ -400,6 +400,13 @@ void init_couleurs_session (Session_modif_map* session){
     session->color->bande_laterale_2 = bande_laterale_2;
 }
 
+void DrawThickRect(SDL_Renderer *renderer, SDL_Rect rect, int thickness) {
+    for (int i = 0; i < thickness; i++) {
+        SDL_Rect r = {rect.x - i, rect.y - i, rect.w + 2 * i, rect.h + 2 * i};
+        SDL_RenderDrawRect(renderer, &r);
+    }
+}
+
 void affiche_interface_createur_map(SDL_Renderer* ren, Session_modif_map* session, time_t current_time) {
     int pos_x, pos_y; //variables de calcul intermédiaire non important
     
@@ -467,23 +474,25 @@ void affiche_interface_createur_map(SDL_Renderer* ren, Session_modif_map* sessio
                 session->cercle_pointe_erreur_y = -1;
             }
             // Affichage du (ou des) carrées rouge(s) de placement/sélection de la souris
+            int epaisseur_carrees_rouges = session->map->taille_case/10;
+            if (epaisseur_carrees_rouges < 2) {epaisseur_carrees_rouges = 2;}
             SDL_SetRenderDrawColor(ren, 255, 0, 0, 255);
             SDL_Rect rectangle_selection_map = {ORIGINE_X + session->x_souris_cases * session->map->taille_case, ORIGINE_Y + session->y_souris_cases * session->map->taille_case, session->map->taille_case, session->map->taille_case};
-            SDL_RenderDrawRect(ren, &rectangle_selection_map);
+            DrawThickRect(ren, rectangle_selection_map, epaisseur_carrees_rouges);
             pos_x = session->map_totale->x - 1 - session->x_souris_cases - 2*session->position_zoom_x;
             pos_y = session->map_totale->y - 1 - session->y_souris_cases - 2*session->position_zoom_y;
             if (session->is_symetrie_verticale && pos_x < session->map->x && pos_x >= 0){
                 SDL_Rect rectangle_selection_map_2 = {ORIGINE_X + pos_x * session->map->taille_case, ORIGINE_Y + session->y_souris_cases * session->map->taille_case, session->map->taille_case, session->map->taille_case};
-                SDL_RenderDrawRect(ren, &rectangle_selection_map_2);
+                DrawThickRect(ren, rectangle_selection_map_2, epaisseur_carrees_rouges);
             }
             if (session->is_symetrie_horizontale && pos_y < session->map->y && pos_y >= 0){
                 SDL_Rect rectangle_selection_map_3 = {ORIGINE_X + session->x_souris_cases * session->map->taille_case, ORIGINE_Y + pos_y * session->map->taille_case, session->map->taille_case, session->map->taille_case};
-                SDL_RenderDrawRect(ren, &rectangle_selection_map_3);
+                DrawThickRect(ren, rectangle_selection_map_3, epaisseur_carrees_rouges);
             }
             if (session->is_symetrie_horizontale && pos_y < session->map->y && pos_y >= 0 && 
                 session->is_symetrie_verticale && pos_x < session->map->x && pos_x >= 0){
                 SDL_Rect rectangle_selection_map_4 = {ORIGINE_X + pos_x * session->map->taille_case, ORIGINE_Y + pos_y * session->map->taille_case, session->map->taille_case, session->map->taille_case};
-                SDL_RenderDrawRect(ren, &rectangle_selection_map_4);
+                DrawThickRect(ren, rectangle_selection_map_4, epaisseur_carrees_rouges);
             }
         }
         if (session->cercle_pointe_erreur_x >= 0 && session->cercle_pointe_erreur_y >= 0){
@@ -499,7 +508,50 @@ void affiche_interface_createur_map(SDL_Renderer* ren, Session_modif_map* sessio
     }
 }
 
-void handle_events_createur_map(SDL_Event event, Session_modif_map* session, int* running, Musique* musique, SDL_Renderer* ren) {
+void aller_au_mode_enregistrer (Session_modif_map* session, Musique* musique){
+    int is_ok = is_map_conforme(session->map_totale, &session->cercle_pointe_erreur_x, &session->cercle_pointe_erreur_y);
+    if (is_ok){
+        playSoundEffect(musique->select);
+        session->is_enregistrement = 1;
+        session->sous_menu_enregistrement->text[0] = '\0';
+        SDL_StartTextInput();
+    } else {
+        session->message->button_base.label = "La map ne doit pas contenir de 'cul de sac' !";
+        session->message->couleur_message = (SDL_Color){0, 0, 0, 255};
+        session->message->couleur_fond = (SDL_Color){255, 100, 0, 200};
+        session->message->temps_affichage = 3;
+        session->message->is_visible = 1;
+        session->message->start_time = time(NULL);
+    }
+}
+
+void zoom_plus (Session_modif_map* session, Musique* musique){
+    session->zoom += VITESSE_ZOOM;
+    if (session->zoom > session->map_totale->x - ZOOM_MAX || session->zoom > session->map_totale->y - ZOOM_MAX){
+        session->zoom -= VITESSE_ZOOM;
+    } else {
+        playSoundEffect(musique->select);
+        nouveau_zoom(session->map, session->map_totale, session->zoom, session->position_zoom_x, session->position_zoom_y);
+    }
+}
+
+void zoom_moins (Session_modif_map* session, Musique* musique){
+    session->zoom -= VITESSE_ZOOM;
+    if (session->zoom < 0){
+        session->zoom = 0;
+    } else {
+        if (session->position_zoom_x > session->zoom){
+            session->position_zoom_x = session->zoom;
+        }
+        if (session->position_zoom_y > session->zoom){
+            session->position_zoom_y = session->zoom;
+        }
+        playSoundEffect(musique->select);
+        nouveau_zoom(session->map, session->map_totale, session->zoom, session->position_zoom_x, session->position_zoom_y);
+    }
+}
+
+void handle_events_createur_map(SDL_Event event, Session_modif_map* session, int* running, Musique* musique, SDL_Renderer* ren, int* z_pressed) {
     if (event.type == SDL_MOUSEMOTION) {
         session->x_souris_px = event.motion.x;
         session->y_souris_px = event.motion.y;
@@ -552,48 +604,19 @@ void handle_events_createur_map(SDL_Event event, Session_modif_map* session, int
         }
 
         if (is_souris_sur_button(*session->button_zoom_plus, session->x_souris_px, session->y_souris_px)) {
-            playSoundEffect(musique->select);
-            session->zoom += VITESSE_ZOOM;
-            if (session->zoom > session->map_totale->x - ZOOM_MAX || session->zoom > session->map_totale->y - ZOOM_MAX){
-                session->zoom -= VITESSE_ZOOM;
-            } else {
-                nouveau_zoom(session->map, session->map_totale, session->zoom, session->position_zoom_x, session->position_zoom_y);
-            }
+            zoom_plus(session, musique);
         }
         if (is_souris_sur_button(*session->button_zoom_moins, session->x_souris_px, session->y_souris_px)) {
-            playSoundEffect(musique->select);
-            session->zoom -= VITESSE_ZOOM;
-            if (session->zoom < 0){
-                session->zoom = 0;
-            } else {
-                if (session->position_zoom_x > session->zoom){
-                    session->position_zoom_x = session->zoom;
-                }
-                if (session->position_zoom_y > session->zoom){
-                    session->position_zoom_y = session->zoom;
-                }
-                nouveau_zoom(session->map, session->map_totale, session->zoom, session->position_zoom_x, session->position_zoom_y);
-            }
+            zoom_moins(session, musique);
         }
 
         if (is_souris_sur_button(*session->button_enregistrer, session->x_souris_px, session->y_souris_px)) {
-            int is_ok = is_map_conforme(session->map_totale, &session->cercle_pointe_erreur_x, &session->cercle_pointe_erreur_y);
-            if (is_ok){
-                playSoundEffect(musique->select);
-                session->is_enregistrement = 1;
-                session->sous_menu_enregistrement->text[0] = '\0';
-                SDL_StartTextInput();
-            } else {
-                session->message->button_base.label = "La map ne doit pas contenir de 'cul de sac' !";
-                session->message->couleur_message = (SDL_Color){0, 0, 0, 255};
-                session->message->couleur_fond = (SDL_Color){255, 100, 0, 200};
-                session->message->temps_affichage = 3;
-                session->message->is_visible = 1;
-                session->message->start_time = time(NULL);
-            }
+            *z_pressed = 0; // Fin de la prise en comte des événements du mode normal de modif
+            aller_au_mode_enregistrer(session, musique);
         }
 
         if (is_souris_sur_button(*session->button_modif_taille_map, session->x_souris_px, session->y_souris_px)){
+            *z_pressed = 0; // Fin de la prise en comte des événements du mode normal de modif
             playSoundEffect(musique->select);
             session->is_modif_taille_map = 1;
             SDL_StartTextInput();
@@ -615,6 +638,18 @@ void handle_events_createur_map(SDL_Event event, Session_modif_map* session, int
     }
 
     if (event.type == SDL_KEYDOWN) {
+        if (event.key.keysym.sym == SDLK_z){
+            *z_pressed = 1;
+        }
+
+        if (*z_pressed) {
+            if (event.key.keysym.sym == SDLK_RIGHT || event.key.keysym.sym == SDLK_UP) {
+                zoom_plus(session, musique);
+            }
+            if (event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_DOWN) {
+                zoom_moins(session, musique);
+            }
+        } else {
         if (event.key.keysym.sym == SDLK_LEFT){
             session->position_zoom_x -= VITESSE_MOVE_ZOOM;
             if (session->position_zoom_x < 0){
@@ -647,7 +682,7 @@ void handle_events_createur_map(SDL_Event event, Session_modif_map* session, int
                 nouveau_zoom(session->map, session->map_totale, session->zoom, session->position_zoom_x, session->position_zoom_y);
             }
         }
-    }
+    }}
 
     if (event.type == SDL_KEYUP) {
         if (event.key.keysym.sym == SDLK_BACKSPACE){
@@ -655,6 +690,14 @@ void handle_events_createur_map(SDL_Event event, Session_modif_map* session, int
             SDL_StopTextInput();
             ecran_acceuil(ren, musique);
             *running = 0;
+        }
+
+        if (event.key.keysym.sym == SDLK_s && (event.key.keysym.mod & KMOD_CTRL)){
+            aller_au_mode_enregistrer(session, musique);
+        }
+
+        if (event.key.keysym.sym == SDLK_z){
+            *z_pressed = 0;
         }
     }
 
@@ -765,52 +808,18 @@ void handle_events_modif_taille_map(SDL_Event event, Session_modif_map* session,
         // Vérifier si on clique sur un champ
         if (is_souris_sur_button(*session->sous_menu_modif_taille_map->entree_width, session->x_souris_px, session->y_souris_px)) {
             session->sous_menu_modif_taille_map->is_typing_width = 1;
+            session->sous_menu_modif_taille_map->cursorVisible = 1;
+            session->sous_menu_modif_taille_map->lastCursorToggle = SDL_GetTicks();
         }
         if (is_souris_sur_button(*session->sous_menu_modif_taille_map->entree_height, session->x_souris_px, session->y_souris_px)) {
             session->sous_menu_modif_taille_map->is_typing_width = 0;
+            session->sous_menu_modif_taille_map->cursorVisible = 1;
+            session->sous_menu_modif_taille_map->lastCursorToggle = SDL_GetTicks();
         }
 
         // Vérifier si on clique sur "Valider"
         if (is_souris_sur_button(*session->sous_menu_modif_taille_map->valider, session->x_souris_px, session->y_souris_px)) {
-            int width = atoi(session->sous_menu_modif_taille_map->width_text);
-            int height = atoi(session->sous_menu_modif_taille_map->height_text);
-            if (width >= TAILLE_MIN_MAP && width <= TAILLE_MAX_MAP && height >= TAILLE_MIN_MAP && height <= TAILLE_MAX_MAP) {
-                playSoundEffect(musique->select);
-                *session->map_totale = modif_taille_map(session->map_totale, width, height);
-                if (session->zoom > session->map_totale->x - ZOOM_MAX) {
-                    session->zoom = session->map_totale->x - ZOOM_MAX;
-                }
-                if (session->zoom > session->map_totale->y - ZOOM_MAX) {
-                    session->zoom = session->map_totale->y - ZOOM_MAX;
-                }
-                if (session->position_zoom_x + session->map->x > session->map_totale->x){
-                    session->position_zoom_x = session->map_totale->x - session->map->x;
-                    if (session->position_zoom_x < 0){
-                        session->position_zoom_x = 0;
-                    }
-                }
-                if (session->position_zoom_y + session->map->y > session->map_totale->y){
-                    session->position_zoom_y = session->map_totale->y - session->map->y;
-                    if (session->position_zoom_y < 0){
-                        session->position_zoom_y = 0;
-                    }
-                }
-                nouveau_zoom(session->map, session->map_totale, session->zoom, session->position_zoom_x, session->position_zoom_y);
-                session->message->button_base.label = "La map à bien été redimentionnée";
-                session->message->couleur_message = (SDL_Color){255, 255, 255, 255};
-                session->message->couleur_fond = (SDL_Color){0, 255, 0, 150};
-                session->is_modif_taille_map = 0;
-                SDL_StopTextInput();
-            } else {
-                char texte[100];
-                snprintf(texte, sizeof(texte), "Les dimentions doivent être entre %d et %d !", TAILLE_MIN_MAP, TAILLE_MAX_MAP);
-                session->message->button_base.label = texte;
-                session->message->couleur_message = (SDL_Color){0, 0, 0, 255};
-                session->message->couleur_fond = (SDL_Color){255, 50, 0, 200};
-            }
-            session->message->temps_affichage = 3;
-            session->message->is_visible = 1;
-            session->message->start_time = time(NULL);
+            valider_modif_taille_map(session, musique);
         }
 
         // Vérifier si on clique sur "Annuler"
@@ -836,6 +845,60 @@ void handle_events_modif_taille_map(SDL_Event event, Session_modif_map* session,
             }
         }
     }
+
+    if (event.type == SDL_KEYUP) {
+        if (event.key.keysym.sym == SDLK_DOWN || event.key.keysym.sym == SDLK_UP) {
+            session->sous_menu_modif_taille_map->is_typing_width = !session->sous_menu_modif_taille_map->is_typing_width;
+            session->sous_menu_modif_taille_map->cursorVisible = 1;
+            session->sous_menu_modif_taille_map->lastCursorToggle = SDL_GetTicks();
+        }
+        if (event.key.keysym.sym == SDLK_RETURN) {
+            valider_modif_taille_map(session, musique);
+        }
+    }
+}
+
+void valider_modif_taille_map(Session_modif_map* session, Musique* musique) {
+    int width = atoi(session->sous_menu_modif_taille_map->width_text);
+    int height = atoi(session->sous_menu_modif_taille_map->height_text);
+    if (width >= TAILLE_MIN_MAP && width <= TAILLE_MAX_MAP && height >= TAILLE_MIN_MAP && height <= TAILLE_MAX_MAP) {
+        playSoundEffect(musique->select);
+        *session->map_totale = modif_taille_map(session->map_totale, width, height);
+        if (session->zoom > session->map_totale->x - ZOOM_MAX) {
+            session->zoom = session->map_totale->x - ZOOM_MAX;
+        }
+        if (session->zoom > session->map_totale->y - ZOOM_MAX) {
+            session->zoom = session->map_totale->y - ZOOM_MAX;
+        }
+        if (session->position_zoom_x + session->map->x > session->map_totale->x){
+            session->position_zoom_x = session->map_totale->x - session->map->x;
+            if (session->position_zoom_x < 0){
+                session->position_zoom_x = 0;
+            }
+        }
+        if (session->position_zoom_y + session->map->y > session->map_totale->y){
+            session->position_zoom_y = session->map_totale->y - session->map->y;
+            if (session->position_zoom_y < 0){
+                session->position_zoom_y = 0;
+            }
+        }
+        nouveau_zoom(session->map, session->map_totale, session->zoom, session->position_zoom_x, session->position_zoom_y);
+        session->message->button_base.label = "La map à bien été redimentionnée";
+        session->message->couleur_message = (SDL_Color){255, 255, 255, 255};
+        session->message->couleur_fond = (SDL_Color){0, 255, 0, 150};
+        session->is_modif_taille_map = 0;
+        SDL_StopTextInput();
+    } else {
+        char *buffer = malloc(100); // Allouer un espace mémoire suffisant
+        if (buffer) {
+            snprintf(buffer, 100, "Les dimensions doivent être entre %d et %d !", TAILLE_MIN_MAP, TAILLE_MAX_MAP);
+            session->message->button_base.label = buffer;
+        }        session->message->couleur_message = (SDL_Color){0, 0, 0, 255};
+        session->message->couleur_fond = (SDL_Color){255, 50, 0, 200};
+    }
+    session->message->temps_affichage = 3;
+    session->message->is_visible = 1;
+    session->message->start_time = time(NULL);
 }
 
 void init_session (SDL_Renderer* ren, Session_modif_map* session){
@@ -947,6 +1010,7 @@ void main_loop_createur_map (SDL_Renderer* ren, Musique* musique){
     Session_modif_map* session = malloc(sizeof(Session_modif_map));
     init_session(ren, session);
 
+    int z_pressed = 0; // évènement pour le zoom
     int running = 1;
     SDL_Event event;
     time_t current_time;
@@ -963,7 +1027,7 @@ void main_loop_createur_map (SDL_Renderer* ren, Musique* musique){
             } else if (session->is_modif_taille_map) {
                 handle_events_modif_taille_map(event, session, musique);
             } else {
-                handle_events_createur_map(event, session, &running, musique, ren);
+                handle_events_createur_map(event, session, &running, musique, ren, &z_pressed);
             }
         }
         updateDisplay(ren);
