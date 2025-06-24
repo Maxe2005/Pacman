@@ -1,0 +1,9 @@
+# Dépendances système pour exécuter Pacman sur Linux
+
+# Bibliothèques de développement SDL2
+libsdl2-dev
+libsdl2-ttf-dev
+libsdl2-mixer-dev
+
+# (Optionnel) Pour la compilation avec gcc
+build-essential
