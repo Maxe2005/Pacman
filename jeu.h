@@ -74,13 +74,6 @@ void affiche_ecran_jeu (SDL_Renderer* ren, Partie* partie);
 void nouvelle_partie (SDL_Renderer* ren,Musique* musique, int niveau);
 
 /**
- * Affiche sur le renderer le logo
- * @param ren Un pointeur sur une structure contenant l'état du rendu
- * @param logo La texture du logo
- */
-void affiche_logo (SDL_Renderer* ren, SDL_Texture* logo);
-
-/**
  * Tout est dans le titre !
  * @param ren Un pointeur sur une structure contenant l'état du rendu
  * @param partie La partie qui vient d'être lancée (avec tous ses atributs)
@@ -115,6 +108,11 @@ void debut_jeu (SDL_Renderer* ren, Partie* partie, Musique* musique);
  * @param partie La partie qui vient juste de se terminer
  */
 void free_partie (Partie* partie);
+
+/**
+ * Libère les polices de caractères
+ */
+void free_fonts();
 
 /**
  * Met à niveau le score si le pacman est sur <gum> ou <cherry>. Déclanche le mode <frightened> si <Big Gum> rencontré

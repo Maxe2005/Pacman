@@ -24,7 +24,9 @@ int main (int argc, char *argv[]){
 
     ecran_acceuil(ren, musique);
 
+    free_fonts(); // Libérer les polices
     clear_musique(musique);
+
     QuitSDL(window,ren);
     return 0;
 }

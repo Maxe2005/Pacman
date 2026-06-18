@@ -103,6 +103,7 @@ void freeSoundEffect(Mix_Chunk *soundEffect) {
 
 void clear_musique (Musique* musique){
     stopMusic();
-    liberer_musiques_et_sons(musique);
     Mix_CloseAudio();
+    liberer_musiques_et_sons(musique);
+    free(musique);
 }

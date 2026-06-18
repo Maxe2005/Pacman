@@ -17,6 +17,7 @@
 #define SCROLL_SPEED 30  // Vitesse du scroll
 #define SCROLL_OFFSET_MIN -100
 #define NB_CATEGORIES 2
+#define NB_BOUTONS_ACCUEIL 4
 
 typedef struct {
     Button button_base;
@@ -70,8 +71,28 @@ void ecran_niveaux (SDL_Renderer* ren, Musique* musique);
  */
 void ecran_remerciements (SDL_Renderer* ren, Musique* musique);
 
+/**
+ * Affiche sur le renderer le logo
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ * @param logo La texture du logo
+ */
+void affiche_logo (SDL_Renderer* ren, SDL_Texture* logo);
 
+/**
+ * Affiche les boutons de l'écran d'accueil
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ * @param buttons Le tableau de boutons à afficher
+ */
+void affiche_boutons_accueil(SDL_Renderer* ren, Button* buttons[], int nb_buttons);
 
+/**
+ * Gère les événements des boutons de l'écran d'accueil
+ * @param buttons Le tableau de boutons
+ * @param musique La structure contenant toutes les infos pour les musiques
+ * @param ren Un pointeur sur une structure contenant l'état du rendu
+ * @param running Un pointeur sur un entier qui permet de quitter la boucle de jeu
+ */
+void handle_events_accueil(Button* buttons[], Musique* musique, SDL_Renderer* ren, int *running);
 
 /**
  * Gère les évènements sur les boutons dans le menu musique
@@ -87,5 +108,15 @@ void handle_events(MusicButton musics[], SelectionButton selections[], Musique* 
  * @param selections L'ensemble des boutons de selection de la page
  */
 void draw_buttons(SDL_Renderer* renderer, MusicButton musics[], SelectionButton selections[]);
+
+/**
+ * Initialise les boutons de l'écran d'accueil
+ * @param buttons Le tableau de boutons à initialiser
+ * @param button_musique Le bouton musique
+ * @param button_niveaux Le bouton niveaux
+ * @param button_remerciements Le bouton remerciements
+ * @param button_createur_map Le bouton createur de map
+ */
+void init_buttons_accueil(Button* buttons[], Button* button_musique, Button* button_niveaux, Button* button_remerciements, Button* button_createur_map);
 
 #endif

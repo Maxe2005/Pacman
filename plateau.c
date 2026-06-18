@@ -5,7 +5,9 @@ int ORIGINE_Y = TAILLE_BANDEAU_HAUT;
 
 void save_map_text(const char *filename, Map *map) {
     char path[100] = "ressources/maps/";
+    char ext[] = ".txt";
     strcat(path, filename);
+    strcat(path, ext);
 
     FILE *file = fopen(path, "w");
     if (!file) {
@@ -32,7 +34,9 @@ void save_map_text(const char *filename, Map *map) {
 
 Map *load_map_text(const char *filename) {
     char path[100] = "ressources/maps/";
+    char ext[] = ".txt";
     strcat(path, filename);
+    strcat(path, ext);
 
     FILE *file = fopen(path, "r");
     if (!file) {
@@ -79,7 +83,9 @@ Map *load_map_text(const char *filename) {
 
 void save_map_binary (const char *filename, Map *map) {
     char path[100] = "ressources/maps/";
-    strcat(path,filename);
+    char ext[] = ".bin";
+    strcat(path, filename);
+    strcat(path, ext);
 
     FILE *file = fopen(path, "wb");
     if (!file) {
@@ -106,7 +112,9 @@ void save_map_binary (const char *filename, Map *map) {
 
 Map *load_map_binary (const char *filename) {
     char path[100] = "ressources/maps/";
-    strcat(path,filename);
+    char ext[] = ".bin";
+    strcat(path, filename);
+    strcat(path, ext);
 
     FILE *file = fopen(path, "rb");
     if (!file) {
@@ -320,8 +328,9 @@ void drawArc(SDL_Renderer* renderer, const int centerX, const int centerY, const
 }
 
 void affiche_map_draw (Map *map, SDL_Texture* tils[4], SDL_Renderer* ren){
-    const int nb_pts = 12;
-    const int thickness = 2;
+    // Variables pour les arcs de cercle
+    const int nb_pts = map->taille_case/2 < 5 ? 5 : map->taille_case/2 ;
+    const int thickness = 2;//map->taille_case/30 < 2 ? 2 : map->taille_case/15 ;
     SDL_SetRenderDrawColor(ren, 0, 0, 255, 255);
     for (int j = 0; j<map->y; j++){
         for (int i = 0; i<map->x; i++){
@@ -531,7 +540,12 @@ void affiche_map_draw (Map *map, SDL_Texture* tils[4], SDL_Renderer* ren){
 }
 
 void ajout_gum_dessin (int i, int j, Map *map, SDL_Texture* tils[4], SDL_Renderer* ren) {
-    renderTexture(tils[map->contenu[j][i] - 3], ren, ORIGINE_X + i*map->taille_case, ORIGINE_Y + j*map->taille_case, map->taille_case, map->taille_case);
+    int index = map->contenu[j][i] - 3;
+    if (index >= 0 && index < 4 && tils[index] != NULL) {
+        renderTexture(tils[index], ren, ORIGINE_X + i*map->taille_case, ORIGINE_Y + j*map->taille_case, map->taille_case, map->taille_case);
+    } else {
+        fprintf(stderr, "Erreur: Texture non chargée ou index invalide pour le gum à l'index %d\n", index);
+    }
 }
 
 int mod (int a, int b) {

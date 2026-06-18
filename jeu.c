@@ -66,12 +66,29 @@ void affiche_ecran_jeu (SDL_Renderer* ren, Partie* partie) {
 }
 
 void free_partie (Partie* partie) {
+    for (int i = 0; i < 4; i++) {
+        SDL_DestroyTexture(partie->tils[i]); // Libérer les textures
+    }
     free(partie->tils);
+    SDL_DestroyTexture(partie->skin_vies); // Libérer la texture des vies
+    free_textures_pacman(partie->pacman); // Libérer les textures de Pacman
+    for (int i = 0; i < 4; i++) {
+        free_textures_ghost(partie->ghosts[i]); // Libérer les textures des fantômes
+    }
     free(partie->pacman);
     for (int i = 0; i < 4; i++) {free(partie->ghosts[i]);}
     free(partie->ghosts);
     freeMap(partie->map);
     free(partie);
+}
+
+void free_fonts() {
+    for (int i = 0; i < NB_FONTS; i++) {
+        if (fonts[i] != NULL) {
+            TTF_CloseFont(fonts[i]); // Libérer les polices
+            fonts[i] = NULL;
+        }
+    }
 }
 
 void nouvelle_partie (SDL_Renderer* ren, Musique* musique, int niveau) {
@@ -84,11 +101,19 @@ void nouvelle_partie (SDL_Renderer* ren, Musique* musique, int niveau) {
     //Map mape = init_map_dessin();
     //Map mape = init_map_tils();
     //partie->map = &mape;
-    const char *nom_map = "Map_originale.bin";
+    //const char *nom_map = "Map_originale";
+    const char *nom_map = "Test";
     //save_map_text(nom_map, partie->map);
     //save_map_binary(nom_map, partie->map);
-    //partie->map = load_map_text(nom_map);
-    partie->map = load_map_binary(nom_map);
+    partie->map = load_map_text(nom_map);
+    //partie->map = load_map_binary(nom_map);
+    if ((FEN_Y-TAILLE_BANDEAU_HAUT)/partie->map->y < FEN_X/partie->map->x){
+        partie-> map->taille_case = (FEN_Y-TAILLE_BANDEAU_HAUT)/(partie->map->y + 2);
+    } else {
+        partie->map->taille_case = FEN_X/(partie->map->x + 2);
+    }
+    ORIGINE_X = (FEN_X - partie->map->x * partie->map->taille_case)/2;
+    ORIGINE_Y = TAILLE_BANDEAU_HAUT + (FEN_Y - TAILLE_BANDEAU_HAUT - partie->map->y * partie->map->taille_case)/2;
 
     partie->tils = malloc(sizeof(SDL_Texture*) * 4);
     init_tils(partie->tils, ren);
@@ -365,10 +390,6 @@ int update_score (Partie* partie){
         return 1;
     }}}
     return 0;
-}
-
-void affiche_logo (SDL_Renderer* ren, SDL_Texture* logo) {
-    renderTexture(logo, ren,(int)(FEN_X /4),(int)(FEN_Y/8),(int)(FEN_X/2),(int)(FEN_Y/4));
 }
 
 void ecran_game_over (SDL_Renderer* ren, Partie* partie, Musique* musique){

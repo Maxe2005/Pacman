@@ -320,4 +320,10 @@ int go_inside_home (Ghost *ghost, Map *map);
 */
 void master_choix_directions (Ghost *ghost, Map *map, Pacman* pacman, Ghost* Blinky);
 
+/**
+ * Libère les textures des fantômes
+ * @param ghost Une instance de structure de fantôme
+ */
+void free_textures_ghost(Ghost *ghost);
+
 #endif
